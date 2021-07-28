@@ -18,10 +18,14 @@ signals:
 
 public slots:
     void getMessage(int mx,CAN_OBJ obj,QString datetime);
+private slots:
+    void on_pushButton_2_clicked();
+
 private:
 //    QStandardItemModel* model;
     Ui::framedisplay_ui *ui;
     int rowcount;
+    bool allowshow;
 };
 
 #endif // FRAMEDISPALY_H

@@ -1,5 +1,6 @@
 #include "settings.h"
 
+
 settings::settings()
 {
     firstChartLineNum=4;
@@ -13,9 +14,11 @@ settings::settings()
     penweight=2;
     maxpoints=200;
 
+    boterate=1000;
+
     maxrowcount=20;
 
-    Bt_temperature=27;
+    Bt_temperature=29;
     Tp_temperature=30;
 
     deviceid=0;
@@ -46,5 +49,64 @@ settings::settings()
 
     lineNums=7;
 
-    sendMessageInterval=10;
+    sendMessageInterval=20;
+
+    canindex=1;
+
+
+}
+
+void settings::setbote(){
+    switch (boterate) {
+    case 1000:
+        this->sjw=1;
+        this->bs1=15;
+        this->bs2=5;
+        this->brp=2;
+    break;
+    case 800:
+        this->sjw=1;
+        this->bs1=2;
+        this->bs2=1;
+        this->brp=13;
+    break;
+    case 666:
+        this->sjw=1;
+        this->bs1=16;
+        this->bs2=4;
+        this->brp=3;
+    break;
+    case 500:
+        this->sjw=1;
+        this->bs1=16;
+        this->bs2=4;
+        this->brp=4;
+    break;
+    case 400:
+        this->sjw=1;
+        this->bs1=12;
+        this->bs2=2;
+        this->brp=7;
+    break;
+    case 250:
+        this->sjw=1;
+        this->bs1=6;
+        this->bs2=1;
+        this->brp=21;
+    break;
+    case 125:
+        this->sjw=1;
+        this->bs1=6;
+        this->bs2=1;
+        this->brp=42;
+    break;
+    case 100:
+        this->sjw=1;
+        this->bs1=15;
+        this->bs2=4;
+        this->brp=21;
+    break;
+    default:
+        break;
+    }
 }

@@ -15,9 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTableWidget" name="tableWidget"/>
-   </item>
-   <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>24</number>

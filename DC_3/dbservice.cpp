@@ -63,18 +63,8 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
     QVector<QVector<QString>> status=sta.value<QVector<QVector<QString>>>();
     QVector<QVector<double>> time=tm.value<QVector<QVector<double>>>();
     qDebug()<<QString("../savefiles/"+date+".txt");
-//    file.open(QString("../savefiles/"+date+".txt").toStdString(), std::ios::out );
-//    int size=timestamp.size();
-//    for (int i=0;i<size;i++) {
-//        for (int j=0;j<7;j++) {
-//            file<<temperature[j][i]<<"  "<<status[j][i].toStdString()<<"  "<<
-//                  timestamp[j][i].toStdString()<<"  "<<time[j][i]<<std::endl;;
-//        }
-//    }
-//    file.close();
 
-    //
-    int mx=1e+9,a,b,c,d,e;
+    int mx=1e+9,a,b,c,d;
     for(int i=0;i<7;i++){
         a=temperature[i].size();
         if(a<mx){
@@ -97,7 +87,6 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
         return;
     }
     qDebug()<<"error1";
-//    int size=timestamp.size();
     libxl::Book* book=xlCreateBook();
     if(book)
     {
@@ -106,9 +95,7 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
         if(sheet)
         {
             for (int i=0;i<mx;i++) {
-                qDebug()<<"error2  "<<i<<"  "<<mx;
                 for (int j=0;j<7;j++) {
-//                    QString s("T");
                     int index=i*7+j+1;
                     qDebug()<<index;
                     sheet->writeNum(index, 0, j+1);
@@ -119,11 +106,9 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
                 }
 
             }
-            qDebug()<<"error3";
         }
 
         book->save(reinterpret_cast<const wchar_t *>((QString("../savefiles/")+date+QString(".xlsx")).utf16()));
-        qDebug()<<"error4";
         book->release();
     }
     qDebug()<<"保存完成.";

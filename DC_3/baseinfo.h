@@ -25,6 +25,10 @@ private slots:
 
     void on_lineEdit_4_editingFinished();
 
+    void on_lineEdit_5_editingFinished();
+
+    void on_comboBox_8_activated(int index);
+
 private:
     Ui::baseinfo_ui *ui;
 };

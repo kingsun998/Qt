@@ -26,7 +26,7 @@ class chartDisplay : public QWidget
 public:
     chartDisplay(QWidget *parent= nullptr);
     ~chartDisplay();
-    double Calculate(int index,double y);
+    void Calculate(int index,double y);
 signals:
     void sendMessage(uint,CAN_OBJ,QString);
     void sendToTable(int lineId,int canid,double deviceid,double date);

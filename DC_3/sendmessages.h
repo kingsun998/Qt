@@ -28,10 +28,11 @@ signals:
 private slots:
     void on_pushButton_clicked();
     void handleTimeOut();
-    void on_pushButton_2_toggled(bool checked);
+    void on_pushButton_2_clicked();
     void on_lineEdit_2_editingFinished();
 
     void on_pushButton_3_clicked();
+
 
 private:
     Ui::sendmessages_ui *ui;
@@ -44,18 +45,20 @@ private:
     DWORD CANIndex;
 
     QTimer *timer;
-    std::ifstream file;
+    std::ifstream *file;
 
     int totallength;
     int currentlength;
     uint baseID;
 
+    bool ifsending;
+
     int init();
     int initDevice(int* DevHandle);
     int getDeviceInfo(int DevAddress,DEVICE_INFO &info);
-    int initCan(int DevAddress,DWORD CANIndex);
-    int initFilter(int DevAddress,DWORD CANIndex);
-    int getStatus(int DevAddress,DWORD CANIndex);
+    int initCan(int DevAddress);
+    int initFilter(int DevAddress);
+    int getStatus(int DevAddress);
 };
 
 #endif // SENDMESSAGES_H

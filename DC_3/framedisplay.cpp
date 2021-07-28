@@ -21,28 +21,22 @@ frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
     /* 不允许在图形界面修改内容 */
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-//    ui->tableWidget->insertRow(0);
     /* 设置列数 */
 
     QStringList stringlists;
     stringlists<<"行号"<<"设备号"<<"帧类型"<<"帧方向"<<"帧ID"<<"帧长度"<<"帧内容"<<"时间戳";
     ui->tableWidget->setHorizontalHeaderLabels(stringlists);
-//    ui->tableWidget->setItem(0,0,new QTableWidgetItem();
-//    ui->tableWidget->setItem(0,1,new QTableWidgetItem());
-//    ui->tableWidget->setItem(0,2,new QTableWidgetItem());
-//    ui->tableWidget->setItem(0,3,new QTableWidgetItem());
-//    ui->tableWidget->setItem(0,4,new QTableWidgetItem());
-//    ui->tableWidget->setItem(0,5,new QTableWidgetItem());
-//    ui->tableWidget->setItem(0,6,new QTableWidgetItem());
-//    ui->tableWidget->setItem(0,7,new QTableWidgetItem());
+
     ui->tableWidget->setColumnWidth(6,300);
     ui->tableWidget->setColumnWidth(7,300);
     rowcount=0;
+    allowshow=true;
 }
 
 void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime){
-//   qDebug()<<lineId<<" "<<canid<<" "<<deviceid<<" "<<date;
-//   qDebug()<<rowcount;
+    if(allowshow==false){
+        return;
+    }
    ui->tableWidget->insertRow(rowcount);
    QString messageExtern;
    if(obj.ExternFlag == 1)
@@ -95,4 +89,13 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime){
    }else{
        rowcount+=1;
    }
+}
+
+void frameDisplay::on_pushButton_2_clicked(){
+    if(allowshow==true){
+        ui->pushButton_2->setText("继续显示");
+    }else{
+        ui->pushButton_2->setText("停止显示");
+    }
+    allowshow=!allowshow;
 }

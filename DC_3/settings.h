@@ -17,20 +17,28 @@
 #include <map>
 #include <include/usb2xxx/usb2can.h>
 #include <include/usb2xxx/usb_device.h>
+
+
+
 class settings
 {
 public:
     settings();
-
+    void setbote();
 public:
     //baseInfo
     DWORD devicetype;
     DWORD canid;
     DWORD deviceid;
+    uint boterate;
     QVector<QString> varName;
     QVector<QPair<QString,int>> deviceInfo;
     QVector<QPair<QString,int>> caninfo;
     QVector<QPair<QString,int>> mes;
+    uint sjw;
+    uint bs1;
+    uint bs2;
+    uint brp;
     //framedisplay
     int maxrowcount;
     //chartdisplay
@@ -62,6 +70,7 @@ public:
 
     //sendmessages
     uint sendMessageInterval;
+    uint canindex;
 };
 static settings settings;
 #endif // SETTINGS_H

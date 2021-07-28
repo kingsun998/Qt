@@ -23,3 +23,15 @@ void baseInfo::on_lineEdit_4_editingFinished()
 {
     settings.saveInterval_minus=ui->lineEdit_4->text().toDouble();
 }
+
+void baseInfo::on_lineEdit_5_editingFinished()
+{
+    settings.maxrowcount=ui->lineEdit_5->text().toInt();
+}
+
+void baseInfo::on_comboBox_8_activated(int index)
+{
+    QString s=ui->comboBox_8->itemText(index);
+    settings.boterate=s.mid(0,s.size()-4).toInt();
+    settings.setbote();
+}

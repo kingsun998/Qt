@@ -15,10 +15,8 @@ chartDisplay::chartDisplay(QWidget *parent):
     ui->chartLayout->addWidget(fchartView);
     ui->chartLayout->addWidget(schartView);
 
-
     //测试开关默认关闭
     iftest=false;
-
 
     //时间启动器
     timer=new QTimer();
@@ -28,7 +26,7 @@ chartDisplay::chartDisplay(QWidget *parent):
     saveInterval_miseconds=settings.saveInterval_minus*60*1000;
     //设置多选按钮
     btg=new QButtonGroup();
-    qDebug()<<1;
+
     for(int i=0;i<7;i++){
         pb[i]=new QCheckBox();
         pb[i]->setText(settings.splineName[i]);
@@ -56,6 +54,9 @@ chartDisplay::chartDisplay(QWidget *parent):
     //定义图标的槽函数
     connect(this,&chartDisplay::sendtochart,fchart,&Mychart::getMessage);
     connect(this,&chartDisplay::sendtochart,schart,&Mychart::getMessage);
+    ui->groupBox_2->setMinimumWidth(100);
+    ui->groupBox_3->setMinimumWidth(100);
+    ui->groupBox_4->setMinimumWidth(100);
 
 }
 
@@ -85,14 +86,11 @@ void chartDisplay::handleTimeOut(){
             time.resize(settings.lineNums);
             qDebug()<<"数组大小"<<save_mid_time.size();
             qDebug()<<"数组大大小"<<save_mid_time[0].size();
+
             QVariant tp=QVariant::fromValue(save_mid_temperature);
-//            tp.setValue(save_mid_temperature);
             QVariant ts=QVariant::fromValue(save_mid_timestamp);
-//            ts.setValue(save_mid_temperature);
             QVariant sta=QVariant::fromValue(save_mid_status);
-//            sta.setValue(save_mid_temperature);
             QVariant tm=QVariant::fromValue(save_mid_time);
-//            tp.setValue(save_mid_temperature);
             emit db.saveChart(tp,ts,sta,tm,QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss"));
             saveTime=newtime;
             QDateTime end=QDateTime::currentDateTime();
@@ -100,7 +98,7 @@ void chartDisplay::handleTimeOut(){
         }
 
         ULONG len=Receive(settings.devicetype,settings.deviceid,settings.canid,objs,50,100);
-//        qDebug()<<"接受数据了";
+
         for(uint i=0;i<len;i++){
             emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz_ddd"));
         }
@@ -108,11 +106,10 @@ void chartDisplay::handleTimeOut(){
 }
 
 
-double chartDisplay::Calculate(int index,double y){
+void chartDisplay::Calculate(int index,double y){
     //表示没有记录温度
     if(y<settings.Bt_temperature){
         records_bt[index]=false;
-        return -1;
     }
     //记录了初始温度
     if(!records_bt[index]&&y>settings.Bt_temperature){
@@ -121,14 +118,15 @@ double chartDisplay::Calculate(int index,double y){
     }
     if(y<settings.Tp_temperature){
         records_tp[index]=false;
-        return -1;
     }
     if(!records_tp[index]&&y>settings.Tp_temperature){
         timeend[index]=GetTickCount();
+        qDebug()<<timeend[index]<<" "<<timestart[index];
+        qDebug()<<records_tp[index]<<" "<<records_bt[index];
         records_tp[index]=true;
-        return (timeend[index]-timestart[index])/1000;
     }
-    return -1;
+    double tp=(timeend[index]-timestart[index])/1000;
+    time[index].push_back(tp>0?tp:0);
 }
 
 
@@ -158,17 +156,10 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ui->label_2->setText(QString::number(Tcs));
 
             //计算时间
-            timetemp=Calculate(0,Tcf);
-            //不等于 -1
-            if(timetemp+1>1e-6){
-                ui->label_8->setText(QString::number(timetemp));
-            }
-            time[0].push_back(timetemp);
-            timetemp=Calculate(1,Tcs);
-            if(timetemp+1>1e-6){
-                ui->label_9->setText(QString::number(timetemp));
-            }
-            time[1].push_back(timetemp);
+            Calculate(0,Tcf);
+            ui->label_8->setText(QString::number(time[0].last()));
+            Calculate(1,Tcs);
+            ui->label_9->setText(QString::number(time[1].last()));
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -189,14 +180,12 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             }
             ui->label_21->setText(settings.errorCode_TC[error2]);
             //保存数据
-//            saveTempeture[0].size();
             saveTempeture[0].push_back(Tcf);
             saveTempeture[1].push_back(Tcs);
             saveTimestamp[0].push_back(datetime);
             saveTimestamp[1].push_back(datetime);
             status[0].push_back(settings.errorCode_TC[error1]);
             status[1].push_back(settings.errorCode_TC[error2]);
-
             break;
         case 352140931:
             low=obj.Data[0];
@@ -210,17 +199,11 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ui->label_4->setText(QString::number(Tcs));
 
             //计算时间
-            timetemp=Calculate(0,Tcf);
-            //不等于 -1
-            if(timetemp+1>1e-6){
-                ui->label_10->setText(QString::number(timetemp));
-            }
-            time[2].push_back(timetemp);
-            timetemp=Calculate(1,Tcs);
-            if(timetemp+1>1e-6){
-                ui->label_11->setText(QString::number(timetemp));
-            }
-            time[3].push_back(timetemp);
+            Calculate(2,Tcf);
+            ui->label_10->setText(QString::number(time[2].last()));
+            Calculate(3,Tcs);
+            ui->label_11->setText(QString::number(time[3].last()));
+
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[2]>>i&1;
@@ -251,12 +234,8 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ui->label_5->setText(QString::number(Tcf));
 
             //计算时间
-            timetemp=Calculate(0,Tcf);
-            //不等于 -1
-            if(timetemp+1>1e-6){
-                ui->label_12->setText(QString::number(timetemp));
-            }
-             time[4].push_back(timetemp);
+            Calculate(4,Tcf);
+            ui->label_12->setText(QString::number(time[4].last()));
             //计算错误码
             for(int i=1;i<5;i++){
                 tmp=obj.Data[5]>>i&1;
@@ -281,17 +260,11 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ui->label_7->setText(QString::number(Tcs));
 
             //计算时间
-            timetemp=Calculate(0,Tcf);
-            //不等于 -1
-            if(timetemp+1>1e-6){
-                ui->label_13->setText(QString::number(timetemp));
-            }
-            time[5].push_back(timetemp);
-            timetemp=Calculate(1,Tcs);
-            if(timetemp+1>1e-6){
-                ui->label_14->setText(QString::number(timetemp));
-            }
-            time[6].push_back(timetemp);
+            Calculate(5,Tcf);
+            ui->label_13->setText(QString::number(time[5].last()));
+            Calculate(6,Tcs);
+            ui->label_14->setText(QString::number(time[6].last()));
+
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
