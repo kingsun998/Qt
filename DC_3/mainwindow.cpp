@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -9,19 +8,22 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget(ui->tabWidget);
     QTabWidget *tb=ui->tabWidget;
     baseInfo *baseinfo=new baseInfo();
-    tb->addTab(baseinfo,"基础设置");
+    tb->addTab(baseinfo,"参数设置");
 
     chartDisplay *chart=new chartDisplay();
-    tb->addTab(chart,"图标展示");
+    tb->addTab(chart,"曲线显示");
 
     frameDisplay *framedisplay=new frameDisplay();
-    tb->addTab(framedisplay,"表格展示");
+    tb->addTab(framedisplay,"报文显示");
 
-    SendMessages *sendmessages=new SendMessages();
-    tb->addTab(sendmessages,"发送消息");
+    BootLoader *bootloader=new BootLoader();
+    tb->addTab(bootloader,"程序刷写");
+
+//    SendMessages *sendmessages=new SendMessages();
+//    tb->addTab(sendmessages,"发送消息");
 
     standarSet *stander=new standarSet();
-    tb->addTab(stander,"设置标准");
+    tb->addTab(stander,"检测标准设置");
     //发送给表
     connect(chart,&chartDisplay::sendMessage,framedisplay,&frameDisplay::getMessage);
 

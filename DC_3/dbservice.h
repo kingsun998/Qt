@@ -7,6 +7,7 @@
 #include <fstream>
 #include <qdebug.h>
 #include <QDateTime>
+#include <settings.h>
 #include <include/libxl/libxl.h>
 class saveChart:public QObject
 {

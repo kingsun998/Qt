@@ -13,7 +13,7 @@
 #include <qlist.h>
 #include <dbservice.h>
 #include <qglobal.h>
-
+#include <QGroupBox>
 namespace Ui {
 class chartdisplay_ui;
 }
@@ -41,9 +41,13 @@ private slots:
 
     void on_pushButton_3_clicked();
 
-    void on_pushButton_2_clicked();
-
     void on_pushButton_4_clicked();
+
+    void on_comboBox_currentIndexChanged(int index);
+
+    void changeCompanyType();
+    void suit_Cell(int chartype,int code,uint mx,int index1,int low1,int high1,
+                   int index2,int low2,int high2,BYTE *date);
 
 private:
     Ui::chartdisplay_ui *ui;
@@ -55,34 +59,37 @@ private:
 
     //
     QButtonGroup *btg;
-    QCheckBox *pb[7];
 
     QLabel *label;
-
     QTimer *timer;
+    QVector<QCheckBox *> pb;
+    QVBoxLayout vboxlayout[3];
+    QGroupBox groupbox[3];
+    QVector<QLabel *> ReceiveVal;
+    QVector<QLabel *> ReceiveStatus;
+    QVector<QLabel *> ReceiveTime;
     //下标
     uint m_x;
-
     //接受的总帧数
     int totalnums;
-
     //测试开关
     bool iftest;
 
-    double timestart[7];
-    bool records_bt[7];
-    double timeend[7];
-    bool records_tp[7];
+    QVector<double> timestart;
+    QVector<bool> records_bt;
+    QVector<double> timeend;
+    QVector<bool> records_tp;
 
     //savetime;
     double saveTime;
     QVector<QVector<double>> saveTempeture;
-    QVector<QVector<QString>> saveTimestamp;
+    QVector<QString> saveTimestamp;
     QVector<QVector<QString>> status;
     QVector<QVector<double>> time;
     double saveInterval_miseconds;  //以毫秒计算的间隔
 
     CAN_OBJ objs[50];
+    int companytype;
 };
 
 #endif // CHARTDISPLAY_H

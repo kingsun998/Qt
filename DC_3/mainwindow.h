@@ -8,7 +8,7 @@
 #include <standarset.h>
 #include <framedispaly.h>
 #include <baseinfo.h>
-#include <sendmessages.h>
+#include <bootloader.h>
 namespace Ui {
 class MainWindow;
 }

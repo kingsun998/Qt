@@ -15,8 +15,6 @@
 #include <windows.h>
 #include <qthread.h>
 #include <map>
-#include <include/usb2xxx/usb2can.h>
-#include <include/usb2xxx/usb_device.h>
 
 
 
@@ -46,10 +44,13 @@ public:
     std::map<int,QString> errorCode_TC;
     std::map<int,QString> errorCode_CJ;
     std::map<int,QString> errorCode_ECU;
+    std::map<int,QString> errorCode_vol;
     double Bt_temperature;
     double Tp_temperature;
     double saveInterval_minus;
     int lineNums;
+    int CompanyType;
+    int totalnums;
     //chart
     int firstChartLineNum;
     int secondChartLineNum;
@@ -71,6 +72,8 @@ public:
     //sendmessages
     uint sendMessageInterval;
     uint canindex;
+
+
 };
 static settings settings;
 #endif // SETTINGS_H

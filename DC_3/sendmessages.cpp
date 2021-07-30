@@ -100,12 +100,12 @@ int SendMessages::initCan(int DevAddress){
     CANConfig.CAN_TXFP = 1;//发送请求决定发送顺序
     //配置波特率,波特率 = 100M/(BRP*(SJW+BS1+BS2))
     //可以在文档中查找
-    CANConfig.CAN_BRP = settings.brp;
-    CANConfig.CAN_BS1 = settings.bs1;
-    CANConfig.CAN_BS2 = settings.bs2;
-    CANConfig.CAN_SJW = settings.sjw;
+    CANConfig.CAN_BRP = 21;
+    CANConfig.CAN_BS1 = 6;
+    CANConfig.CAN_BS2 = 1;
+    CANConfig.CAN_SJW = 1;
     //
-    int ret = CAN_Init(DevAddress,settings.canindex,&CANConfig);
+    int ret = CAN_Init(DevAddress,0,&CANConfig);
 //    int ret = CAN_Init(DevAddress,CANIndex,&CANConfig);
     if(ret != CAN_SUCCESS){
         setcolor(ui->label_9,Qt::red,"初始化Can失败");
@@ -149,15 +149,13 @@ void SendMessages::handleTimeOut(){
             msg[nums].DataLen=8;
             msg[nums].ExternFlag=0;
             msg[nums].RemoteFlag=0;
-            msg[nums].ID=baseID+nums;
+            msg[nums].ID=baseID+currentlength+nums;
             nums++;
         }
         currentlength+=nums*8;
         int SendedNum = CAN_SendMsg(DevAddress,settings.canindex,msg,nums);
-//        qDebug()<<file->eof()<<"  "<<nums;
-//        qDebug()<<"c "<<currentlength<<"t "<<totallength;
         emit updateProcess(int(currentlength*100.0/totallength));
-        if(SendedNum == CAN_SUCCESS){
+        if(SendedNum >= 0){
             setcolor(ui->label,Qt::green,"发送成功");
         }else{
             setcolor(ui->label,Qt::red,"发送失败");

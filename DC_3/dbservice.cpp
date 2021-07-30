@@ -59,28 +59,18 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
     qDebug()<<"子线程"<<QThread::currentThreadId();
     qDebug()<<"子线程时间"<<QDateTime::currentDateTime().toUTC();
     QVector<QVector<double>> temperature=tp.value<QVector<QVector<double>>>();
-    QVector<QVector<QString>> timestamp=ts.value<QVector<QVector<QString>>>();
+    QVector<QString> timestamp=ts.value<QVector<QString>>();
     QVector<QVector<QString>> status=sta.value<QVector<QVector<QString>>>();
     QVector<QVector<double>> time=tm.value<QVector<QVector<double>>>();
     qDebug()<<QString("../savefiles/"+date+".txt");
 
-    int mx=1e+9,a,b,c,d;
-    for(int i=0;i<7;i++){
+    int mx=1e+9,a;
+
+    for(int i=0;i<settings.totalnums;i++){
         a=temperature[i].size();
-        if(a<mx){
+        qDebug()<<i<<"  "<<a;
+        if(a<mx&&a!=0){
             mx=a;
-        }
-        b=timestamp[i].size();
-        if(b<mx){
-            mx=b;
-        }
-        c=timestamp[i].size();
-        if(c<mx){
-            mx=c;
-        }
-        d=timestamp[i].size();
-        if(d<mx){
-            mx=d;
         }
     }
     if(mx==1e+9){
@@ -94,20 +84,21 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
         libxl::Sheet* sheet = book->addSheet(L"1");
         if(sheet)
         {
-            for (int i=0;i<mx;i++) {
-                for (int j=0;j<7;j++) {
-                    int index=i*7+j+1;
-                    qDebug()<<index;
-                    sheet->writeNum(index, 0, j+1);
-                    sheet->writeNum(index, 1, temperature[j][i]);
-                    sheet->writeStr(index, 2,reinterpret_cast<const wchar_t *>(status[j][i].utf16()));
-                    sheet->writeNum(index, 3, time[j][i]);
-                    sheet->writeStr(index, 4, reinterpret_cast<const wchar_t *>(timestamp[j][i].utf16()));
+            qDebug()<<"min nums"<<mx;
+            for (int i=1;i<=mx;i++) {
+                int col=0;
+                sheet->writeStr(i, col++, reinterpret_cast<const wchar_t *>(timestamp[i].utf16()));
+                for (int j=0;j<settings.lineNums;j++) {
+                    sheet->writeNum(i,col++, temperature[j][i]);
                 }
-
+                for (int j=0;j<settings.lineNums;j++){
+                    sheet->writeStr(i,col++, reinterpret_cast<const wchar_t *>(status[j][i].utf16()));
+                }
+                for (int j=0;j<settings.lineNums;j++){
+                    sheet->writeNum(i,col++, time[j][i]);
+                }
             }
         }
-
         book->save(reinterpret_cast<const wchar_t *>((QString("../savefiles/")+date+QString(".xlsx")).utf16()));
         book->release();
     }

@@ -1,8 +1,6 @@
 #include "chartdisplay.h"
 #include "ui_chartdisplay.h"
 
-
-
 chartDisplay::chartDisplay(QWidget *parent):
     ui(new Ui::chartdisplay_ui),
     m_x(0)
@@ -26,24 +24,65 @@ chartDisplay::chartDisplay(QWidget *parent):
     saveInterval_miseconds=settings.saveInterval_minus*60*1000;
     //设置多选按钮
     btg=new QButtonGroup();
+    //设置大小
+    timestart.resize(settings.lineNums);
+    records_bt.resize(settings.lineNums);
+    timeend.resize(settings.lineNums);
+    records_tp.resize(settings.lineNums);
 
-    for(int i=0;i<7;i++){
+    saveTempeture.resize(settings.totalnums);
+    saveTimestamp.resize(settings.totalnums);
+    status.resize(settings.totalnums);
+    time.resize(settings.totalnums);
+
+    pb.resize(settings.totalnums);
+    ReceiveVal.resize(settings.totalnums);
+    ReceiveTime.resize(settings.totalnums);
+    ReceiveStatus.resize(settings.totalnums);
+
+    for(int i=0;i<settings.totalnums;i++){
         pb[i]=new QCheckBox();
         pb[i]->setText(settings.splineName[i]);
         ui->verticalLayout_5->addWidget(pb[i],1);
         btg->addButton(pb[i]);
         timestart[i]=0;
         timeend[i]=0;
+        pb[i]->setCheckState(Qt::Checked);
         records_bt[i]=false;
         records_tp[i]=false;
-        //设置vector大小
+
+        ReceiveVal[i]=new QLabel();
+        ReceiveTime[i]=new QLabel();
+        ReceiveStatus[i]=new QLabel();
+
+        vboxlayout[0].addWidget(ReceiveVal[i]);
+        vboxlayout[1].addWidget(ReceiveStatus[i]);
+        vboxlayout[2].addWidget(ReceiveTime[i]);
     }
-    saveTempeture.resize(settings.lineNums);
-    saveTimestamp.resize(settings.lineNums);
-    status.resize(settings.lineNums);
-    time.resize(settings.lineNums);
+    groupbox[0].setTitle("数值");
+    groupbox[0].setMinimumWidth(100);
+    groupbox[0].setLayout(&vboxlayout[0]);
+    groupbox[1].setTitle("状态");
+    groupbox[1].setMinimumWidth(100);
+    groupbox[1].setLayout(&vboxlayout[1]);
+    groupbox[2].setTitle("时间");
+    groupbox[2].setMinimumWidth(100);
+    groupbox[2].setLayout(&vboxlayout[2]);
+
+    ui->horizontalLayout_2->addWidget(&groupbox[0]);
+    ui->horizontalLayout_2->addWidget(&groupbox[1]);
+    ui->horizontalLayout_2->addWidget(&groupbox[2]);
     // 设置不互斥
     btg->setExclusive(false);//这样的话就支持多选了。
+    QList<QAbstractButton *> list=btg->buttons();
+    for(int i=0;i<settings.lineNums;i++){
+        list[i]->setChecked(true);
+    }
+    qDebug()<<settings.lineNums<<"  "<<settings.totalnums;
+    for(int i=settings.lineNums;i<settings.totalnums;i++){
+        list[i]->setEnabled(false);
+    }
+    list[settings.totalnums-1]->setChecked(false);
     //设置多选按钮
     connect(btg,SIGNAL(buttonToggled(int,bool)),this,SLOT(shspline(int,bool)));
 
@@ -54,56 +93,17 @@ chartDisplay::chartDisplay(QWidget *parent):
     //定义图标的槽函数
     connect(this,&chartDisplay::sendtochart,fchart,&Mychart::getMessage);
     connect(this,&chartDisplay::sendtochart,schart,&Mychart::getMessage);
-    ui->groupBox_2->setMinimumWidth(100);
-    ui->groupBox_3->setMinimumWidth(100);
-    ui->groupBox_4->setMinimumWidth(100);
+
+    ui->comboBox->setMaximumWidth(100);
+
+    companytype=settings.CompanyType;
 
 }
 
 chartDisplay::~chartDisplay(){
 
 }
-Q_DECLARE_METATYPE(QVector<QVector<QString>>)
-Q_DECLARE_METATYPE(QVector<QVector<double>>)
-void chartDisplay::handleTimeOut(){
-        double newtime=GetTickCount();
-        if(newtime-saveTime>saveInterval_miseconds){
-            qDebug()<<"主线程："<<QThread::currentThreadId();
-            QDateTime start=QDateTime::currentDateTime();
-            qDebug()<<"开始"<<start.toUTC();
-            QVector<QVector<double>> save_mid_temperature;
-            QVector<QVector<QString>> save_mid_timestamp;
-            QVector<QVector<QString>> save_mid_status;
-            QVector<QVector<double>> save_mid_time;
-            //swap 速度快，且清空
-            save_mid_temperature.swap(saveTempeture);
-            save_mid_timestamp.swap(saveTimestamp);
-            save_mid_status.swap(status);
-            save_mid_time.swap(time);
-            saveTempeture.resize(settings.lineNums);
-            saveTimestamp.resize(settings.lineNums);
-            status.resize(settings.lineNums);
-            time.resize(settings.lineNums);
-            qDebug()<<"数组大小"<<save_mid_time.size();
-            qDebug()<<"数组大大小"<<save_mid_time[0].size();
 
-            QVariant tp=QVariant::fromValue(save_mid_temperature);
-            QVariant ts=QVariant::fromValue(save_mid_timestamp);
-            QVariant sta=QVariant::fromValue(save_mid_status);
-            QVariant tm=QVariant::fromValue(save_mid_time);
-            emit db.saveChart(tp,ts,sta,tm,QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss"));
-            saveTime=newtime;
-            QDateTime end=QDateTime::currentDateTime();
-            qDebug()<<"结束"<<end.toUTC();
-        }
-
-        ULONG len=Receive(settings.devicetype,settings.deviceid,settings.canid,objs,50,100);
-
-        for(uint i=0;i<len;i++){
-            emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz_ddd"));
-        }
-        m_x+=len;
-}
 
 
 void chartDisplay::Calculate(int index,double y){
@@ -121,52 +121,63 @@ void chartDisplay::Calculate(int index,double y){
     }
     if(!records_tp[index]&&y>settings.Tp_temperature){
         timeend[index]=GetTickCount();
-        qDebug()<<timeend[index]<<" "<<timestart[index];
-        qDebug()<<records_tp[index]<<" "<<records_bt[index];
+//        qDebug()<<timeend[index]<<" "<<timestart[index];
+//        qDebug()<<records_tp[index]<<" "<<records_bt[index];
         records_tp[index]=true;
     }
     double tp=(timeend[index]-timestart[index])/1000;
     time[index].push_back(tp>0?tp:0);
 }
 
+void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,int high1,int index2,int low2,int high2,BYTE *Data){
+    qDebug()<<"msg  4";
+    int low=Data[low1];
+    int high=Data[high1];
+    double Tcf=(high*256+low)*0.03125-273;
+    //保存数据
+    saveTempeture[index1].push_back(Tcf);
+    //计算时间
+    Calculate(index1,Tcf);
+    ReceiveTime[index1]->setText(QString::number(time[0].last()));
+    ReceiveVal[index1]->setText(QString::number(Tcf));
+    qDebug()<<"msg  5";
+    //排除第三个
+    if(index2==-1){
+        emit sendtochart(1,mx/4,2,Tcf,-1);
+        return ;
+    }
+    low=Data[low2];
+    high=Data[high2];
+    double Tcs=(high*256+low)*0.03125-273;
+    saveTempeture[index2].push_back(Tcs);
+    Calculate(index2,Tcs);
+    ReceiveTime[index2]->setText(QString::number(time[1].last()));
+    ReceiveVal[index2]->setText(QString::number(Tcs));
+    qDebug()<<"msg  6";
+    emit sendtochart(chartype,mx/4,code,Tcf,Tcs);
+
+}
 
 void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
-    double low;
-    double high;
-    double Tcf;
-    double Tcs;
     int error1=0;
     int error2=0;
     int base=1;
     int tmp;
-    double timetemp;
-
-//    mx/=4;
+    double V1,V2,V3,V4;
+    qDebug()<<"msg 3   "<<obj.ID;
+    qDebug()<<"msg 3   "<<datetime;
     switch (obj.ID) {
     //18FD2083
         case 419242115:
-            low=obj.Data[0];
-            high=obj.Data[1];
-            Tcf=(high*256+low)*0.03125-273;
-            low=obj.Data[2];
-            high=obj.Data[3];
-            Tcs=(high*256+low)*0.03125-273;
-            emit sendtochart(0,mx/4,0,Tcf,Tcs);
-            ui->label->setText(QString::number(Tcf));
-            ui->label_2->setText(QString::number(Tcs));
-
-            //计算时间
-            Calculate(0,Tcf);
-            ui->label_8->setText(QString::number(time[0].last()));
-            Calculate(1,Tcs);
-            ui->label_9->setText(QString::number(time[1].last()));
+            //计算数值和时间
+            suit_Cell(0,0,mx,0,0,1,1,2,3,obj.Data);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error1+=base*tmp;
                 base*=2;
             }
-            ui->label_15->setText(settings.errorCode_TC[error1]);
+            ReceiveStatus[0]->setText(settings.errorCode_TC[error1]);
             base=1;
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -178,31 +189,13 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
                 error2+=base*tmp;
                 base*=2;
             }
-            ui->label_21->setText(settings.errorCode_TC[error2]);
-            //保存数据
-            saveTempeture[0].push_back(Tcf);
-            saveTempeture[1].push_back(Tcs);
-            saveTimestamp[0].push_back(datetime);
-            saveTimestamp[1].push_back(datetime);
+            ReceiveStatus[1]->setText(settings.errorCode_TC[error2]);
+
             status[0].push_back(settings.errorCode_TC[error1]);
             status[1].push_back(settings.errorCode_TC[error2]);
             break;
         case 352140931:
-            low=obj.Data[0];
-            high=obj.Data[1];
-            Tcf=(high*256+low)*0.03125-273;
-            low=obj.Data[3];
-            high=obj.Data[4];
-            Tcs=(high*256+low)*0.03125-273;
-            emit sendtochart(0,mx/4,1,Tcf,Tcs);
-            ui->label_3->setText(QString::number(Tcf));
-            ui->label_4->setText(QString::number(Tcs));
-
-            //计算时间
-            Calculate(2,Tcf);
-            ui->label_10->setText(QString::number(time[2].last()));
-            Calculate(3,Tcs);
-            ui->label_11->setText(QString::number(time[3].last()));
+            suit_Cell(0,1,mx,2,0,1,3,3,4,obj.Data);
 
             //计算错误码
             for(int i=0;i<5;i++){
@@ -210,68 +203,39 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
                 error1+=base*tmp;
                 base*=2;
             }
-            ui->label_20->setText(settings.errorCode_TC[error1]);
+            ReceiveStatus[2]->setText(settings.errorCode_TC[error1]);
             base=1;
             for(int i=1;i<5;i++){
                 tmp=obj.Data[5]>>i&1;
                 error2+=base*tmp;
                 base*=2;
             }
-            ui->label_19->setText(settings.errorCode_TC[error2]);
-            //保存数据
-            saveTempeture[2].push_back(Tcf);
-            saveTempeture[3].push_back(Tcs);
-            saveTimestamp[2].push_back(datetime);
-            saveTimestamp[3].push_back(datetime);
+            ReceiveStatus[3]->setText(settings.errorCode_TC[error2]);
+
             status[2].push_back(settings.errorCode_TC[error1]);
             status[3].push_back(settings.errorCode_TC[error2]);
             break;
         case 419280003:
-            low=obj.Data[2];
-            high=obj.Data[3];
-            Tcf=(high*256+low)*0.03125-273;
-            emit sendtochart(1,mx/4,2,Tcf,-1);
-            ui->label_5->setText(QString::number(Tcf));
-
-            //计算时间
-            Calculate(4,Tcf);
-            ui->label_12->setText(QString::number(time[4].last()));
+            suit_Cell(1,2,mx,4,2,3,-1,-1,-1,obj.Data);
             //计算错误码
             for(int i=1;i<5;i++){
                 tmp=obj.Data[5]>>i&1;
                 error1+=base*tmp;
                 base*=2;
             }
-            ui->label_18->setText(settings.errorCode_TC[error1]);
-            //保存数据
-            saveTempeture[4].push_back(Tcf);
-            saveTimestamp[4].push_back(datetime);
+            ReceiveStatus[4]->setText(settings.errorCode_TC[error1]);
+
             status[4].push_back(settings.errorCode_TC[error1]);
             break;
         case 419395027:
-            low=obj.Data[0];
-            high=obj.Data[1];
-            Tcf=(high*256+low)*0.03125-273;
-            low=obj.Data[2];
-            high=obj.Data[3];
-            Tcs=(high*256+low)*0.03125-273;
-            emit sendtochart(1,mx/4,3,Tcf,Tcs);
-            ui->label_6->setText(QString::number(Tcf));
-            ui->label_7->setText(QString::number(Tcs));
-
-            //计算时间
-            Calculate(5,Tcf);
-            ui->label_13->setText(QString::number(time[5].last()));
-            Calculate(6,Tcs);
-            ui->label_14->setText(QString::number(time[6].last()));
-
+            suit_Cell(1,3,mx,5,0,1,6,2,3,obj.Data);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error1+=base*tmp;
                 base*=2;
             }
-            ui->label_17->setText(settings.errorCode_CJ[error1]);
+            ReceiveStatus[5]->setText(settings.errorCode_CJ[error1]);
             base=1;
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -283,19 +247,74 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
                 error2+=base*tmp;
                 base*=2;
             }
-            ui->label_16->setText(settings.errorCode_ECU[error2]);
-            //保存数据
-            saveTempeture[5].push_back(Tcf);
-            saveTempeture[6].push_back(Tcs);
-            saveTimestamp[5].push_back(datetime);
-            saveTimestamp[6].push_back(datetime);
+            ReceiveStatus[6]->setText(settings.errorCode_ECU[error2]);
+
             status[5].push_back(settings.errorCode_TC[error1]);
             status[6].push_back(settings.errorCode_TC[error2]);
+            break;
+        case 285034371:
+            V1=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
+            V2=(obj.Data[3]*256+obj.Data[2])*0.03125-273;
+            V3=(obj.Data[5]*256+obj.Data[4])*0.03125-273;
+            V4=(obj.Data[7]*256+obj.Data[6])*0.03125-273;
+            ReceiveVal[7]->setText(QString::number(V1));
+            ReceiveVal[8]->setText(QString::number(V1));
+            ReceiveVal[9]->setText(QString::number(V1));
+            ReceiveVal[10]->setText(QString::number(V1));
+            saveTempeture[7].push_back(V1);
+            saveTempeture[8].push_back(V2);
+            saveTempeture[9].push_back(V3);
+            saveTempeture[10].push_back(V4);
+            saveTimestamp.push_back(datetime);
             break;
         default: break;
     }
 }
 
+
+Q_DECLARE_METATYPE(QVector<QVector<QString>>)
+Q_DECLARE_METATYPE(QVector<QString>)
+Q_DECLARE_METATYPE(QVector<QVector<double>>)
+void chartDisplay::handleTimeOut(){
+        double newtime=GetTickCount();
+        if(newtime-saveTime>saveInterval_miseconds){
+            qDebug()<<"主线程："<<QThread::currentThreadId();
+            QDateTime start=QDateTime::currentDateTime();
+            qDebug()<<"开始"<<start.toUTC();
+            QVector<QVector<double>> save_mid_temperature;
+            QVector<QString> save_mid_timestamp;
+            QVector<QVector<QString>> save_mid_status;
+            QVector<QVector<double>> save_mid_time;
+            //swap 速度快，且清空
+            save_mid_temperature.swap(saveTempeture);
+            save_mid_timestamp.swap(saveTimestamp);
+            save_mid_status.swap(status);
+            save_mid_time.swap(time);
+            saveTempeture.resize(settings.totalnums);
+            saveTimestamp.resize(settings.totalnums);
+            status.resize(settings.totalnums);
+            time.resize(settings.totalnums);
+            qDebug()<<"数组大小"<<save_mid_time.size();
+            qDebug()<<"数组大大小"<<save_mid_time[0].size();
+
+            QVariant tp=QVariant::fromValue(save_mid_temperature);
+            QVariant ts=QVariant::fromValue(save_mid_timestamp);
+            QVariant sta=QVariant::fromValue(save_mid_status);
+            QVariant tm=QVariant::fromValue(save_mid_time);
+            emit db.saveChart(tp,ts,sta,tm,QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss"));
+            saveTime=newtime;
+            QDateTime end=QDateTime::currentDateTime();
+            qDebug()<<"结束"<<end.toUTC();
+        }
+
+        ULONG len=Receive(settings.devicetype,settings.deviceid,settings.canid,objs,50,100);
+
+        qDebug()<<"收到"<<len<<"帧";
+        for(uint i=0;i<len;i++){
+            emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz_ddd"));
+        }
+        m_x+=len;
+}
 
 void chartDisplay::shspline(int index,bool selected){
     index=-index-2;
@@ -362,12 +381,19 @@ void chartDisplay::on_pushButton_2_clicked(bool checked)
     }
 }
 
-void chartDisplay::on_pushButton_2_clicked()
-{
-}
 
 void chartDisplay::on_pushButton_4_clicked()
 {
     fchart->changeYScale(ui->lineEdit_2->text().toDouble(),ui->lineEdit->text().toDouble());
     schart->changeYScale(ui->lineEdit_2->text().toDouble(),ui->lineEdit->text().toDouble());
+}
+
+void chartDisplay::on_comboBox_currentIndexChanged(int index)
+{
+    companytype=ui->comboBox->currentIndex();
+    changeCompanyType();
+}
+
+void chartDisplay::changeCompanyType(){
+
 }

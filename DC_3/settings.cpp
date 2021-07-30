@@ -9,7 +9,8 @@ settings::settings()
     defaultXlen=40;
     defaultXtickCount=11;
     defaultYtickCount=11;
-    splineName={"A1DOC intake","A1DOC outlet","A1SCR intake","A1SCR outlet","AT1IG2 intake","CJ","uC"};
+    splineName={"A1DOC intake","A1DOC outlet","A1SCR intake","A1SCR outlet",
+                "AT1IG2 intake","CJ","uC","V1","V2","V3","V4"};
     splinePen={Qt::red,Qt::yellow,Qt::green,Qt::blue,Qt::cyan,Qt::darkMagenta,Qt::gray};
     penweight=2;
     maxpoints=200;
@@ -40,8 +41,11 @@ settings::settings()
                {14,"CJ Plausibility"},{16,"Not complete"}};
     errorCode_TC={{0,"Pass"},{8,"ECU μC EEP"},{9,"ECU ASIC EEP"},{10,"ECU High Volt"},
                {11,"ECU Low Volt"},{15,"ECU Overtemp"},{16,"Not complete"}};
+    errorCode_vol={
 
-    saveInterval_minus=10;
+    };
+
+    saveInterval_minus=0.1;
 
     taskCode={{"SaveChart",0},{"SaveTable",1}};
 
@@ -49,11 +53,13 @@ settings::settings()
 
     lineNums=7;
 
-    sendMessageInterval=20;
+    sendMessageInterval=100;
 
     canindex=1;
 
+    CompanyType=0;
 
+    totalnums=11;
 }
 
 void settings::setbote(){

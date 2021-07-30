@@ -242,7 +242,7 @@
       <item>
        <widget class="QLabel" name="label_16">
         <property name="text">
-         <string>z最大显示行数:</string>
+         <string>最大显示行数:</string>
         </property>
        </widget>
       </item>

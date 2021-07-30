@@ -24,6 +24,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+RESOURCES +=  \
+        image.qrc
+RC_FILE =  \
+        ico.rc
+
 SOURCES += \
         baseinfo.cpp \
         chartdisplay.cpp \
@@ -32,9 +37,11 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         mychart.cpp \
-        sendmessages.cpp \
         settings.cpp \
-        standarset.cpp
+        standarset.cpp \
+        bootloader.cpp \
+        scandevrangedialog.cpp \
+        dialogaddnode.cpp
 
 HEADERS += \
         ECanVci.h \
@@ -52,51 +59,33 @@ HEADERS += \
         include/libxl/enum.h \
         include/libxl/libxl.h \
         include/libxl/setup.h \
-        include/usb2xxx/ControlCAN.h \
-        include/usb2xxx/LDFDecoder.h \
-        include/usb2xxx/can_bootloader.h \
-        include/usb2xxx/can_uds.h \
-        include/usb2xxx/i2c_sniffer.h \
-        include/usb2xxx/ir_sniffer.h \
-        include/usb2xxx/lin_uds.h \
-        include/usb2xxx/offline_type.h \
-        include/usb2xxx/uart_sniffer.h \
-        include/usb2xxx/usb2adc.h \
-        include/usb2xxx/usb2ads1256.h \
-        include/usb2xxx/usb2can.h \
-        include/usb2xxx/usb2canfd.h \
-        include/usb2xxx/usb2cnt.h \
-        include/usb2xxx/usb2dac.h \
-        include/usb2xxx/usb2ew.h \
-        include/usb2xxx/usb2gpio.h \
-        include/usb2xxx/usb2iic.h \
-        include/usb2xxx/usb2ir.h \
-        include/usb2xxx/usb2k.h \
-        include/usb2xxx/usb2lin.h \
-        include/usb2xxx/usb2lin_ex.h \
-        include/usb2xxx/usb2nand.h \
-        include/usb2xxx/usb2openbus.h \
-        include/usb2xxx/usb2ow.h \
-        include/usb2xxx/usb2pwm.h \
-        include/usb2xxx/usb2rf24.h \
-        include/usb2xxx/usb2sniffer.h \
-        include/usb2xxx/usb2spi.h \
-        include/usb2xxx/usb2uart.h \
-        include/usb2xxx/usb_device.h \
         mainwindow.h \
         mychart.h \
-        sendmessages.h \
         settings.h \
-        standarset.h
+        standarset.h \
+        bootloader.h \
+        usb_device.h \
+        scandevrangedialog.h \
+        dialogaddnode.h \
+        can_bootloader.h
 
 FORMS += \
         baseinfo.ui \
         chartdisplay.ui \
         framedisplay.ui \
         mainwindow.ui \
-        sendmessages.ui \
-        standarset.ui
+        standarset.ui \
+        bootloader_ch.ui \
+        bootloader_en.ui \
+        scandevrangedialog.ui \
+        dialogaddnode.ui
+		
+OTHER_FILES += \
+        ico.rc
 
+		
+		
+		
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

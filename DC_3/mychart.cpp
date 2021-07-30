@@ -8,7 +8,10 @@ Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int line
     //设置图像种类
     chartType=type;
     axisX=new QValueAxis();
+//    axisX->setTitleFont(QFont());
+    axisX->setTitleText("时间(s)");
     axisY=new QValueAxis();
+    axisY->setTitleText("温度(℃)");
     addAxis(axisX,Qt::AlignBottom);
     addAxis(axisY,Qt::AlignLeft);
 
@@ -77,7 +80,7 @@ void Mychart::getMessage(int charttype,int mx,int index,double tcf,double tcs){
 }
 
 void Mychart::show_hidden_Series(int index,bool selected){
-    if(selected==true){
+    if(selected==false){
         removeSeries(my_series[index]);
     }else{
         addSeries(my_series[index]);
