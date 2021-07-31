@@ -1,11 +1,13 @@
-#include "mychart.h"
+﻿#include "mychart.h"
 #include <QtCore/QRandomGenerator>
 
 
-Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int linenum):
+Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int linenum,int companytypecode):
     QChart(QChart::ChartTypeCartesian, parent, wFlags)
 {
+    companytypecode=companytypecode;
     //设置图像种类
+    linenums=linenum;
     chartType=type;
     axisX=new QValueAxis();
 //    axisX->setTitleFont(QFont());
@@ -15,18 +17,16 @@ Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int line
     addAxis(axisX,Qt::AlignBottom);
     addAxis(axisY,Qt::AlignLeft);
 
-    pointsNum.resize(linenum);
-
-    for(int i=0;i<linenum;i++){
+    for(int i=0;i<linenums;i++){
         my_series[i]=new QSplineSeries(this);
         //设置画笔颜色
         if(type==0){
-            my_series[i]->setName(settings.splineName[i]);
+            my_series[i]->setName(settings.splineName[companytypecode][i]);
             QPen pen(settings.splinePen[i]);
             pen.setWidth(settings.penweight);
             my_series[i]->setPen(pen);
         }else {
-            my_series[i]->setName(settings.splineName[i+4]);
+            my_series[i]->setName(settings.splineName[companytypecode][i+4]);
             QPen pen(settings.splinePen[i+4]);
             pen.setWidth(settings.penweight);
             my_series[i]->setPen(pen);
@@ -35,8 +35,6 @@ Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int line
 
         my_series[i]->attachAxis(axisX);
         my_series[i]->attachAxis(axisY);
-
-        pointsNum[i]=0;
 
     }
 
@@ -52,7 +50,19 @@ Mychart::~Mychart(){
 
 }
 
-void Mychart::getMessage(int charttype,int mx,int index,double tcf,double tcs){
+void Mychart::changeSplineName(int companytypecode){
+    qDebug()<<"1.1";
+    for(int i=0;i<linenums;i++){
+//        qDebug()<<linenums;
+        if(chartType==0){
+            my_series[i]->setName(settings.splineName[companytypecode][i]);
+        }else {
+            my_series[i]->setName(settings.splineName[companytypecode][i+4]);
+        }
+    }
+}
+
+void Mychart::getMessage(int charttype,int mx,int index,double tcf,double tcs,double tct){
     //type是图标种类，index是曲线下标
 
     if(charttype==chartType){
@@ -74,6 +84,11 @@ void Mychart::getMessage(int charttype,int mx,int index,double tcf,double tcs){
                 my_series[2]->append(mx,tcs);
                 axisX->setRange(mx-settings.defaultXlen/2,mx+settings.defaultXlen/2);
             break;
+            case 4:
+                my_series[0]->append(mx,tcf);
+                my_series[1]->append(mx,tcs);
+                my_series[2]->append(mx,tct);
+                axisX->setRange(mx-settings.defaultXlen/2,mx+settings.defaultXlen/2);
         default:break;
         }
     }

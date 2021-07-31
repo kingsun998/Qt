@@ -1,4 +1,4 @@
-#ifndef SETTINGS_H
+﻿#ifndef SETTINGS_H
 #define SETTINGS_H
 
 #include <windef.h>
@@ -15,8 +15,7 @@
 #include <windows.h>
 #include <qthread.h>
 #include <map>
-
-
+#include <QMap>
 
 class settings
 {
@@ -58,7 +57,7 @@ public:
     int defaultXlen;
     int defaultXtickCount;
     int defaultYtickCount;
-    QVector<QString> splineName;
+    QMap<int,QVector<QString>> splineName;
     QVector<Qt::GlobalColor> splinePen;
     int penweight;
     int maxpoints;

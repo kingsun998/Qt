@@ -93,21 +93,38 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 
-unix:!macx|win32: LIBS += -L$$PWD/lib/ -lECanVci64
 
-INCLUDEPATH += $$PWD/.
-DEPENDPATH += $$PWD/.
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/lib/ -llibxl
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/lib/ -llibxld
-else:unix:!macx: LIBS += -L$$PWD/lib/ -llibxl
+unix:!macx|win32: LIBS += -L$$PWD/lib/ -lECanVci
 
-INCLUDEPATH += $$PWD/.
-DEPENDPATH += $$PWD/.
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/lib/ -lUSB2XXX
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/lib/ -lUSB2XXXd
-else:unix:!macx: LIBS += -L$$PWD/lib/ -lUSB2XXX
+#unix:!macx|win32: LIBS += -L$$PWD/lib/ -llibxl
 
-INCLUDEPATH += $$PWD/.
-DEPENDPATH += $$PWD/.
+#INCLUDEPATH += $$PWD/include
+#DEPENDPATH += $$PWD/include
+
+unix:!macx|win32: LIBS += -L$$PWD/lib/ -llibxl32
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
+
+unix:!macx|win32: LIBS += -L$$PWD/lib/ -lUSB2XXX
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
+
+
+
+#unix:!macx|win32: LIBS += -L$$PWD/lib/ -lECanVci64
+
+#INCLUDEPATH += $$PWD/include
+#DEPENDPATH += $$PWD/include
+
+
+#unix:!macx|win32: LIBS += -L$$PWD/lib/ -llibxl64
+
+#INCLUDEPATH += $$PWD/include
+#DEPENDPATH += $$PWD/include
+

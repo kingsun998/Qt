@@ -1,4 +1,4 @@
-#ifndef DBSERVICE_H
+﻿#ifndef DBSERVICE_H
 #define DBSERVICE_H
 
 #include <qthread.h>
@@ -8,7 +8,7 @@
 #include <qdebug.h>
 #include <QDateTime>
 #include <settings.h>
-#include <include/libxl/libxl.h>
+//#include <libxl/libxl.h>
 class saveChart:public QObject
 {
     Q_OBJECT

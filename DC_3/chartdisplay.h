@@ -1,4 +1,4 @@
-#ifndef CHARTDISPLAY_H
+﻿#ifndef CHARTDISPLAY_H
 #define CHARTDISPLAY_H
 
 #include <qwidget.h>
@@ -30,7 +30,7 @@ public:
 signals:
     void sendMessage(uint,CAN_OBJ,QString);
     void sendToTable(int lineId,int canid,double deviceid,double date);
-    void sendtochart(int chartype,int mx,int index1,double tcf,double tcs);
+    void sendtochart(int chartype,int mx,int index1,double tcf,double tcs,double tct);
 private slots:
     void handleTimeOut();
     //控制测试的开始和暂停
@@ -43,7 +43,7 @@ private slots:
 
     void on_pushButton_4_clicked();
 
-    void on_comboBox_currentIndexChanged(int index);
+    void on_comboBox_currentIndexChanged();
 
     void changeCompanyType();
     void suit_Cell(int chartype,int code,uint mx,int index1,int low1,int high1,
@@ -89,7 +89,7 @@ private:
     double saveInterval_miseconds;  //以毫秒计算的间隔
 
     CAN_OBJ objs[50];
-    int companytype;
+    int companytypecode;
 };
 
 #endif // CHARTDISPLAY_H

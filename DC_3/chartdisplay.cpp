@@ -1,4 +1,4 @@
-#include "chartdisplay.h"
+﻿#include "chartdisplay.h"
 #include "ui_chartdisplay.h"
 
 chartDisplay::chartDisplay(QWidget *parent):
@@ -6,8 +6,11 @@ chartDisplay::chartDisplay(QWidget *parent):
     m_x(0)
 {
     ui->setupUi(this);
-    fchart=new Mychart(0,0,0,4);
-    schart=new Mychart(0,0,1,3);
+    //设置需要展示类型
+    companytypecode=settings.CompanyType;
+    //
+    fchart=new Mychart(0,0,0,4,companytypecode);
+    schart=new Mychart(0,0,1,3,companytypecode);
     fchartView=new QChartView(fchart);
     schartView=new QChartView(schart);
     ui->chartLayout->addWidget(fchartView);
@@ -31,7 +34,7 @@ chartDisplay::chartDisplay(QWidget *parent):
     records_tp.resize(settings.lineNums);
 
     saveTempeture.resize(settings.totalnums);
-    saveTimestamp.resize(settings.totalnums);
+//    saveTimestamp.resize(settings.totalnums);
     status.resize(settings.totalnums);
     time.resize(settings.totalnums);
 
@@ -42,7 +45,7 @@ chartDisplay::chartDisplay(QWidget *parent):
 
     for(int i=0;i<settings.totalnums;i++){
         pb[i]=new QCheckBox();
-        pb[i]->setText(settings.splineName[i]);
+        pb[i]->setText(settings.splineName[companytypecode][i]);
         ui->verticalLayout_5->addWidget(pb[i],1);
         btg->addButton(pb[i]);
         timestart[i]=0;
@@ -96,14 +99,13 @@ chartDisplay::chartDisplay(QWidget *parent):
 
     ui->comboBox->setMaximumWidth(100);
 
-    companytype=settings.CompanyType;
+
 
 }
 
 chartDisplay::~chartDisplay(){
 
 }
-
 
 
 void chartDisplay::Calculate(int index,double y){
@@ -138,12 +140,12 @@ void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,i
     saveTempeture[index1].push_back(Tcf);
     //计算时间
     Calculate(index1,Tcf);
-    ReceiveTime[index1]->setText(QString::number(time[0].last()));
+    ReceiveTime[index1]->setText(QString::number(time[index1].last()));
     ReceiveVal[index1]->setText(QString::number(Tcf));
     qDebug()<<"msg  5";
     //排除第三个
     if(index2==-1){
-        emit sendtochart(1,mx/4,2,Tcf,-1);
+        emit sendtochart(1,mx/4,2,Tcf,-1,-1);
         return ;
     }
     low=Data[low2];
@@ -151,10 +153,10 @@ void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,i
     double Tcs=(high*256+low)*0.03125-273;
     saveTempeture[index2].push_back(Tcs);
     Calculate(index2,Tcs);
-    ReceiveTime[index2]->setText(QString::number(time[1].last()));
+    ReceiveTime[index2]->setText(QString::number(time[index2].last()));
     ReceiveVal[index2]->setText(QString::number(Tcs));
     qDebug()<<"msg  6";
-    emit sendtochart(chartype,mx/4,code,Tcf,Tcs);
+    emit sendtochart(chartype,mx/4,code,Tcf,Tcs,-1);
 
 }
 
@@ -164,11 +166,12 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
     int base=1;
     int tmp;
     double V1,V2,V3,V4;
+    double Tcf,Tcs,Tct;
     qDebug()<<"msg 3   "<<obj.ID;
     qDebug()<<"msg 3   "<<datetime;
     switch (obj.ID) {
-    //18FD2083
-        case 419242115:
+        case 419394771: //18ff74d3
+        case 419242115://18FD2083    这两帧处理方式一样
             //计算数值和时间
             suit_Cell(0,0,mx,0,0,1,1,2,3,obj.Data);
             //计算错误码
@@ -224,18 +227,26 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
                 base*=2;
             }
             ReceiveStatus[4]->setText(settings.errorCode_TC[error1]);
-
+            saveTimestamp.push_back(datetime);
             status[4].push_back(settings.errorCode_TC[error1]);
             break;
-        case 419395027:
-            suit_Cell(1,3,mx,5,0,1,6,2,3,obj.Data);
+        case 419395027:  //18ff75d3
+            if(companytypecode==0){
+                suit_Cell(1,3,mx,5,0,1,6,2,3,obj.Data);
+            }else if(companytypecode==1){
+                suit_Cell(0,1,mx,2,0,1,3,2,3,obj.Data);
+            }
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error1+=base*tmp;
                 base*=2;
             }
-            ReceiveStatus[5]->setText(settings.errorCode_CJ[error1]);
+            if(companytypecode==0){
+                ReceiveStatus[5]->setText(settings.errorCode_CJ[error1]);
+            }else if(companytypecode==1){
+                ReceiveStatus[2]->setText(settings.errorCode_CJ[error1]);
+            }
             base=1;
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -247,10 +258,15 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
                 error2+=base*tmp;
                 base*=2;
             }
-            ReceiveStatus[6]->setText(settings.errorCode_ECU[error2]);
-
-            status[5].push_back(settings.errorCode_TC[error1]);
-            status[6].push_back(settings.errorCode_TC[error2]);
+            if(companytypecode==0){
+                ReceiveStatus[6]->setText(settings.errorCode_ECU[error2]);
+                status[5].push_back(settings.errorCode_TC[error1]);
+                status[6].push_back(settings.errorCode_TC[error2]);
+            }else{
+                ReceiveStatus[3]->setText(settings.errorCode_ECU[error2]);
+                status[2].push_back(settings.errorCode_TC[error1]);
+                status[3].push_back(settings.errorCode_TC[error2]);
+            }
             break;
         case 285034371:
             V1=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
@@ -265,8 +281,36 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             saveTempeture[8].push_back(V2);
             saveTempeture[9].push_back(V3);
             saveTempeture[10].push_back(V4);
-            saveTimestamp.push_back(datetime);
             break;
+
+        case 419395283:  //18ff76d3   //特殊帧
+            Tcf=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
+            //保存数据
+            saveTempeture[4].push_back(Tcf);
+            //计算时间
+            Calculate(4,Tcf);
+            ReceiveTime[4]->setText(QString::number(time[4].last()));
+            ReceiveVal[4]->setText(QString::number(Tcf));
+
+
+            Tcs=(obj.Data[3]*256+obj.Data[2])*0.03125-273;
+            saveTempeture[5].push_back(Tcs);
+            Calculate(5,Tcs);
+            ReceiveTime[5]->setText(QString::number(time[5].last()));
+            ReceiveVal[5]->setText(QString::number(Tcs));
+
+            Tct=(obj.Data[5]*256+obj.Data[4])*0.03125-273;
+            saveTempeture[6].push_back(Tct);
+            Calculate(6,Tct);
+            ReceiveTime[6]->setText(QString::number(time[6].last()));
+            ReceiveVal[6]->setText(QString::number(Tct));
+
+            emit sendtochart(1,mx/4,4,Tcf,Tcs,Tct);
+        break;
+        case 419395539:  //18ff77d3 此帧结果等于  18ff75d3 此处忽略
+
+//            suit_Cell(0,4,mx,0,0,1,1,2,3,obj.Data);
+        break;
         default: break;
     }
 }
@@ -291,7 +335,7 @@ void chartDisplay::handleTimeOut(){
             save_mid_status.swap(status);
             save_mid_time.swap(time);
             saveTempeture.resize(settings.totalnums);
-            saveTimestamp.resize(settings.totalnums);
+//            saveTimestamp.resize(settings.totalnums);
             status.resize(settings.totalnums);
             time.resize(settings.totalnums);
             qDebug()<<"数组大小"<<save_mid_time.size();
@@ -388,12 +432,21 @@ void chartDisplay::on_pushButton_4_clicked()
     schart->changeYScale(ui->lineEdit_2->text().toDouble(),ui->lineEdit->text().toDouble());
 }
 
-void chartDisplay::on_comboBox_currentIndexChanged(int index)
+void chartDisplay::on_comboBox_currentIndexChanged()
 {
-    companytype=ui->comboBox->currentIndex();
+    companytypecode=ui->comboBox->currentIndex();
+    qDebug()<<companytypecode;
     changeCompanyType();
+    qDebug()<<"1";
+    fchart->changeSplineName(companytypecode);
+    schart->changeSplineName(companytypecode);
+    qDebug()<<"2";
 }
 
 void chartDisplay::changeCompanyType(){
-
+    //设置 名称
+    for(int i=0;i<settings.lineNums;i++){
+        pb[i]->setText(settings.splineName[companytypecode][i]);
+    }
+    //
 }

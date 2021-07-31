@@ -1,4 +1,4 @@
-#include "settings.h"
+﻿#include "settings.h"
 
 
 settings::settings()
@@ -9,8 +9,11 @@ settings::settings()
     defaultXlen=40;
     defaultXtickCount=11;
     defaultYtickCount=11;
-    splineName={"A1DOC intake","A1DOC outlet","A1SCR intake","A1SCR outlet",
-                "AT1IG2 intake","CJ","uC","V1","V2","V3","V4"};
+    splineName={
+        {0,{"A1DOC intake","A1DOC outlet","A1SCR intake","A1SCR outlet",
+                 "AT1IG2 intake","CJ","uC","V1","V2","V3","V4"}},
+        {1,{"EGTS 2-1","EGTS 2-2","CJ","μC","EGTS 3-1","EGTS 3-2","EGTS 3-3"}}
+    };
     splinePen={Qt::red,Qt::yellow,Qt::green,Qt::blue,Qt::cyan,Qt::darkMagenta,Qt::gray};
     penweight=2;
     maxpoints=200;

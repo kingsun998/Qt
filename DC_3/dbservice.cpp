@@ -1,4 +1,4 @@
-#include "dbservice.h"
+﻿#include "dbservice.h"
 #include "string"
 Dbservice::Dbservice()
 {
@@ -68,7 +68,22 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
 
     for(int i=0;i<settings.totalnums;i++){
         a=temperature[i].size();
-        qDebug()<<i<<"  "<<a;
+        qDebug()<<i<<" temperature"<<"  "<<a;
+        if(a<mx&&a!=0){
+            mx=a;
+        }
+        a=status[i].size();
+        qDebug()<<i<<" status"<<"  "<<a;
+        if(a<mx&&a!=0){
+            mx=a;
+        }
+        a=time[i].size();
+        qDebug()<<i<<" time"<<"  "<<a;
+        if(a<mx&&a!=0){
+            mx=a;
+        }
+        a=timestamp.size();
+        qDebug()<<i<<"  timestamp"<<"  "<<a;
         if(a<mx&&a!=0){
             mx=a;
         }
@@ -77,31 +92,33 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
         return;
     }
     qDebug()<<"error1";
-    libxl::Book* book=xlCreateBook();
-    if(book)
-    {
-        //Qstring 转换为 wchart
-        libxl::Sheet* sheet = book->addSheet(L"1");
-        if(sheet)
-        {
-            qDebug()<<"min nums"<<mx;
-            for (int i=1;i<=mx;i++) {
-                int col=0;
-                sheet->writeStr(i, col++, reinterpret_cast<const wchar_t *>(timestamp[i].utf16()));
-                for (int j=0;j<settings.lineNums;j++) {
-                    sheet->writeNum(i,col++, temperature[j][i]);
-                }
-                for (int j=0;j<settings.lineNums;j++){
-                    sheet->writeStr(i,col++, reinterpret_cast<const wchar_t *>(status[j][i].utf16()));
-                }
-                for (int j=0;j<settings.lineNums;j++){
-                    sheet->writeNum(i,col++, time[j][i]);
-                }
-            }
-        }
-        book->save(reinterpret_cast<const wchar_t *>((QString("../savefiles/")+date+QString(".xlsx")).utf16()));
-        book->release();
-    }
+//    libxl::Book* book=xlCreateBookW();
+//    if(book)
+//    {
+//        //Qstring 转换为 wchart
+//        libxl::Sheet* sheet = book->addSheet(L"1");
+//        if(sheet)
+//        {
+//            qDebug()<<"min nums"<<mx;
+//            for (int line=1,i=0;i<mx;i++,line++) {
+//                int col=0;
+//                sheet->writeStr(line, col++, reinterpret_cast<const wchar_t *>(timestamp[i].utf16()));
+//                for (int j=0;j<settings.lineNums;j++) {
+//                    sheet->writeNum(line,col++, temperature[j][i]);
+//                }
+//                for (int j=0;j<settings.lineNums;j++){
+//                    sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(status[j][i].utf16()));
+//                }
+//                for (int j=0;j<settings.lineNums;j++){
+//                    sheet->writeNum(line,col++, time[j][i]);
+//                }
+//                qDebug()<<i<<"   "<<col;
+//            }
+//        }
+//        qDebug()<<"finish!";
+//        book->save(reinterpret_cast<const wchar_t *>((QString("../savefiles/")+date+QString(".xlsx")).utf16()));
+//        book->release();
+//    }
     qDebug()<<"保存完成.";
 
 }
