@@ -12,7 +12,7 @@ settings::settings()
     splineName={
         {0,{"A1DOC intake","A1DOC outlet","A1SCR intake","A1SCR outlet",
                  "AT1IG2 intake","CJ","uC","V1","V2","V3","V4"}},
-        {1,{"EGTS 2-1","EGTS 2-2","CJ","μC","EGTS 3-1","EGTS 3-2","EGTS 3-3"}}
+        {1,{"EGTS 2-1","EGTS 2-2","CJ","μC","EGTS 3-1","EGTS 3-2","EGTS 3-3","V1","V2","V3","V4"}}
     };
     splinePen={Qt::red,Qt::yellow,Qt::green,Qt::blue,Qt::cyan,Qt::darkMagenta,Qt::gray};
     penweight=2;
@@ -47,6 +47,8 @@ settings::settings()
     errorCode_vol={
 
     };
+
+    CompanyName={{0,"A"},{1,"B"}};
 
     saveInterval_minus=0.1;
 

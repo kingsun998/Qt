@@ -5,7 +5,7 @@
 Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int linenum,int companytypecode):
     QChart(QChart::ChartTypeCartesian, parent, wFlags)
 {
-    companytypecode=companytypecode;
+    this->companytypecode=companytypecode;
     //设置图像种类
     linenums=linenum;
     chartType=type;

@@ -8,7 +8,7 @@
 #include <qdebug.h>
 #include <QDateTime>
 #include <settings.h>
-//#include <libxl/libxl.h>
+#include <libxl/libxl.h>
 class saveChart:public QObject
 {
     Q_OBJECT
@@ -27,7 +27,8 @@ class saveTable:public QObject
     Q_OBJECT
 signals:
 public slots:
-    void insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString date);
+    void insert(QVariant content,QVariant timestamp,QVariant id,
+                QVariant type,QVariant name,QVariant len,QString date);
 public:
     saveTable();
 private:
@@ -45,7 +46,8 @@ public:
     bool TableThreadIsAlive();
 signals:
     void saveChart(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString date);
-    void saveTable(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString date);
+    void saveTable(QVariant content,QVariant timestamp,QVariant id,
+                   QVariant type,QVariant name,QVariant len,QString date);
 public slots:
 private:
    QThread chartThread;

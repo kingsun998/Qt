@@ -1,6 +1,6 @@
-#include "framedispaly.h"
+﻿#include "framedispaly.h"
 #include "ui_framedisplay.h"
-
+#include "dbservice.h"
 // QTableWidgetItem   qtablewidget的item
 // QTableViewItem
 
@@ -31,22 +31,39 @@ frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
     ui->tableWidget->setColumnWidth(7,300);
     rowcount=0;
     allowshow=true;
+    receive=true;
 }
 
-void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime){
-    if(allowshow==false){
+void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycode){
+    //保存信息
+    if(!receive){
         return;
     }
+    QString messageExtern;
+    if(obj.ExternFlag == 1)
+    {
+        messageExtern = "扩展帧";
+    }
+    else if(obj.ExternFlag == 0)
+    {
+        messageExtern = "标准帧";
+    }
+    FrameType.push_back(messageExtern);
+    CompanyName.push_back(settings.CompanyName[companycode]);
+    FrameID.push_back(obj.ID);
+    FrameLen.push_back(obj.DataLen);
+    QString data_info = QString("%1").arg(obj.Data[0], 2, 16, QLatin1Char('0')).toUpper();
+    for(int data_long=1;data_long<8;data_long++)
+    {
+        data_info = data_info + " "+QString("%1").arg(obj.Data[data_long], 2, 16, QLatin1Char('0')).toUpper();
+    }
+    FrameContent.push_back(data_info);
+    Data.push_back(datetime);
+    //显示
+   if(allowshow==false){
+       return;
+   }
    ui->tableWidget->insertRow(rowcount);
-   QString messageExtern;
-   if(obj.ExternFlag == 1)
-   {
-       messageExtern = "扩展帧";
-   }
-   else if(obj.ExternFlag == 0)
-   {
-       messageExtern = "标准帧";
-   }
    QTableWidgetItem *lineid=new QTableWidgetItem(QString::number(mx,10));
    lineid->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,0,lineid);
@@ -71,11 +88,6 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime){
    framelen->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,5,framelen);
    //这里写 Data
-   QString data_info = QString("%1").arg(obj.Data[0], 2, 16, QLatin1Char('0')).toUpper();
-   for(int data_long=1;data_long<8;data_long++)
-   {
-       data_info = data_info + " "+QString("%1").arg(obj.Data[data_long], 2, 16, QLatin1Char('0')).toUpper();
-   }
    QTableWidgetItem *frame_info=new QTableWidgetItem(data_info);
    frame_info->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,6,frame_info);
@@ -98,4 +110,38 @@ void frameDisplay::on_pushButton_2_clicked(){
         ui->pushButton_2->setText("停止显示");
     }
     allowshow=!allowshow;
+}
+
+Q_DECLARE_METATYPE(QVector<uint>);
+void frameDisplay::on_pushButton_clicked(){
+    //保存期间关闭接受
+    receive=false;
+    QVector<QString> newFrameType;
+    QVector<QString> newCompanyName;
+    QVector<uint> newFrameID;
+    QVector<uint> newFrameLen;
+    QVector<QString> newFrameContent;
+    QVector<QString> newData;
+    newFrameType.swap(FrameType);
+    newCompanyName.swap(CompanyName);
+    newFrameID.swap(FrameID);
+    newFrameLen.swap(FrameLen);
+    newFrameContent.swap(FrameContent);
+    newData.swap(Data);
+    qDebug()<<newData.size();
+    for(int i=0;i<newData.size();i++){
+        qDebug()<<i<<"  "<<newData[i];
+    }
+    QVariant type=QVariant::fromValue(newFrameType);
+    QVariant name=QVariant::fromValue(newCompanyName);
+    QVariant id=QVariant::fromValue(newFrameID);
+    QVariant len=QVariant::fromValue(newFrameLen);
+    QVariant content=QVariant::fromValue(newFrameContent);
+    QVariant data=QVariant::fromValue(newData);
+
+    emit db.saveTable(content,data,id,type,name,len,
+                              QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss"));
+    receive=true;
+
+
 }

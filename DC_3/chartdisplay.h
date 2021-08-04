@@ -28,7 +28,7 @@ public:
     ~chartDisplay();
     void Calculate(int index,double y);
 signals:
-    void sendMessage(uint,CAN_OBJ,QString);
+    void sendMessage(uint,CAN_OBJ,QString,int);
     void sendToTable(int lineId,int canid,double deviceid,double date);
     void sendtochart(int chartype,int mx,int index1,double tcf,double tcs,double tct);
 private slots:
@@ -36,18 +36,18 @@ private slots:
     //控制测试的开始和暂停
     void on_pushButton_2_clicked(bool checked);
     void shspline(int,bool);
-    void show_detail(uint mx,CAN_OBJ obj,QString datetime);
+    void show_detail(uint mx,CAN_OBJ obj,QString datetime,int companycode);
     void on_pushButton_clicked();
 
     void on_pushButton_3_clicked();
 
     void on_pushButton_4_clicked();
 
-    void on_comboBox_currentIndexChanged();
-
     void changeCompanyType();
     void suit_Cell(int chartype,int code,uint mx,int index1,int low1,int high1,
                    int index2,int low2,int high2,BYTE *date);
+
+    void on_comboBox_currentIndexChanged(int index);
 
 private:
     Ui::chartdisplay_ui *ui;
@@ -63,8 +63,8 @@ private:
     QLabel *label;
     QTimer *timer;
     QVector<QCheckBox *> pb;
-    QVBoxLayout vboxlayout[3];
-    QGroupBox groupbox[3];
+    QVBoxLayout vboxlayout[4];
+    QGroupBox groupbox[4];
     QVector<QLabel *> ReceiveVal;
     QVector<QLabel *> ReceiveStatus;
     QVector<QLabel *> ReceiveTime;

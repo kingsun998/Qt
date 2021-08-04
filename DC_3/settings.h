@@ -49,6 +49,7 @@ public:
     double saveInterval_minus;
     int lineNums;
     int CompanyType;
+    std::map<int,QString> CompanyName;
     int totalnums;
     //chart
     int firstChartLineNum;

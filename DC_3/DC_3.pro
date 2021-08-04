@@ -49,16 +49,14 @@ HEADERS += \
         chartdisplay.h \
         dbservice.h \
         framedispaly.h \
-        include/libxl/IAutoFilterT.h \
         include/libxl/IBookT.h \
-        include/libxl/IFilterColumnT.h \
         include/libxl/IFontT.h \
         include/libxl/IFormatT.h \
-        include/libxl/IRichStringT.h \
         include/libxl/ISheetT.h \
         include/libxl/enum.h \
         include/libxl/libxl.h \
         include/libxl/setup.h \
+        include/usb2xxx/mainwindow.h \
         mainwindow.h \
         mychart.h \
         settings.h \
@@ -94,21 +92,16 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 
-
 unix:!macx|win32: LIBS += -L$$PWD/lib/ -lECanVci
 
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD/include
 
-#unix:!macx|win32: LIBS += -L$$PWD/lib/ -llibxl
-
-#INCLUDEPATH += $$PWD/include
-#DEPENDPATH += $$PWD/include
-
-unix:!macx|win32: LIBS += -L$$PWD/lib/ -llibxl32
+unix:!macx|win32: LIBS += -L$$PWD/lib/ -llibxl
 
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD/include
+
 
 unix:!macx|win32: LIBS += -L$$PWD/lib/ -lUSB2XXX
 

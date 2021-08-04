@@ -46,7 +46,7 @@ chartDisplay::chartDisplay(QWidget *parent):
     for(int i=0;i<settings.totalnums;i++){
         pb[i]=new QCheckBox();
         pb[i]->setText(settings.splineName[companytypecode][i]);
-        ui->verticalLayout_5->addWidget(pb[i],1);
+        vboxlayout[3].addWidget(pb[i]);
         btg->addButton(pb[i]);
         timestart[i]=0;
         timeend[i]=0;
@@ -71,7 +71,11 @@ chartDisplay::chartDisplay(QWidget *parent):
     groupbox[2].setTitle("时间");
     groupbox[2].setMinimumWidth(100);
     groupbox[2].setLayout(&vboxlayout[2]);
+    groupbox[3].setTitle("曲线");
+    groupbox[3].setMinimumWidth(100);
+    groupbox[3].setLayout(&vboxlayout[3]);
 
+    ui->horizontalLayout_2->addWidget(&groupbox[3]);
     ui->horizontalLayout_2->addWidget(&groupbox[0]);
     ui->horizontalLayout_2->addWidget(&groupbox[1]);
     ui->horizontalLayout_2->addWidget(&groupbox[2]);
@@ -90,7 +94,7 @@ chartDisplay::chartDisplay(QWidget *parent):
     connect(btg,SIGNAL(buttonToggled(int,bool)),this,SLOT(shspline(int,bool)));
 
     //设置展示细节
-    connect(this,SIGNAL(sendMessage(uint,CAN_OBJ,QString)),this,SLOT(show_detail(uint,CAN_OBJ,QString)));
+    connect(this,&chartDisplay::sendMessage,this,&chartDisplay::show_detail);
     //发送给表定义在mainwindow
 
     //定义图标的槽函数
@@ -132,7 +136,7 @@ void chartDisplay::Calculate(int index,double y){
 }
 
 void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,int high1,int index2,int low2,int high2,BYTE *Data){
-    qDebug()<<"msg  4";
+//    qDebug()<<"msg  4";
     int low=Data[low1];
     int high=Data[high1];
     double Tcf=(high*256+low)*0.03125-273;
@@ -142,7 +146,7 @@ void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,i
     Calculate(index1,Tcf);
     ReceiveTime[index1]->setText(QString::number(time[index1].last()));
     ReceiveVal[index1]->setText(QString::number(Tcf));
-    qDebug()<<"msg  5";
+//    qDebug()<<"msg  5";
     //排除第三个
     if(index2==-1){
         emit sendtochart(1,mx/4,2,Tcf,-1,-1);
@@ -155,22 +159,22 @@ void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,i
     Calculate(index2,Tcs);
     ReceiveTime[index2]->setText(QString::number(time[index2].last()));
     ReceiveVal[index2]->setText(QString::number(Tcs));
-    qDebug()<<"msg  6";
+//    qDebug()<<"msg  6";
     emit sendtochart(chartype,mx/4,code,Tcf,Tcs,-1);
 
 }
 
-void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
+void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companycode){
     int error1=0;
     int error2=0;
     int base=1;
     int tmp;
     double V1,V2,V3,V4;
     double Tcf,Tcs,Tct;
-    qDebug()<<"msg 3   "<<obj.ID;
-    qDebug()<<"msg 3   "<<datetime;
+//    qDebug()<<"msg 3   "<<obj.ID;
+//    qDebug()<<"msg 3   "<<datetime;
     switch (obj.ID) {
-        case 419394771: //18ff74d3
+        case 419395283: //18ff76d3
         case 419242115://18FD2083    这两帧处理方式一样
             //计算数值和时间
             suit_Cell(0,0,mx,0,0,1,1,2,3,obj.Data);
@@ -283,7 +287,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             saveTempeture[10].push_back(V4);
             break;
 
-        case 419395283:  //18ff76d3   //特殊帧
+        case 419394771:  //18ff74d3   //特殊帧
             Tcf=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
             //保存数据
             saveTempeture[4].push_back(Tcf);
@@ -355,7 +359,7 @@ void chartDisplay::handleTimeOut(){
 
         qDebug()<<"收到"<<len<<"帧";
         for(uint i=0;i<len;i++){
-            emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz_ddd"));
+            emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
         }
         m_x+=len;
 }
@@ -414,6 +418,7 @@ void chartDisplay::on_pushButton_2_clicked(bool checked)
             iftest=true;
             timer->start(100);
             //重新技术
+            ui->comboBox->setEnabled(false);
             saveTime=GetTickCount();
             ui->pushButton_2->setText("停止测试");
         }
@@ -421,6 +426,7 @@ void chartDisplay::on_pushButton_2_clicked(bool checked)
     }else{
         iftest=false;
         timer->stop();
+        ui->comboBox->setEnabled(true);
         ui->pushButton_2->setText("开启测试");
     }
 }
@@ -432,7 +438,7 @@ void chartDisplay::on_pushButton_4_clicked()
     schart->changeYScale(ui->lineEdit_2->text().toDouble(),ui->lineEdit->text().toDouble());
 }
 
-void chartDisplay::on_comboBox_currentIndexChanged()
+void chartDisplay::on_comboBox_currentIndexChanged(int index)
 {
     companytypecode=ui->comboBox->currentIndex();
     qDebug()<<companytypecode;
@@ -440,7 +446,6 @@ void chartDisplay::on_comboBox_currentIndexChanged()
     qDebug()<<"1";
     fchart->changeSplineName(companytypecode);
     schart->changeSplineName(companytypecode);
-    qDebug()<<"2";
 }
 
 void chartDisplay::changeCompanyType(){
@@ -450,3 +455,5 @@ void chartDisplay::changeCompanyType(){
     }
     //
 }
+
+
