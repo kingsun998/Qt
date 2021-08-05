@@ -9,19 +9,19 @@ MainWindow::MainWindow(QWidget *parent) :
     QTabWidget *tb=ui->tabWidget;
     baseInfo *baseinfo=new baseInfo();
     tb->addTab(baseinfo,"参数设置");
-    qDebug()<<"1";
+
     chartDisplay *chart=new chartDisplay();
     tb->addTab(chart,"曲线显示");
-    qDebug()<<"2";
+
     frameDisplay *framedisplay=new frameDisplay();
     tb->addTab(framedisplay,"报文显示");
-    qDebug()<<"3";
+
     BootLoader *bootloader=new BootLoader();
     tb->addTab(bootloader,"程序刷写");
 
 //    SendMessages *sendmessages=new SendMessages();
 //    tb->addTab(sendmessages,"发送消息");
-    qDebug()<<"4";
+
     standarSet *stander=new standarSet();
     tb->addTab(stander,"检测标准设置");
     //发送给表

@@ -65,6 +65,11 @@ private:
     QVector<QCheckBox *> pb;
     QVBoxLayout vboxlayout[4];
     QGroupBox groupbox[4];
+
+    //测试开关
+    bool iftest;
+
+
     QVector<QLabel *> ReceiveVal;
     QVector<QLabel *> ReceiveStatus;
     QVector<QLabel *> ReceiveTime;
@@ -72,8 +77,7 @@ private:
     uint m_x;
     //接受的总帧数
     int totalnums;
-    //测试开关
-    bool iftest;
+
 
     QVector<double> timestart;
     QVector<bool> records_bt;
@@ -90,6 +94,8 @@ private:
 
     CAN_OBJ objs[50];
     int companytypecode;
+
+    void resetAry();
 };
 
 #endif // CHARTDISPLAY_H

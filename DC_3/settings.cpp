@@ -42,15 +42,12 @@ settings::settings()
                {6,"TC ASIC"},{11,"TC CJ"},{13,"TC ECU"},{16,"Not complete"}};
     errorCode_CJ={{0,"Pass"},{1,"CJ Short ckt"},{4,"CJ Open ckt"},{6,"CJ ASIC"},
                {14,"CJ Plausibility"},{16,"Not complete"}};
-    errorCode_TC={{0,"Pass"},{8,"ECU μC EEP"},{9,"ECU ASIC EEP"},{10,"ECU High Volt"},
+    errorCode_ECU={{0,"Pass"},{8,"ECU μC EEP"},{9,"ECU ASIC EEP"},{10,"ECU High Volt"},
                {11,"ECU Low Volt"},{15,"ECU Overtemp"},{16,"Not complete"}};
-    errorCode_vol={
-
-    };
 
     CompanyName={{0,"A"},{1,"B"}};
 
-    saveInterval_minus=0.1;
+    saveInterval_minus=10;
 
     taskCode={{"SaveChart",0},{"SaveTable",1}};
 

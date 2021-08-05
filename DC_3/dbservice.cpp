@@ -1,5 +1,6 @@
 ﻿#include "dbservice.h"
-#include "memory.h"
+#include "string.h"
+#include "qcoreapplication.h"
 Dbservice::Dbservice()
 {
     savetable.moveToThread(&tableThread);
@@ -56,22 +57,22 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
 
     for(int i=0;i<settings.totalnums;i++){
         a=temperature[i].size();
-//        qDebug()<<i<<" temperature"<<"  "<<a;
+        qDebug()<<i<<" temperature"<<"  "<<a;
         if(a<mx&&a!=0){
             mx=a;
         }
         a=status[i].size();
-//        qDebug()<<i<<" status"<<"  "<<a;
+        qDebug()<<i<<" status"<<"  "<<a;
         if(a<mx&&a!=0){
             mx=a;
         }
         a=time[i].size();
-//        qDebug()<<i<<" time"<<"  "<<a;
+        qDebug()<<i<<" time"<<"  "<<a;
         if(a<mx&&a!=0){
             mx=a;
         }
         a=timestamp.size();
-//        qDebug()<<i<<"  timestamp"<<"  "<<a;
+        qDebug()<<i<<"  timestamp"<<"  "<<a;
         if(a<mx&&a!=0){
             mx=a;
         }
@@ -84,28 +85,34 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
     if(book)
     {
         //Qstring 转换为 wchart
-        libxl::Sheet* sheet = book->addSheet(L"1");
+        libxl::Sheet* sheet = book->addSheet(L"Sheet1");
         if(sheet)
         {
-//            qDebug()<<"min nums"<<mx;
+            qDebug()<<"min nums"<<mx;
             for (int line=1,i=0;i<mx;i++,line++) {
-
+                qDebug()<<"error1";
                 int col=0;
                 sheet->writeStr(line, col++,reinterpret_cast<const wchar_t *>(timestamp[i].utf16()));
                 for (int j=0;j<settings.lineNums;j++) {
                     sheet->writeNum(line,col++, temperature[j][i]);
                 }
+                qDebug()<<"error2";
+
                 for (int j=0;j<settings.lineNums;j++){
+                    qDebug()<<status[j][i];
                     sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(status[j][i].utf16()));
                 }
+                qDebug()<<"error3";
                 for (int j=0;j<settings.lineNums;j++){
                     sheet->writeNum(line,col++, time[j][i]);
                 }
                 qDebug()<<i<<"   "<<col;
+                qDebug()<<"error4";
             }
         }
         qDebug()<<"finish!";
-        book->save(reinterpret_cast<const wchar_t *>((QString("../savefiles/Chart/")+date+QString(".xlsx")).utf16()));
+        QString filepath=QCoreApplication::applicationDirPath()+"/savefiles/Chart/"+date+".xlsx";
+        book->save(filepath.toStdWString().c_str());
         book->release();
     }
     qDebug()<<"图表保存完成.";
@@ -128,13 +135,12 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
     if(book)
     {
         //Qstring 转换为 wchart
-        libxl::Sheet* sheet = book->addSheet(L"1");
+        libxl::Sheet* sheet = book->addSheet(L"Sheet1");
         if(sheet)
         {
             int base=1;
             int size=newDateList.length();
-            qDebug()<<"数组大小 "<<size;
-            sheet->writeStr(0,0, reinterpret_cast<const wchar_t *>(QString("时间戳").utf16()));
+            sheet->writeStr(0,0, QString("时间戳").toStdWString().c_str());
             sheet->writeStr(0,1, reinterpret_cast<const wchar_t *>(QString("公司名称").utf16()));
             sheet->writeStr(0,2, reinterpret_cast<const wchar_t *>(QString("帧种类").utf16()));
             sheet->writeStr(0,3, reinterpret_cast<const wchar_t *>(QString("帧ID").utf16()));
@@ -142,6 +148,7 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
             sheet->writeStr(0,5, reinterpret_cast<const wchar_t *>(QString("数据内容").utf16()));
             for (auto i=0;i<size;i++,base++) {
                 int col=0;
+//                qDebug()<<base;
                 sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newDateList[i].utf16()));
                 sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newCompanyName[i].utf16()));
                 sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newFrameType[i].utf16()));
@@ -150,9 +157,8 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
                 sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newFrameContent[i].utf16()));
             }
         }
-        qDebug()<<"finish!";
-        qDebug()<<QString("../savefiles/Frame/")+date+QString(".xlsx");
-        book->save(reinterpret_cast<const wchar_t *>((QString("../savefiles/Frame/")+date+QString(".xlsx")).utf16()));
+        QString filepath=QCoreApplication::applicationDirPath()+"/savefiles/Frame/"+date+".xlsx";
+        book->save(filepath.toStdWString().c_str());
         book->release();
     }
     qDebug()<<"表格保存完成.";

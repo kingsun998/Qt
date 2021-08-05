@@ -24,7 +24,7 @@ public slots:
     void changeSplineName(int companytypecode);
 private:
     int chartType;
-    QSplineSeries * my_series[4];
+    QSplineSeries * my_series[4]; 
     QValueAxis *axisX;
     QValueAxis *axisY;
     int companytypecode;

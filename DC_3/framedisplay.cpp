@@ -129,9 +129,9 @@ void frameDisplay::on_pushButton_clicked(){
     newFrameContent.swap(FrameContent);
     newData.swap(Data);
     qDebug()<<newData.size();
-    for(int i=0;i<newData.size();i++){
-        qDebug()<<i<<"  "<<newData[i];
-    }
+//    for(int i=0;i<newData.size();i++){
+//        qDebug()<<i<<"  "<<newData[i];
+//    }
     QVariant type=QVariant::fromValue(newFrameType);
     QVariant name=QVariant::fromValue(newCompanyName);
     QVariant id=QVariant::fromValue(newFrameID);

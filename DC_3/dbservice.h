@@ -3,12 +3,14 @@
 
 #include <qthread.h>
 #include <qvector.h>
-#include <iostream>
 #include <fstream>
 #include <qdebug.h>
 #include <QDateTime>
 #include <settings.h>
+#include <qdir.h>
+#include <iostream>
 #include <libxl/libxl.h>
+#include <conio.h>
 class saveChart:public QObject
 {
     Q_OBJECT

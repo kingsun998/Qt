@@ -111,6 +111,30 @@ chartDisplay::~chartDisplay(){
 
 }
 
+void chartDisplay::resetAry(){
+    //下标
+    m_x=0;
+    //接受的总帧数
+    totalnums=0;
+
+    for(int i=0;i<settings.lineNums;i++){
+        timestart[i]=0;
+        records_bt[i]=false;
+        timeend[i]=0;
+        records_tp[i]=false;
+    }
+    for(int i=0;i<settings.totalnums;i++){
+        saveTempeture[i].clear();
+
+        status[i].clear();
+        time[i].clear();
+    }
+    saveTimestamp.clear();
+
+    saveTempeture.resize(settings.totalnums);
+    status.resize(settings.totalnums);
+    time.resize(settings.totalnums);
+}
 
 void chartDisplay::Calculate(int index,double y){
     //表示没有记录温度
@@ -184,7 +208,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 error1+=base*tmp;
                 base*=2;
             }
-            ReceiveStatus[0]->setText(settings.errorCode_TC[error1]);
+
             base=1;
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -196,8 +220,9 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 error2+=base*tmp;
                 base*=2;
             }
+            qDebug()<<1<<"  "<<error1<<"   "<<error2;
+            ReceiveStatus[0]->setText(settings.errorCode_TC[error1]);
             ReceiveStatus[1]->setText(settings.errorCode_TC[error2]);
-
             status[0].push_back(settings.errorCode_TC[error1]);
             status[1].push_back(settings.errorCode_TC[error2]);
             break;
@@ -218,7 +243,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 base*=2;
             }
             ReceiveStatus[3]->setText(settings.errorCode_TC[error2]);
-
+            qDebug()<<error1<<"   "<<error2;
             status[2].push_back(settings.errorCode_TC[error1]);
             status[3].push_back(settings.errorCode_TC[error2]);
             break;
@@ -262,21 +287,22 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 error2+=base*tmp;
                 base*=2;
             }
+            qDebug()<<2<<"  "<<error1<<"   "<<error2;
             if(companytypecode==0){
                 ReceiveStatus[6]->setText(settings.errorCode_ECU[error2]);
-                status[5].push_back(settings.errorCode_TC[error1]);
-                status[6].push_back(settings.errorCode_TC[error2]);
+                status[5].push_back(settings.errorCode_ECU[error1]);
+                status[6].push_back(settings.errorCode_ECU[error2]);
             }else{
                 ReceiveStatus[3]->setText(settings.errorCode_ECU[error2]);
-                status[2].push_back(settings.errorCode_TC[error1]);
-                status[3].push_back(settings.errorCode_TC[error2]);
+                status[2].push_back(settings.errorCode_ECU[error1]);
+                status[3].push_back(settings.errorCode_ECU[error2]);
             }
             break;
         case 285034371:
-            V1=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
-            V2=(obj.Data[3]*256+obj.Data[2])*0.03125-273;
-            V3=(obj.Data[5]*256+obj.Data[4])*0.03125-273;
-            V4=(obj.Data[7]*256+obj.Data[6])*0.03125-273;
+            V1=(obj.Data[1]*256+obj.Data[0])*0.03125-273-100;
+            V2=(obj.Data[3]*256+obj.Data[2])*0.03125-273-100;
+            V3=(obj.Data[5]*256+obj.Data[4])*0.03125-273-100;
+            V4=(obj.Data[7]*256+obj.Data[6])*0.03125-273-100;
             ReceiveVal[7]->setText(QString::number(V1));
             ReceiveVal[8]->setText(QString::number(V1));
             ReceiveVal[9]->setText(QString::number(V1));
@@ -285,6 +311,8 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             saveTempeture[8].push_back(V2);
             saveTempeture[9].push_back(V3);
             saveTempeture[10].push_back(V4);
+
+            saveTimestamp.push_back(datetime);
             break;
 
         case 419394771:  //18ff74d3   //特殊帧
@@ -295,19 +323,49 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             Calculate(4,Tcf);
             ReceiveTime[4]->setText(QString::number(time[4].last()));
             ReceiveVal[4]->setText(QString::number(Tcf));
-
+            status[4].push_back(settings.errorCode_TC[0]);
+            for(int i=0;i<5;i++){
+                tmp=obj.Data[6]>>i&1;
+                error2+=base*tmp;
+                base*=2;
+            }
+            ReceiveStatus[4]->setText(settings.errorCode_TC[error2]);
+            base=1;
 
             Tcs=(obj.Data[3]*256+obj.Data[2])*0.03125-273;
             saveTempeture[5].push_back(Tcs);
             Calculate(5,Tcs);
             ReceiveTime[5]->setText(QString::number(time[5].last()));
             ReceiveVal[5]->setText(QString::number(Tcs));
+            status[5].push_back(settings.errorCode_TC[0]);
+            error2=0;
+            for(int i=5;i<8;i++){
+                tmp=obj.Data[6]>>i&1;
+                error2+=base*tmp;
+                base*=2;
+            }
+            for(int i=0;i<2;i++){
+                tmp=obj.Data[7]>>i&1;
+                error2+=base*tmp;
+                base*=2;
+            }
+            ReceiveStatus[5]->setText(settings.errorCode_TC[error2]);
+            base=1;
 
             Tct=(obj.Data[5]*256+obj.Data[4])*0.03125-273;
             saveTempeture[6].push_back(Tct);
             Calculate(6,Tct);
             ReceiveTime[6]->setText(QString::number(time[6].last()));
             ReceiveVal[6]->setText(QString::number(Tct));
+            status[6].push_back(settings.errorCode_TC[0]);
+            error2=0;
+            for(int i=2;i<7;i++){
+                tmp=obj.Data[6]>>i&1;
+                error2+=base*tmp;
+                base*=2;
+            }
+            ReceiveStatus[6]->setText(settings.errorCode_TC[error2]);
+            base=1;
 
             emit sendtochart(1,mx/4,4,Tcf,Tcs,Tct);
         break;
@@ -344,7 +402,7 @@ void chartDisplay::handleTimeOut(){
             time.resize(settings.totalnums);
             qDebug()<<"数组大小"<<save_mid_time.size();
             qDebug()<<"数组大大小"<<save_mid_time[0].size();
-
+            qDebug()<<"数组大大大小"<<save_mid_time[0].size();
             QVariant tp=QVariant::fromValue(save_mid_temperature);
             QVariant ts=QVariant::fromValue(save_mid_timestamp);
             QVariant sta=QVariant::fromValue(save_mid_status);
@@ -441,9 +499,10 @@ void chartDisplay::on_pushButton_4_clicked()
 void chartDisplay::on_comboBox_currentIndexChanged(int index)
 {
     companytypecode=ui->comboBox->currentIndex();
-    qDebug()<<companytypecode;
     changeCompanyType();
-    qDebug()<<"1";
+    qDebug()<<"123";
+    resetAry();
+    qDebug()<<"456";
     fchart->changeSplineName(companytypecode);
     schart->changeSplineName(companytypecode);
 }
