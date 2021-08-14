@@ -1,4 +1,4 @@
-#include "baseinfo.h"
+﻿#include "baseinfo.h"
 #include "ui_baseinfo.h"
 
 baseInfo::baseInfo(QWidget *parent) :
@@ -16,7 +16,7 @@ void baseInfo::on_lineEdit_2_editingFinished()
 
 void baseInfo::on_lineEdit_3_editingFinished()
 {
-    settings.Bt_temperature=ui->lineEdit_3->text().toDouble();
+    settings.Tp_temperature=ui->lineEdit_3->text().toDouble()*0.63;
 }
 
 void baseInfo::on_lineEdit_4_editingFinished()

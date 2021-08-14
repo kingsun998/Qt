@@ -1,6 +1,6 @@
 ﻿#include "chartdisplay.h"
 #include "ui_chartdisplay.h"
-
+#include <direct.h>
 chartDisplay::chartDisplay(QWidget *parent):
     ui(new Ui::chartdisplay_ui),
     m_x(0)
@@ -103,7 +103,17 @@ chartDisplay::chartDisplay(QWidget *parent):
 
     ui->comboBox->setMaximumWidth(100);
 
-
+    QString dir=QCoreApplication::applicationDirPath()+"/savefiles/";
+    QString chartdir=QCoreApplication::applicationDirPath()+"/savefiles/charts/";
+    QString framedir=QCoreApplication::applicationDirPath()+"/savefiles/frames/";
+    QDir Dir(dir);
+    if (!Dir.exists())
+    {
+        qDebug()<<"__________create dir_______________";
+        _mkdir(dir.toLatin1().data());
+        _mkdir(chartdir.toLatin1().data());
+        _mkdir(framedir.toLatin1().data());
+    }
 
 }
 
@@ -299,10 +309,10 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             }
             break;
         case 285034371:
-            V1=(obj.Data[1]*256+obj.Data[0])*0.03125-273-100;
-            V2=(obj.Data[3]*256+obj.Data[2])*0.03125-273-100;
-            V3=(obj.Data[5]*256+obj.Data[4])*0.03125-273-100;
-            V4=(obj.Data[7]*256+obj.Data[6])*0.03125-273-100;
+            V1=(obj.Data[1]*256+obj.Data[0])*1.0/200-100;
+            V2=(obj.Data[3]*256+obj.Data[2])*1.0/200-100;
+            V3=(obj.Data[5]*256+obj.Data[4])*1.0/200-100;
+            V4=(obj.Data[7]*256+obj.Data[6])*1.0/200-100;
             ReceiveVal[7]->setText(QString::number(V1));
             ReceiveVal[8]->setText(QString::number(V1));
             ReceiveVal[9]->setText(QString::number(V1));
@@ -323,22 +333,21 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             Calculate(4,Tcf);
             ReceiveTime[4]->setText(QString::number(time[4].last()));
             ReceiveVal[4]->setText(QString::number(Tcf));
-            status[4].push_back(settings.errorCode_TC[0]);
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
                 base*=2;
             }
             ReceiveStatus[4]->setText(settings.errorCode_TC[error2]);
-            base=1;
+            status[4].push_back(settings.errorCode_TC[error2]);
 
             Tcs=(obj.Data[3]*256+obj.Data[2])*0.03125-273;
             saveTempeture[5].push_back(Tcs);
             Calculate(5,Tcs);
             ReceiveTime[5]->setText(QString::number(time[5].last()));
             ReceiveVal[5]->setText(QString::number(Tcs));
-            status[5].push_back(settings.errorCode_TC[0]);
             error2=0;
+            base=1;
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -350,21 +359,23 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 base*=2;
             }
             ReceiveStatus[5]->setText(settings.errorCode_TC[error2]);
-            base=1;
+            status[5].push_back(settings.errorCode_TC[error2]);
+
 
             Tct=(obj.Data[5]*256+obj.Data[4])*0.03125-273;
             saveTempeture[6].push_back(Tct);
             Calculate(6,Tct);
             ReceiveTime[6]->setText(QString::number(time[6].last()));
             ReceiveVal[6]->setText(QString::number(Tct));
-            status[6].push_back(settings.errorCode_TC[0]);
             error2=0;
+            base=1;
             for(int i=2;i<7;i++){
-                tmp=obj.Data[6]>>i&1;
+                tmp=obj.Data[7]>>i&1;
                 error2+=base*tmp;
                 base*=2;
             }
             ReceiveStatus[6]->setText(settings.errorCode_TC[error2]);
+            status[6].push_back(settings.errorCode_TC[0]);
             base=1;
 
             emit sendtochart(1,mx/4,4,Tcf,Tcs,Tct);
@@ -435,6 +446,10 @@ void chartDisplay::shspline(int index,bool selected){
 // 链接硬件
 void chartDisplay::on_pushButton_clicked()
 {
+//    qDebug()<<settings.Bt_temperature;
+//    qDebug()<<settings.Tp_temperature;
+//    QMessageBox::information(this,"提示",QCoreApplication::applicationDirPath(),QMessageBox::Warning);
+
     DWORD drl;
     drl=OpenDevice(settings.devicetype,settings.deviceid,0);
     if (drl != STATUS_OK)

@@ -1,6 +1,11 @@
 ﻿#include "dbservice.h"
 #include "string.h"
+#include <QDir>
+#include <direct.h>
 #include "qcoreapplication.h"
+#include <QMessageBox>
+
+class Dbservice db;
 Dbservice::Dbservice()
 {
     savetable.moveToThread(&tableThread);
@@ -9,6 +14,7 @@ Dbservice::Dbservice()
     connect(this,&Dbservice::saveTable,&savetable,&saveTable::insert);
     tableThread.start();
     chartThread.start();
+
 }
 
 
@@ -111,7 +117,7 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
             }
         }
         qDebug()<<"finish!";
-        QString filepath=QCoreApplication::applicationDirPath()+"/savefiles/Chart/"+date+".xlsx";
+        QString filepath=QCoreApplication::applicationDirPath()+"/savefiles/charts/"+date+".xlsx";
         book->save(filepath.toStdWString().c_str());
         book->release();
     }
@@ -157,7 +163,7 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
                 sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newFrameContent[i].utf16()));
             }
         }
-        QString filepath=QCoreApplication::applicationDirPath()+"/savefiles/Frame/"+date+".xlsx";
+        QString filepath=QCoreApplication::applicationDirPath()+"/savefiles/frames/"+date+".xlsx";
         book->save(filepath.toStdWString().c_str());
         book->release();
     }

@@ -11,6 +11,8 @@
 #include <iostream>
 #include <libxl/libxl.h>
 #include <conio.h>
+
+extern class Dbservice db;
 class saveChart:public QObject
 {
     Q_OBJECT
@@ -57,5 +59,5 @@ private:
    class saveChart savechart;
    class saveTable savetable;
 };
-static Dbservice db;
+
 #endif // DBSERVICE_H

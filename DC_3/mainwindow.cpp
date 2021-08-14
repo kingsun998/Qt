@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 //    db.init();
 //    qDebug()<<db.ChartThreadIsAlive();
 //    qDebug()<<db.TableThreadIsAlive();
+
 }
 
 MainWindow::~MainWindow()

@@ -1,5 +1,6 @@
 ﻿#include "settings.h"
 
+class settings settings;
 
 settings::settings()
 {
@@ -22,8 +23,8 @@ settings::settings()
 
     maxrowcount=20;
 
-    Bt_temperature=29;
-    Tp_temperature=30;
+    Bt_temperature=25;
+    Tp_temperature=400*0.63;
 
     deviceid=0;
     canid=0;
@@ -47,7 +48,7 @@ settings::settings()
 
     CompanyName={{0,"A"},{1,"B"}};
 
-    saveInterval_minus=10;
+    saveInterval_minus=0.1;
 
     taskCode={{"SaveChart",0},{"SaveTable",1}};
 

@@ -17,6 +17,8 @@
 #include <map>
 #include <QMap>
 
+extern class settings settings;
+
 class settings
 {
 public:
@@ -72,8 +74,5 @@ public:
     //sendmessages
     uint sendMessageInterval;
     uint canindex;
-
-
 };
-static settings settings;
 #endif // SETTINGS_H
