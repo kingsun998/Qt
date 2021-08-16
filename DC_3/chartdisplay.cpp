@@ -115,6 +115,9 @@ chartDisplay::chartDisplay(QWidget *parent):
         _mkdir(framedir.toLatin1().data());
     }
 
+    PrecesionMode=false;
+    TestTemperature=0;
+    offset=0;
 }
 
 chartDisplay::~chartDisplay(){
@@ -180,7 +183,18 @@ void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,i
     Calculate(index1,Tcf);
     ReceiveTime[index1]->setText(QString::number(time[index1].last()));
     ReceiveVal[index1]->setText(QString::number(Tcf));
-//    qDebug()<<"msg  5";
+    if(PrecesionMode){
+        QPalette pf;
+        bool flg;
+        if(offset<0){
+            flg=abs(Tcf-TestTemperature)<TestTemperature*(-offset);
+        }else{
+            flg=abs(Tcf-TestTemperature)<1.5;
+        }
+        pf.setColor(QPalette::WindowText,settings.testColor[flg]);
+        ReceiveVal[index1]->setPalette(pf);
+    }
+
     //排除第三个
     if(index2==-1){
         emit sendtochart(1,mx/4,2,Tcf,-1,-1);
@@ -194,6 +208,18 @@ void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,i
     ReceiveTime[index2]->setText(QString::number(time[index2].last()));
     ReceiveVal[index2]->setText(QString::number(Tcs));
 //    qDebug()<<"msg  6";
+    //若已经开启测试模式，则变换其颜色
+    if(PrecesionMode){
+        QPalette ps;
+        bool flg;
+        if(offset<0){
+            flg=abs(Tcs-TestTemperature)<TestTemperature*(-offset);
+        }else{
+            flg=abs(Tcs-TestTemperature)<1.5;
+        }
+        ps.setColor(QPalette::WindowText,settings.testColor[flg]);
+        ReceiveVal[index2]->setPalette(ps);
+    }
     emit sendtochart(chartype,mx/4,code,Tcf,Tcs,-1);
 
 }
@@ -235,8 +261,10 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             ReceiveStatus[1]->setText(settings.errorCode_TC[error2]);
             status[0].push_back(settings.errorCode_TC[error1]);
             status[1].push_back(settings.errorCode_TC[error2]);
+
+            saveTimestamp.push_back(datetime);
             break;
-        case 352140931:
+        case 352140931:  //14fd3e83
             suit_Cell(0,1,mx,2,0,1,3,3,4,obj.Data);
 
             //计算错误码
@@ -257,7 +285,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             status[2].push_back(settings.errorCode_TC[error1]);
             status[3].push_back(settings.errorCode_TC[error2]);
             break;
-        case 419280003:
+        case 419280003:  //18fdb483
             suit_Cell(1,2,mx,4,2,3,-1,-1,-1,obj.Data);
             //计算错误码
             for(int i=1;i<5;i++){
@@ -308,7 +336,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 status[3].push_back(settings.errorCode_ECU[error2]);
             }
             break;
-        case 285034371:
+        case 285034371:   //10fd4783
             V1=(obj.Data[1]*256+obj.Data[0])*1.0/200-100;
             V2=(obj.Data[3]*256+obj.Data[2])*1.0/200-100;
             V3=(obj.Data[5]*256+obj.Data[4])*1.0/200-100;
@@ -322,7 +350,6 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             saveTempeture[9].push_back(V3);
             saveTempeture[10].push_back(V4);
 
-            saveTimestamp.push_back(datetime);
             break;
 
         case 419394771:  //18ff74d3   //特殊帧
@@ -382,7 +409,6 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
         break;
         case 419395539:  //18ff77d3 此帧结果等于  18ff75d3 此处忽略
 
-//            suit_Cell(0,4,mx,0,0,1,1,2,3,obj.Data);
         break;
         default: break;
     }
@@ -531,3 +557,20 @@ void chartDisplay::changeCompanyType(){
 }
 
 
+
+void chartDisplay::on_radioButton_toggled(bool checked)
+{
+    qDebug()<<checked;
+    PrecesionMode=checked;
+}
+
+void chartDisplay::on_lineEdit_3_editingFinished()
+{
+    TestTemperature=ui->lineEdit_3->text().toDouble();
+    if(TestTemperature>=40&&TestTemperature<=375){
+        offset=1.5;
+    }
+    if(TestTemperature>375&&TestTemperature<=800){
+        offset=-0.004;
+    }
+}

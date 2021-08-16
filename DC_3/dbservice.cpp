@@ -100,6 +100,7 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
                 int col=0;
                 sheet->writeStr(line, col++,reinterpret_cast<const wchar_t *>(timestamp[i].utf16()));
                 for (int j=0;j<settings.lineNums;j++) {
+                    qDebug()<<"error?"<<j;
                     sheet->writeNum(line,col++, temperature[j][i]);
                 }
                 qDebug()<<"error2";

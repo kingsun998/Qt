@@ -74,5 +74,8 @@ public:
     //sendmessages
     uint sendMessageInterval;
     uint canindex;
+
+    //stander
+    QMap<bool,Qt::GlobalColor> testColor;
 };
 #endif // SETTINGS_H

@@ -49,6 +49,10 @@ private slots:
 
     void on_comboBox_currentIndexChanged(int index);
 
+    void on_radioButton_toggled(bool checked);
+
+    void on_lineEdit_3_editingFinished();
+
 private:
     Ui::chartdisplay_ui *ui;
 
@@ -96,6 +100,10 @@ private:
     int companytypecode;
 
     void resetAry();
+
+    bool PrecesionMode;
+    double TestTemperature;
+    double offset;
 };
 
 #endif // CHARTDISPLAY_H

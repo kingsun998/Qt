@@ -63,6 +63,8 @@ settings::settings()
     CompanyType=0;
 
     totalnums=11;
+
+    testColor={{false,Qt::red},{true,Qt::green}};
 }
 
 void settings::setbote(){
