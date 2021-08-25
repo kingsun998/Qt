@@ -1,9 +1,9 @@
 ﻿#include "framedispaly.h"
 #include "ui_framedisplay.h"
 #include "dbservice.h"
-// QTableWidgetItem   qtablewidget的item
-// QTableViewItem
-
+#include <memory>
+#include <windows.h>
+#include <mutex>
 frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
     ui(new Ui::framedisplay_ui)
 {
@@ -11,7 +11,6 @@ frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
 
     //以前使用的是tabwidget
     //这里使用的是tabview，而这里使用model来适配tabview
-//
 
     ui->tableWidget->setColumnCount(8);
     /* 设置列宽在可视界面自适应宽度 */
@@ -32,12 +31,19 @@ frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
     rowcount=0;
     allowshow=true;
     receive=true;
+
+    saveInterval_miseconds=settings.saveChart_Interval*60*1000;
+    timeClick=GetTickCount();
 }
 
 void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycode){
     //保存信息
     if(!receive){
         return;
+    }
+    //判断是否超过了预设时间
+    if(GetTickCount()-timeClick>saveInterval_miseconds){
+        this->on_pushButton_clicked();
     }
     QString messageExtern;
     if(obj.ExternFlag == 1)
@@ -64,37 +70,38 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycod
        return;
    }
    ui->tableWidget->insertRow(rowcount);
-   QTableWidgetItem *lineid=new QTableWidgetItem(QString::number(mx,10));
-   lineid->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,0,lineid);
 
-   QTableWidgetItem *devicetype=new QTableWidgetItem(QString::number(settings.devicetype));
-   devicetype->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,1,devicetype);
+   std::shared_ptr<QTableWidgetItem> lineid(new QTableWidgetItem(QString::number(mx,10)));
+   lineid.get()->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,0,lineid.get());
 
-   QTableWidgetItem *messageExternItem=new QTableWidgetItem(messageExtern);
-   messageExternItem->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,2,messageExternItem);
+   std::shared_ptr<QTableWidgetItem> devicetype(new QTableWidgetItem(QString::number(settings.devicetype)));
+   devicetype.get()->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,1,devicetype.get());
 
-   QTableWidgetItem *frametype=new QTableWidgetItem("远程帧|本地帧");
-   frametype->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,3,frametype);
+   std::shared_ptr<QTableWidgetItem> messageExternItem(new QTableWidgetItem(messageExtern));
+   messageExternItem.get()->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,2,messageExternItem.get());
 
-   QTableWidgetItem *frameID=new QTableWidgetItem(QString::number(obj.ID,16));
-   frameID->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,4,frameID);
+   std::shared_ptr<QTableWidgetItem> frametype(new QTableWidgetItem("远程帧|本地帧"));
+   frametype.get()->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,3,frametype.get());
 
-   QTableWidgetItem *framelen=new QTableWidgetItem(QString::number(obj.DataLen,10));
-   framelen->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,5,framelen);
+   std::shared_ptr<QTableWidgetItem> frameID(new QTableWidgetItem(QString::number(obj.ID,16)));
+   frameID.get()->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,4,frameID.get());
+
+   std::shared_ptr<QTableWidgetItem> framelen(new QTableWidgetItem(QString::number(obj.DataLen,10)));
+   framelen.get()->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,5,framelen.get());
    //这里写 Data
-   QTableWidgetItem *frame_info=new QTableWidgetItem(data_info);
-   frame_info->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,6,frame_info);
+   std::shared_ptr<QTableWidgetItem> frame_info(new QTableWidgetItem(data_info));
+   frame_info.get()->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,6,frame_info.get());
 
-   QTableWidgetItem *frametime=new QTableWidgetItem(datetime);
-   frametime->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,7,frametime);
+   std::shared_ptr<QTableWidgetItem> frametime(new QTableWidgetItem(datetime));
+   frametime.get()->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,7,frametime.get());
 
    if(rowcount>settings.maxrowcount){
        ui->tableWidget->removeRow(0);
@@ -116,6 +123,10 @@ Q_DECLARE_METATYPE(QVector<uint>);
 void frameDisplay::on_pushButton_clicked(){
     //保存期间关闭接受
     receive=false;
+    //加一层锁
+    std::mutex mutex;
+    std::lock_guard<std::mutex> lock(mutex);
+
     QVector<QString> newFrameType;
     QVector<QString> newCompanyName;
     QVector<uint> newFrameID;
@@ -128,7 +139,7 @@ void frameDisplay::on_pushButton_clicked(){
     newFrameLen.swap(FrameLen);
     newFrameContent.swap(FrameContent);
     newData.swap(Data);
-    qDebug()<<newData.size();
+//    qDebug()<<newData.size();
 //    for(int i=0;i<newData.size();i++){
 //        qDebug()<<i<<"  "<<newData[i];
 //    }
@@ -141,7 +152,6 @@ void frameDisplay::on_pushButton_clicked(){
 
     emit db.saveTable(content,data,id,type,name,len,
                               QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss"));
+    timeClick=GetTickCount();
     receive=true;
-
-
 }

@@ -82,13 +82,14 @@ private:
     //接受的总帧数
     int totalnums;
 
-
+    //接受的数据
     QVector<double> timestart;
     QVector<bool> records_bt;
     QVector<double> timeend;
     QVector<bool> records_tp;
 
     //savetime;
+    //接受的数据
     double saveTime;
     QVector<QVector<double>> saveTempeture;
     QVector<QString> saveTimestamp;

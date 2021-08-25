@@ -48,7 +48,9 @@ settings::settings()
 
     CompanyName={{0,"A"},{1,"B"}};
 
-    saveInterval_minus=0.1;
+    saveInterval_minus=10;
+
+    saveChart_Interval=10;
 
     taskCode={{"SaveChart",0},{"SaveTable",1}};
 

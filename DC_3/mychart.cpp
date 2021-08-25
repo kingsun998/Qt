@@ -52,7 +52,7 @@ Mychart::~Mychart(){
 }
 
 void Mychart::changeSplineName(int companytypecode){
-    qDebug()<<"1.1";
+//    qDebug()<<"1.1";
     this->companytypecode=companytypecode;
     for (int i=0;i<linenums;i++) {
         my_series[i]->clear();

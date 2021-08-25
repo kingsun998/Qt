@@ -11,22 +11,35 @@ baseInfo::baseInfo(QWidget *parent) :
 
 void baseInfo::on_lineEdit_2_editingFinished()
 {
-    settings.Bt_temperature=ui->lineEdit_2->text().toDouble();
+    QString num=ui->lineEdit_2->text();
+    if(num!=""||num!=nullptr){
+        settings.Bt_temperature=num.toDouble();
+    }
 }
 
 void baseInfo::on_lineEdit_3_editingFinished()
 {
-    settings.Tp_temperature=ui->lineEdit_3->text().toDouble()*0.63;
+    QString num=ui->lineEdit_3->text();
+    if(num!=""||num!=nullptr){
+        settings.Tp_temperature=num.toDouble()*0.63;
+    }
 }
 
 void baseInfo::on_lineEdit_4_editingFinished()
 {
-    settings.saveInterval_minus=ui->lineEdit_4->text().toDouble();
+    QString num=ui->lineEdit_4->text();
+    if(num!=""||num!=nullptr){
+        settings.saveInterval_minus=num.toDouble();
+    }
 }
 
 void baseInfo::on_lineEdit_5_editingFinished()
 {
-    settings.maxrowcount=ui->lineEdit_5->text().toInt();
+    QString num=ui->lineEdit_5->text();
+    if(num!=""||num!=nullptr){
+        settings.maxrowcount=num.toInt();
+    }
+
 }
 
 void baseInfo::on_comboBox_8_activated(int index)
@@ -34,4 +47,12 @@ void baseInfo::on_comboBox_8_activated(int index)
     QString s=ui->comboBox_8->itemText(index);
     settings.boterate=s.mid(0,s.size()-4).toInt();
     settings.setbote();
+}
+
+void baseInfo::on_lineEdit_6_editingFinished()
+{
+    QString num=ui->lineEdit_6->text();
+    if(num!=""||num!=nullptr){
+        settings.saveChart_Interval=num.toDouble();
+    }
 }

@@ -40,6 +40,7 @@ public:
     uint brp;
     //framedisplay
     int maxrowcount;
+    double saveChart_Interval;
     //chartdisplay
     INIT_CONFIG pInitConfig;
     std::map<int,QString> errorCode_TC;
@@ -77,5 +78,7 @@ public:
 
     //stander
     QMap<bool,Qt::GlobalColor> testColor;
+
+
 };
 #endif // SETTINGS_H

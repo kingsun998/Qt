@@ -1,4 +1,4 @@
-#ifndef BASEINFO_H
+﻿#ifndef BASEINFO_H
 #define BASEINFO_H
 
 #include <QWidget>
@@ -28,6 +28,8 @@ private slots:
     void on_lineEdit_5_editingFinished();
 
     void on_comboBox_8_activated(int index);
+
+    void on_lineEdit_6_editingFinished();
 
 private:
     Ui::baseinfo_ui *ui;

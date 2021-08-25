@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <qstandarditemmodel.h>
 #include <settings.h>
+#include <qtimer.h>
 namespace Ui{
     class framedisplay_ui;
 }
@@ -35,6 +36,11 @@ private:
     QVector<QString> FrameContent;
     QVector<QString> Data;
     bool receive;
+
+    //计时器
+    QTimer *timer;
+    DWORD timeClick;
+    double saveInterval_miseconds;
 };
 
 #endif // FRAMEDISPALY_H

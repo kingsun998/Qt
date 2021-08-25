@@ -1,4 +1,4 @@
-#include "bootloader.h"
+﻿#include "bootloader.h"
 #ifdef LANGUE_EN
 #include "ui_bootloader_en.h"
 #else
@@ -415,7 +415,7 @@ void BootLoader::on_scanNodeAction_triggered()
     bool GotNode=false;
     int DeviceHandle = ui->deviceHandleComboBox->currentText().toInt(NULL,16);
     uint8_t startAddr = 0,endAddr = 0;
-    qDebug()<<"1";
+//    qDebug()<<"1";
     ScanDevRangeDialog *pScanDevRangeDialog = new ScanDevRangeDialog();
     if(pScanDevRangeDialog->exec() == QDialog::Accepted){
         startAddr = pScanDevRangeDialog->StartAddr;
@@ -423,7 +423,7 @@ void BootLoader::on_scanNodeAction_triggered()
     }else{
         return ;
     }
-    qDebug()<<"2";
+//    qDebug()<<"2";
     bool ConfFlag = DeviceConfig();
     if(!ConfFlag){
         return;
@@ -432,7 +432,7 @@ void BootLoader::on_scanNodeAction_triggered()
     ui->nodeListTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->nodeListTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->nodeListTableWidget->setRowCount(0);
-    qDebug()<<"3";
+//    qDebug()<<"3";
 #ifdef LANGUE_EN
     QProgressDialog scanNodeProcess("Scanning CAN node...","Cancel",0,MAX_NODE_NUM,this);
     scanNodeProcess.setWindowTitle("Scanning CAN node");

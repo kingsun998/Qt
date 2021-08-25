@@ -85,7 +85,7 @@ chartDisplay::chartDisplay(QWidget *parent):
     for(int i=0;i<settings.lineNums;i++){
         list[i]->setChecked(true);
     }
-    qDebug()<<settings.lineNums<<"  "<<settings.totalnums;
+//    qDebug()<<settings.lineNums<<"  "<<settings.totalnums;
     for(int i=settings.lineNums;i<settings.totalnums;i++){
         list[i]->setEnabled(false);
     }
@@ -109,7 +109,7 @@ chartDisplay::chartDisplay(QWidget *parent):
     QDir Dir(dir);
     if (!Dir.exists())
     {
-        qDebug()<<"__________create dir_______________";
+//        qDebug()<<"__________create dir_______________";
         _mkdir(dir.toLatin1().data());
         _mkdir(chartdir.toLatin1().data());
         _mkdir(framedir.toLatin1().data());
@@ -256,7 +256,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 error2+=base*tmp;
                 base*=2;
             }
-            qDebug()<<1<<"  "<<error1<<"   "<<error2;
+//            qDebug()<<1<<"  "<<error1<<"   "<<error2;
             ReceiveStatus[0]->setText(settings.errorCode_TC[error1]);
             ReceiveStatus[1]->setText(settings.errorCode_TC[error2]);
             status[0].push_back(settings.errorCode_TC[error1]);
@@ -281,7 +281,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 base*=2;
             }
             ReceiveStatus[3]->setText(settings.errorCode_TC[error2]);
-            qDebug()<<error1<<"   "<<error2;
+//            qDebug()<<error1<<"   "<<error2;
             status[2].push_back(settings.errorCode_TC[error1]);
             status[3].push_back(settings.errorCode_TC[error2]);
             break;
@@ -325,7 +325,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 error2+=base*tmp;
                 base*=2;
             }
-            qDebug()<<2<<"  "<<error1<<"   "<<error2;
+//            qDebug()<<2<<"  "<<error1<<"   "<<error2;
             if(companytypecode==0){
                 ReceiveStatus[6]->setText(settings.errorCode_ECU[error2]);
                 status[5].push_back(settings.errorCode_ECU[error1]);
@@ -342,9 +342,9 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             V3=(obj.Data[5]*256+obj.Data[4])*1.0/200-100;
             V4=(obj.Data[7]*256+obj.Data[6])*1.0/200-100;
             ReceiveVal[7]->setText(QString::number(V1));
-            ReceiveVal[8]->setText(QString::number(V1));
-            ReceiveVal[9]->setText(QString::number(V1));
-            ReceiveVal[10]->setText(QString::number(V1));
+            ReceiveVal[8]->setText(QString::number(V2));
+            ReceiveVal[9]->setText(QString::number(V3));
+            ReceiveVal[10]->setText(QString::number(V4));
             saveTempeture[7].push_back(V1);
             saveTempeture[8].push_back(V2);
             saveTempeture[9].push_back(V3);
@@ -404,7 +404,26 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             ReceiveStatus[6]->setText(settings.errorCode_TC[error2]);
             status[6].push_back(settings.errorCode_TC[0]);
             base=1;
-
+            //判断测试
+            if(PrecesionMode){
+                QPalette pf,ps,pt;
+                bool flg1,flg2,flg3;
+                if(offset<0){
+                    flg1=abs(Tcf-TestTemperature)<TestTemperature*(-offset);
+                    flg2=abs(Tcs-TestTemperature)<TestTemperature*(-offset);
+                    flg3=abs(Tct-TestTemperature)<TestTemperature*(-offset);
+                }else{
+                    flg1=abs(Tcf-TestTemperature)<1.5;
+                    flg2=abs(Tcs-TestTemperature)<1.5;
+                    flg3=abs(Tct-TestTemperature)<1.5;
+                }
+                pf.setColor(QPalette::WindowText,settings.testColor[flg1]);
+                ps.setColor(QPalette::WindowText,settings.testColor[flg2]);
+                pt.setColor(QPalette::WindowText,settings.testColor[flg3]);
+                ReceiveVal[4]->setPalette(pf);
+                ReceiveVal[5]->setPalette(pf);
+                ReceiveVal[6]->setPalette(pf);
+            }
             emit sendtochart(1,mx/4,4,Tcf,Tcs,Tct);
         break;
         case 419395539:  //18ff77d3 此帧结果等于  18ff75d3 此处忽略
@@ -421,9 +440,9 @@ Q_DECLARE_METATYPE(QVector<QVector<double>>)
 void chartDisplay::handleTimeOut(){
         double newtime=GetTickCount();
         if(newtime-saveTime>saveInterval_miseconds){
-            qDebug()<<"主线程："<<QThread::currentThreadId();
+//            qDebug()<<"主线程："<<QThread::currentThreadId();
             QDateTime start=QDateTime::currentDateTime();
-            qDebug()<<"开始"<<start.toUTC();
+//            qDebug()<<"开始"<<start.toUTC();
             QVector<QVector<double>> save_mid_temperature;
             QVector<QString> save_mid_timestamp;
             QVector<QVector<QString>> save_mid_status;
@@ -437,17 +456,17 @@ void chartDisplay::handleTimeOut(){
 //            saveTimestamp.resize(settings.totalnums);
             status.resize(settings.totalnums);
             time.resize(settings.totalnums);
-            qDebug()<<"数组大小"<<save_mid_time.size();
-            qDebug()<<"数组大大小"<<save_mid_time[0].size();
-            qDebug()<<"数组大大大小"<<save_mid_time[0].size();
+//            qDebug()<<"数组大小"<<save_mid_time.size();
+//            qDebug()<<"数组大大小"<<save_mid_time[0].size();
+//            qDebug()<<"数组大大大小"<<save_mid_time[0].size();
             QVariant tp=QVariant::fromValue(save_mid_temperature);
             QVariant ts=QVariant::fromValue(save_mid_timestamp);
             QVariant sta=QVariant::fromValue(save_mid_status);
             QVariant tm=QVariant::fromValue(save_mid_time);
-            emit db.saveChart(tp,ts,sta,tm,QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss"));
+            emit db.saveChart(tp,ts,sta,tm,QDateTime::currentDateTime().toString("yyyy_MM_dd"));
             saveTime=newtime;
             QDateTime end=QDateTime::currentDateTime();
-            qDebug()<<"结束"<<end.toUTC();
+//            qDebug()<<"结束"<<end.toUTC();
         }
 
         ULONG len=Receive(settings.devicetype,settings.deviceid,settings.canid,objs,50,100);
@@ -541,9 +560,7 @@ void chartDisplay::on_comboBox_currentIndexChanged(int index)
 {
     companytypecode=ui->comboBox->currentIndex();
     changeCompanyType();
-    qDebug()<<"123";
     resetAry();
-    qDebug()<<"456";
     fchart->changeSplineName(companytypecode);
     schart->changeSplineName(companytypecode);
 }
@@ -560,7 +577,6 @@ void chartDisplay::changeCompanyType(){
 
 void chartDisplay::on_radioButton_toggled(bool checked)
 {
-    qDebug()<<checked;
     PrecesionMode=checked;
 }
 

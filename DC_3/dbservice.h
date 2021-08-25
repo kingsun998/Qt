@@ -58,6 +58,7 @@ private:
    QThread tableThread;
    class saveChart savechart;
    class saveTable savetable;
+   int current_date;
 };
 
 #endif // DBSERVICE_H
