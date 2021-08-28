@@ -117,8 +117,17 @@ void Mychart::getMessage(int charttype,int mx,int index,double tcf,double tcs,do
                 my_series[0]->append(mx,tcf);
                 my_series[1]->append(mx,tcs);
                 my_series[2]->append(mx,tct);
+                pointsNum[0]++;
+                pointsNum[1]++;
+                pointsNum[2]++;
+                if(pointsNum[0]>settings.maxpoints){
+                    my_series[0]->remove(0);
+                    my_series[1]->remove(0);
+                    my_series[2]->remove(0);
+                }
                 axisX->setRange(mx-settings.defaultXlen/2,mx+settings.defaultXlen/2);
-        default:break;
+            break;
+            default:break;
         }
     }
 }

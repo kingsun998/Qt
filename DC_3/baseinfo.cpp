@@ -39,6 +39,7 @@ void baseInfo::on_lineEdit_5_editingFinished()
     if(num!=""||num!=nullptr){
         settings.maxrowcount=num.toInt();
     }
+//    qDebug()<<&settings;
 
 }
 

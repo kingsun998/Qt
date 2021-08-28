@@ -231,8 +231,6 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
     int tmp;
     double V1,V2,V3,V4;
     double Tcf,Tcs,Tct;
-//    qDebug()<<"msg 3   "<<obj.ID;
-//    qDebug()<<"msg 3   "<<datetime;
     switch (obj.ID) {
         case 419395283: //18ff76d3
         case 419242115://18FD2083    这两帧处理方式一样
@@ -439,6 +437,7 @@ Q_DECLARE_METATYPE(QVector<QString>)
 Q_DECLARE_METATYPE(QVector<QVector<double>>)
 void chartDisplay::handleTimeOut(){
         double newtime=GetTickCount();
+
         if(newtime-saveTime>saveInterval_miseconds){
 //            qDebug()<<"主线程："<<QThread::currentThreadId();
             QDateTime start=QDateTime::currentDateTime();
@@ -453,25 +452,22 @@ void chartDisplay::handleTimeOut(){
             save_mid_status.swap(status);
             save_mid_time.swap(time);
             saveTempeture.resize(settings.totalnums);
-//            saveTimestamp.resize(settings.totalnums);
             status.resize(settings.totalnums);
             time.resize(settings.totalnums);
-//            qDebug()<<"数组大小"<<save_mid_time.size();
-//            qDebug()<<"数组大大小"<<save_mid_time[0].size();
-//            qDebug()<<"数组大大大小"<<save_mid_time[0].size();
+
             QVariant tp=QVariant::fromValue(save_mid_temperature);
             QVariant ts=QVariant::fromValue(save_mid_timestamp);
             QVariant sta=QVariant::fromValue(save_mid_status);
             QVariant tm=QVariant::fromValue(save_mid_time);
+            qDebug()<<QDateTime::currentDateTime().toString("hh_mm_ss");
             emit db.saveChart(tp,ts,sta,tm,QDateTime::currentDateTime().toString("yyyy_MM_dd"));
             saveTime=newtime;
             QDateTime end=QDateTime::currentDateTime();
-//            qDebug()<<"结束"<<end.toUTC();
         }
 
         ULONG len=Receive(settings.devicetype,settings.deviceid,settings.canid,objs,50,100);
 
-        qDebug()<<"收到"<<len<<"帧";
+//        qDebug()<<"收到"<<len<<"帧";
         for(uint i=0;i<len;i++){
             emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
         }
@@ -494,7 +490,7 @@ void chartDisplay::on_pushButton_clicked()
 //    qDebug()<<settings.Bt_temperature;
 //    qDebug()<<settings.Tp_temperature;
 //    QMessageBox::information(this,"提示",QCoreApplication::applicationDirPath(),QMessageBox::Warning);
-
+//    qDebug()<<&settings;
     DWORD drl;
     drl=OpenDevice(settings.devicetype,settings.deviceid,0);
     if (drl != STATUS_OK)

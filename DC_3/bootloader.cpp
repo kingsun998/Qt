@@ -117,7 +117,7 @@ bool BootLoader::DeviceConfig(void)
     QString str = ui->baudRateComboBox->currentText();
     str.resize(str.length()-1);
     int baud = str.toInt(NULL,10)*1000;
-    qDebug()<<"baud = "<<baud;
+//    qDebug()<<"baud = "<<baud;
     ret = CAN_BOOT_Init(DeviceHandle,
                         ui->channelIndexComboBox->currentIndex(),
                         ui->spinBoxSendID->value(),
@@ -125,8 +125,8 @@ bool BootLoader::DeviceConfig(void)
                         ui->comboBoxIDType->currentIndex()|(ui->checkBoxEnResistor->isChecked()?0x80:0x00),
                         baud);
 
-    qDebug()<<ret<<DeviceHandle<<ui->channelIndexComboBox->currentIndex()<<ui->spinBoxSendID->value()<< ui->spinBoxReceiveID->value()
-           <<ui->comboBoxIDType->currentIndex()<<baud<<ui->checkBoxEnResistor->isChecked();
+//    qDebug()<<ret<<DeviceHandle<<ui->channelIndexComboBox->currentIndex()<<ui->spinBoxSendID->value()<< ui->spinBoxReceiveID->value()
+//           <<ui->comboBoxIDType->currentIndex()<<baud<<ui->checkBoxEnResistor->isChecked();
     if(ret != CAN_SUCCESS){
 #ifdef LANGUE_EN
         QMessageBox::warning(this,"Warning","Config device faild!");
@@ -205,7 +205,7 @@ void BootLoader::on_updateFirmwarePushButton_clicked()
                         }
                     }
                 }
-                qDebug()<<"ENTER BOOT MODE";
+//                qDebug()<<"ENTER BOOT MODE";
                 //成功进入BOOT模式，开始升级固件
                 ui->nodeListTableWidget->item(r,4)->setText("开始擦除固件，该操作可能比较耗时...");
                 QCoreApplication::processEvents(QEventLoop::AllEvents);//防止界面卡死，可处理别的事件
@@ -265,10 +265,10 @@ void BootLoader::on_updateFirmwarePushButton_clicked()
             QMessageBox::warning(this,"警告","获取数据缓冲区大小为0！");
             return;
         }
-        qDebug()<<"SetAddrOffset = "<<i;
-        qDebug()<<"BufferSize = "<<BufferSize;
+//        qDebug()<<"SetAddrOffset = "<<i;
+//        qDebug()<<"BufferSize = "<<BufferSize;
         read_data_num = firmwareFile.read((char*)FirmwareData,BufferSize);
-        qDebug()<<"read_data_num = "<<read_data_num;
+//        qDebug()<<"read_data_num = "<<read_data_num;
         i += BufferSize;
         if(ui->allNodeCheckBox->isChecked()){
             ret = CAN_BOOT_SendAppData(DeviceHandle,
@@ -301,8 +301,8 @@ void BootLoader::on_updateFirmwarePushButton_clicked()
                         writeDataProcess.close();
                         return;
                     }
-                    qDebug()<<"Send App Data Success";
-                    qDebug()<<"CRC16 = "<<QString().sprintf("%04X",CRC16);
+//                    qDebug()<<"Send App Data Success";
+//                    qDebug()<<"CRC16 = "<<QString().sprintf("%04X",CRC16);
                 }
             }
         }
@@ -374,7 +374,7 @@ void BootLoader::on_updateFirmwarePushButton_clicked()
             uint32_t FWVersion;
             uint8_t FWType;
             NodeAddr = ui->nodeListTableWidget->item(r,1)->text().toUInt(NULL,16);
-            qDebug()<<"GET CHIP INFO "<<NodeAddr;
+//            qDebug()<<"GET CHIP INFO "<<NodeAddr;
             ret = CAN_BOOT_GetFWInfo(DeviceHandle,
                                      ui->channelIndexComboBox->currentIndex(),
                                      NodeAddr,
@@ -401,7 +401,7 @@ void BootLoader::on_updateFirmwarePushButton_clicked()
             }
         }
     }
-    qDebug()<<time.elapsed()/1000.0<<"s";
+//    qDebug()<<time.elapsed()/1000.0<<"s";
 }
 
 void BootLoader::on_openFirmwareFileAction_triggered()
@@ -449,7 +449,7 @@ void BootLoader::on_scanNodeAction_triggered()
         uint32_t FWVersion;
         uint8_t FWType;
         i++;
-        qDebug()<<DeviceHandle<<" "<<ui->channelIndexComboBox->currentIndex()<<startAddr;
+//        qDebug()<<DeviceHandle<<" "<<ui->channelIndexComboBox->currentIndex()<<startAddr;
         ret = CAN_BOOT_GetFWInfo(DeviceHandle,
                                  ui->channelIndexComboBox->currentIndex(),
                                  startAddr,
@@ -498,7 +498,7 @@ void BootLoader::on_scanNodeAction_triggered()
                                            "3，检查总线接线是否正确？");
             return;
         }
-        qDebug()<<"ret = "<<ret;
+//        qDebug()<<"ret = "<<ret;
         scanNodeProcess.setValue(i);
         QCoreApplication::processEvents(QEventLoop::AllEvents);
         if(scanNodeProcess.wasCanceled()){
@@ -684,7 +684,7 @@ void BootLoader::on_biaodingpushButton_clicked()
                         }
                     }
                 }
-                qDebug()<<"ENTER BOOT MODE";
+//                qDebug()<<"ENTER BOOT MODE";
                 //成功进入BOOT模式，开始升级固件
                 ui->nodeListTableWidget->item(r,4)->setText("开始擦除标定数据，该操作可能比较耗时...");
                 QCoreApplication::processEvents(QEventLoop::AllEvents);//防止界面卡死，可处理别的事件
@@ -754,10 +754,10 @@ void BootLoader::on_biaodingpushButton_clicked()
             QMessageBox::warning(this,"警告","获取数据缓冲区大小为0！");
             return;
         }
-        qDebug()<<"SetAddrOffset = "<<i;
-        qDebug()<<"BufferSize = "<<BufferSize;
+//        qDebug()<<"SetAddrOffset = "<<i;
+//        qDebug()<<"BufferSize = "<<BufferSize;
         read_data_num = firmwareFile.read((char*)FirmwareData,BufferSize);
-        qDebug()<<"read_data_num = "<<read_data_num;
+//        qDebug()<<"read_data_num = "<<read_data_num;
         i += BufferSize;
         if(ui->allNodeCheckBox->isChecked()){
             ret = CAN_BOOT_SendAppData(DeviceHandle,
@@ -790,8 +790,8 @@ void BootLoader::on_biaodingpushButton_clicked()
                         writeDataProcess.close();
                         return;
                     }
-                    qDebug()<<"Send App Data Success";
-                    qDebug()<<"CRC16 = "<<QString().sprintf("%04X",CRC16);
+//                    qDebug()<<"Send App Data Success";
+//                    qDebug()<<"CRC16 = "<<QString().sprintf("%04X",CRC16);
                 }
             }
         }
@@ -808,7 +808,7 @@ void BootLoader::on_biaodingpushButton_clicked()
                 if(ret != CAN_SUCCESS){
                     ui->nodeListTableWidget->item(r,4)->setText(QString("标定数据写入失败!\r")+GetErrorString(ret));
                     writeDataProcess.close();
-                    qDebug()<<GetErrorString(ret)<<ret;
+//                    qDebug()<<GetErrorString(ret)<<ret;
                     return;
                 }
             }
@@ -864,7 +864,7 @@ void BootLoader::on_biaodingpushButton_clicked()
             uint32_t FWVersion;
             uint8_t FWType;
             NodeAddr = ui->nodeListTableWidget->item(r,1)->text().toUInt(NULL,16);
-            qDebug()<<"GET CHIP INFO "<<NodeAddr;
+//            qDebug()<<"GET CHIP INFO "<<NodeAddr;
             ret = CAN_BOOT_GetFWInfo(DeviceHandle,
                                      ui->channelIndexComboBox->currentIndex(),
                                      NodeAddr,
@@ -891,7 +891,7 @@ void BootLoader::on_biaodingpushButton_clicked()
             }
         }
     }
-    qDebug()<<time.elapsed()/1000.0<<"s";
+//    qDebug()<<time.elapsed()/1000.0<<"s";
 }
 
 

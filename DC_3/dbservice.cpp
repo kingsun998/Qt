@@ -62,8 +62,6 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
 
     if(!QFile::exists(filename)){
         //不存在
-//        qDebug()<<filename;
-//        qDebug()<<"create file";
         book=xlCreateBookW();
         libxl::Sheet* sheet = book->addSheet(L"Sheet1");
         book->save(filename.toStdWString().c_str());
