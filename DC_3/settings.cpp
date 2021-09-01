@@ -21,24 +21,18 @@ settings::settings()
 
     boterate=1000;
 
-    maxrowcount=20;
-
-    Bt_temperature=25;
-    Tp_temperature=400*0.63;
-
     deviceid=0;
     canid=0;
     devicetype=3;
 
+    Y_min=-10;
+    Y_max=400;
+    //chartdisplay
     pInitConfig.AccCode=0;
     pInitConfig.AccMask=0xffffff;
     pInitConfig.Filter=0;
     pInitConfig.Timing0=0x01;
     pInitConfig.Timing1=0x1c;
-
-    Y_min=-10;
-    Y_max=400;
-
     errorCode_TC={{0,"Pass"},{1,"TC Short to Vbat"},{2,"TC Short to Gnd"},{5,"TC Open ckt"},
                {6,"TC ASIC"},{11,"TC CJ"},{13,"TC ECU"},{16,"Not complete"}};
     errorCode_CJ={{0,"Pass"},{1,"CJ Short ckt"},{4,"CJ Open ckt"},{6,"CJ ASIC"},
@@ -47,26 +41,34 @@ settings::settings()
                {11,"ECU Low Volt"},{15,"ECU Overtemp"},{16,"Not complete"}};
 
     CompanyName={{0,"A"},{1,"B"}};
+    Bt_temperature=25;
+    Tp_temperature=400*0.63;
 
     saveInterval_minus=10;
 
-    saveChart_Interval=10;
-
-    taskCode={{"SaveChart",0},{"SaveTable",1}};
-
-    basepath="../savefiles/";
-
     lineNums=7;
-
-    sendMessageInterval=100;
-
-    canindex=1;
 
     CompanyType=0;
 
     totalnums=11;
+    //sendmessages
+    sendMessageInterval=100;
+    canindex=1;
 
+    //stander
     testColor={{false,Qt::red},{true,Qt::green}};
+
+    //framedisplay
+    maxrowcount=20;
+    saveChart_Interval=10;
+
+    send_frame_type={{0,"数据帧"},{1,"远程帧"}};
+    send_frame_format={{0,"标准帧"},{1,"扩展帧"}};
+    send_frame_id=0;
+    send_frame_interval=0;
+    send_frame_nums=0;
+    id_auto_increase=false;
+
 }
 
 void settings::setbote(){

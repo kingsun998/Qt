@@ -554,6 +554,7 @@ void chartDisplay::on_pushButton_4_clicked()
 
 void chartDisplay::on_comboBox_currentIndexChanged(int index)
 {
+    settings.CompanyType=ui->comboBox->currentIndex();
     companytypecode=ui->comboBox->currentIndex();
     changeCompanyType();
     resetAry();

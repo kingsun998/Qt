@@ -32,6 +32,7 @@ RC_FILE =  \
 SOURCES += \
         baseinfo.cpp \
         chartdisplay.cpp \
+        comprocess.cpp \
         dbservice.cpp \
         framedisplay.cpp \
         main.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
         ECanVci.h \
         baseinfo.h \
         chartdisplay.h \
+        comprocess.h \
         dbservice.h \
         framedispaly.h \
         include/libxl/IBookT.h \

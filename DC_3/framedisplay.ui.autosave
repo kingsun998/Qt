@@ -639,7 +639,7 @@
               <item>
                <widget class="QPushButton" name="pushButton_6">
                 <property name="text">
-                 <string>停止发送</string>
+                 <string>开始接受</string>
                 </property>
                </widget>
               </item>

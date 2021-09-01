@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>586</width>
-    <height>375</height>
+    <width>651</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -200,6 +200,19 @@
       <item>
        <widget class="QLineEdit" name="lineEdit"/>
       </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
@@ -209,10 +222,20 @@
       <string>其他设置</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_13">
+      <item row="0" column="7">
+       <widget class="QLineEdit" name="lineEdit_4"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_16">
         <property name="text">
-         <string>起始温度:</string>
+         <string>表格最大显示行数:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>表格存储时间(mins):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -229,14 +252,27 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="4">
+       <widget class="QLineEdit" name="lineEdit_6"/>
+      </item>
       <item row="0" column="4">
        <widget class="QLineEdit" name="lineEdit_3"/>
       </item>
-      <item row="0" column="7">
-       <widget class="QLineEdit" name="lineEdit_4"/>
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="lineEdit_5"/>
       </item>
       <item row="0" column="2">
        <widget class="QLineEdit" name="lineEdit_2"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>起始温度:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
       <item row="0" column="6">
        <widget class="QLabel" name="label_15">
@@ -247,29 +283,6 @@
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_16">
-        <property name="text">
-         <string>表格最大显示行数:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="lineEdit_5"/>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>表格存储时间(mins):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QLineEdit" name="lineEdit_6"/>
       </item>
      </layout>
     </widget>

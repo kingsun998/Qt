@@ -41,12 +41,19 @@ public:
     //framedisplay
     int maxrowcount;
     double saveChart_Interval;
+
+    std::map<int,QString> send_frame_type;
+    std::map<int,QString> send_frame_format;
+    uint send_frame_id;
+    uint send_frame_interval;
+    uint send_frame_nums;
+    bool id_auto_increase;
     //chartdisplay
     INIT_CONFIG pInitConfig;
     std::map<int,QString> errorCode_TC;
     std::map<int,QString> errorCode_CJ;
     std::map<int,QString> errorCode_ECU;
-    std::map<int,QString> errorCode_vol;
+//    std::map<int,QString> errorCode_vol;
     double Bt_temperature;
     double Tp_temperature;
     double saveInterval_minus;
@@ -67,10 +74,6 @@ public:
     int maxpoints;
     double Y_min;
     double Y_max;
-
-    //dbservice
-    std::map<QString,int> taskCode;
-    QString basepath;
 
     //sendmessages
     uint sendMessageInterval;
