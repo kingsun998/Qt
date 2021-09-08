@@ -2,18 +2,9 @@
 #define SETTINGS_H
 
 #include <windef.h>
-#include <qmap.h>
-#include <qlist.h>
 #include <qvector.h>
-#include <QDebug>
-#include <QtCharts/QSplineSeries>
-#include <QtCharts/QValueAxis>
-#include <QRandomGenerator>
 #include <ECanVci.h>
-#include <qmessagebox.h>
-#include <QDateTime>
 #include <windows.h>
-#include <qthread.h>
 #include <map>
 #include <QMap>
 
@@ -38,16 +29,17 @@ public:
     uint bs1;
     uint bs2;
     uint brp;
+
     //framedisplay
     int maxrowcount;
     double saveChart_Interval;
-
     std::map<int,QString> send_frame_type;
     std::map<int,QString> send_frame_format;
     uint send_frame_id;
-    uint send_frame_interval;
+    int send_frame_interval;
     uint send_frame_nums;
     bool id_auto_increase;
+    unsigned char ox_ascii[16];
     //chartdisplay
     INIT_CONFIG pInitConfig;
     std::map<int,QString> errorCode_TC;
@@ -61,6 +53,7 @@ public:
     int CompanyType;
     std::map<int,QString> CompanyName;
     int totalnums;
+
     //chart
     int firstChartLineNum;
     int secondChartLineNum;

@@ -53,7 +53,7 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
     QVector<QVector<double>> time=tm.value<QVector<QVector<double>>>();
 
     QString filename=QCoreApplication::applicationDirPath()+"/savefiles/charts/"+date+
-            QString(settings.CompanyName[settings.CompanyType])+".xlsx";
+            QString(settings.CompanyName[settings.CompanyType])+".xls";
     libxl::Book* book=nullptr;
 
     if(!QFile::exists(filename)){
@@ -150,7 +150,7 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
     libxl::Book* book=nullptr;
 
     QString filename=QCoreApplication::applicationDirPath()+"/savefiles/frames/"+date+
-            QString(settings.CompanyName[settings.CompanyType])+".xlsx";
+            QString(settings.CompanyName[settings.CompanyType])+".xls";
     if(!QFile::exists(filename)){
         //不存在
         book=xlCreateBookW();

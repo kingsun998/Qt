@@ -33,6 +33,7 @@ SOURCES += \
         baseinfo.cpp \
         chartdisplay.cpp \
         comprocess.cpp \
+        comservice.cpp \
         dbservice.cpp \
         framedisplay.cpp \
         main.cpp \
@@ -42,13 +43,15 @@ SOURCES += \
         standarset.cpp \
         bootloader.cpp \
         scandevrangedialog.cpp \
-        dialogaddnode.cpp
+        dialogaddnode.cpp \
+        subcomdialog.cpp
 
 HEADERS += \
         ECanVci.h \
         baseinfo.h \
         chartdisplay.h \
         comprocess.h \
+        comservice.h \
         dbservice.h \
         framedispaly.h \
         include/libxl/IBookT.h \
@@ -64,6 +67,7 @@ HEADERS += \
         settings.h \
         standarset.h \
         bootloader.h \
+        subcomdialog.h \
         usb_device.h \
         scandevrangedialog.h \
         dialogaddnode.h \
@@ -78,7 +82,8 @@ FORMS += \
         bootloader_ch.ui \
         bootloader_en.ui \
         scandevrangedialog.ui \
-        dialogaddnode.ui
+        dialogaddnode.ui \
+        subcomdialog.ui
 		
 OTHER_FILES += \
         ico.rc

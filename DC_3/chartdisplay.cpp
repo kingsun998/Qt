@@ -1,6 +1,7 @@
 ﻿#include "chartdisplay.h"
 #include "ui_chartdisplay.h"
 #include <direct.h>
+#include <QMessageBox>
 chartDisplay::chartDisplay(QWidget *parent):
     ui(new Ui::chartdisplay_ui),
     m_x(0)
@@ -107,6 +108,7 @@ chartDisplay::chartDisplay(QWidget *parent):
     QString chartdir=QCoreApplication::applicationDirPath()+"/savefiles/charts/";
     QString framedir=QCoreApplication::applicationDirPath()+"/savefiles/frames/";
     QDir Dir(dir);
+    qDebug()<<"current path:"<<QCoreApplication::applicationDirPath();
     if (!Dir.exists())
     {
 //        qDebug()<<"__________create dir_______________";

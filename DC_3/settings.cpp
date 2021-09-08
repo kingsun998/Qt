@@ -62,13 +62,14 @@ settings::settings()
     maxrowcount=20;
     saveChart_Interval=10;
 
+    send_frame_interval=1000;
     send_frame_type={{0,"数据帧"},{1,"远程帧"}};
     send_frame_format={{0,"标准帧"},{1,"扩展帧"}};
     send_frame_id=0;
-    send_frame_interval=0;
     send_frame_nums=0;
     id_auto_increase=false;
-
+    unsigned char ascii[16]={0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x41,0x42,0x43,0x44,0x45,0x46};
+    memcpy(ox_ascii,ascii,16);
 }
 
 void settings::setbote(){

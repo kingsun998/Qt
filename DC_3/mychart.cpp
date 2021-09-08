@@ -1,6 +1,7 @@
 ﻿#include "mychart.h"
 #include <QtCore/QRandomGenerator>
-
+#include <QValueAxis>
+#include <QSplineSeries>
 
 Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int linenum,int companytypecode):
     QChart(QChart::ChartTypeCartesian, parent, wFlags)

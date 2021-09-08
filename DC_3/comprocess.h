@@ -6,83 +6,47 @@
 #include <windows.h>
 #include <QVariant>
 #include <qvector.h>
+#include <comservice.h>
+#include <subcomdialog.h>
+#define COMMAND 11
 
-typedef struct{
-    QWidget *widget;
-    uint datalength;
-    uint dequein;
-    uint dequeout;
-private:
-    QString dcbinitstr=nullptr;
-public:
-    void initDcbstr(UINT baud, char parity,UINT databits, UINT stopsbits){
-        dcbinitstr=QString("baud=%1 parity=%2 data=%3 stop=%4").arg(baud).arg(parity).arg(databits).arg(stopsbits);
-    }
-     QString getInitstr() const{
-        return dcbinitstr;
-    }
-}ComParameter;
-
-
-class ComService: public QObject
-{
-    Q_OBJECT
-public:
-    ComService();
-    ~ComService();
-signals:
-    void receiveFromCom(QVariant var);
-    void sendCallBack(QString mes);  //sendMessage的回调函数
-public slots:
-    bool init();
-    bool sendMessage(QString mes);
-    bool openPort();
-    bool closePort();
-    void setParameter(const ComParameter& parameter);
-    void handleTimeOut();
-public:
-    void stopTimer();
-    void startTimer();
-private:
-    //串口句柄和临界区标志
-    HANDLE comhandle;
-    CRITICAL_SECTION   communicationSync;
-    //父节点，需要时qwidget类型
-    QWidget *parent;
-    //数组长度
-    uint Datalength;
-    //dcb初始化字符串
-    QString initstr;
-    //输入输出缓冲区的大小
-    uint dequein;
-    uint dequeout;
-    //串口的超时设定
-    COMMTIMEOUTS  CommTimeouts;
-    QTimer timer;
-    QVector<unsigned char> frame;
-    bool status;
-};
-
-
+extern class ComProcess comprocess;
+//相当于一个中间层
 class ComProcess : public QObject
 {
     Q_OBJECT
 public:
-    explicit ComProcess(QObject *parent);
+     ComProcess(QObject *parent=nullptr);
     ~ComProcess();
 signals:
+    void sendRequestCommand(const unsigned char *array,uint arraysize,int arrayType);
+    void sendParameterCommand(const unsigned char *array,uint arraysize,int arrayType);
+    void returnResult(QVariant var,int arraytype);
 
+    void setParameterCommand(ComParameter comparameter);
 public slots:
-
-
+    void handleTimeOut();
+    void getResult(QVariant var,int arytype);
 public:
     void init(ComParameter& parameter);
     ComService* getService();
-    void startServiceTimer();
-    void stopServiceTimer();
+    //开启请求计时器
+    void startComProcessTimer();
+    //关闭请求计时器
+    void stopComProcessTimer();
+    //发送参数给COM
+    void sendComParameter(Message& mes);
 private:
     QThread comthread;
-    class ComService service;
+    ComService service;
+
+    QTimer timer;
+    unsigned char D20_D23[11];
+    unsigned char D380_D393[11];
+    unsigned char D422_D446[11];
+    unsigned char D690_D725[11];
+    unsigned char D1123_D1160[11];
+    bool ifsending;
 };
 
 #endif // COMPROCESS_H
