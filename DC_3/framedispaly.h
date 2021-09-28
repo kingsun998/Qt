@@ -33,6 +33,7 @@ signals:
 public slots:
     void getMessage(int mx,CAN_OBJ obj,QString datetime,int companycode);
     void sendMessage(QVariant var);
+    void setStartTime();
 private slots:
     // 是否向表格添加内容
     void on_pushButton_2_clicked();
@@ -47,6 +48,8 @@ private slots:
     void on_pushButton_4_clicked();
     void receiveMesFromCom(QVariant var);
     void on_pushButton_5_clicked();
+
+
 
     void dispaly_comResult(QVariant var,int arraytype);
     //波特率
@@ -75,7 +78,7 @@ private:
 
     //计时器
     QTimer *timer;
-    DWORD timeClick;
+    DWORD startTime;
     double saveInterval_miseconds;
 
     Status status;
@@ -94,7 +97,7 @@ private:
     bool switchReceive;
 
     //记录item
-    QList<QVector<QTableWidgetItem *>> list;
+//    QList<QVector<QTableWidgetItem *>> list;
 
     //子窗口
     SubComDialog *dialog;

@@ -44,7 +44,7 @@ settings::settings()
     Bt_temperature=25;
     Tp_temperature=400*0.63;
 
-    saveInterval_minus=10;
+    saveInterval_minus=0.1;
 
     lineNums=7;
 
@@ -60,7 +60,7 @@ settings::settings()
 
     //framedisplay
     maxrowcount=20;
-    saveChart_Interval=10;
+    saveTable_Interval=0.1;
 
     send_frame_interval=1000;
     send_frame_type={{0,"数据帧"},{1,"远程帧"}};
@@ -70,6 +70,11 @@ settings::settings()
     id_auto_increase=false;
     unsigned char ascii[16]={0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x41,0x42,0x43,0x44,0x45,0x46};
     memcpy(ox_ascii,ascii,16);
+
+    //dbserver
+    xlsxMaxline=70;
+
+    allow_show=true;
 }
 
 void settings::setbote(){
@@ -125,4 +130,14 @@ void settings::setbote(){
     default:
         break;
     }
+}
+
+
+void showMessage(QString str,bool flag){
+    if(settings.allow_show){
+        if(flag){
+           qDebug()<<str;
+        }
+    }
+
 }

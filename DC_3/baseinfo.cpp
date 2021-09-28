@@ -54,6 +54,6 @@ void baseInfo::on_lineEdit_6_editingFinished()
 {
     QString num=ui->lineEdit_6->text();
     if(num!=""||num!=nullptr){
-        settings.saveChart_Interval=num.toDouble();
+        settings.saveTable_Interval=num.toDouble();
     }
 }

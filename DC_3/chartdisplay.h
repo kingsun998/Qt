@@ -31,6 +31,8 @@ signals:
     void sendMessage(uint,CAN_OBJ,QString,int);
     void sendToTable(int lineId,int canid,double deviceid,double date);
     void sendtochart(int chartype,int mx,int index1,double tcf,double tcs,double tct);
+//    表示按下了开始测试按钮
+    void StartTest();
 private slots:
     void handleTimeOut();
     //控制测试的开始和暂停

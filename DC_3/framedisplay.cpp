@@ -29,8 +29,7 @@ frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
     dispaly_allowshow=true;
     dispaly_ifreceive=true;
 
-    saveInterval_miseconds=settings.saveChart_Interval*60*1000;
-    timeClick=GetTickCount();
+    saveInterval_miseconds=settings.saveTable_Interval*60*1000;
 
     send_frame_type=settings.send_frame_type[0];
     send_frame_format=settings.send_frame_format[0];
@@ -130,7 +129,7 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycod
         return;
     }
     //判断是否超过了预设时间
-    if(GetTickCount()-timeClick>saveInterval_miseconds){
+    if(GetTickCount()-startTime>saveInterval_miseconds){
         this->on_pushButton_clicked();
     }
     QString messageExtern;
@@ -159,57 +158,57 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycod
    }
    ui->tableWidget->insertRow(rowcount);
 
-   QVector<QTableWidgetItem *> vec;
+//   QVector<QTableWidgetItem *> vec;
 
    QTableWidgetItem *lineid=new QTableWidgetItem(QString::number(mx,10));
    lineid->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,0,lineid);
-   vec.push_back(lineid);
+//   vec.push_back(lineid);
 
    QTableWidgetItem *devicetype=new QTableWidgetItem(QString::number(settings.devicetype));
    devicetype->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,1,devicetype);
-   vec.push_back(devicetype);
+//   vec.push_back(devicetype);
 
    QTableWidgetItem *messageExternItem=new QTableWidgetItem(messageExtern);
    messageExternItem->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,2,messageExternItem);
-   vec.push_back(messageExternItem);
+//   vec.push_back(messageExternItem);
 
    QTableWidgetItem *frametype=new QTableWidgetItem("远程帧|本地帧");
    frametype->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,3,frametype);
-   vec.push_back(frametype);
+//   vec.push_back(frametype);
 
    QTableWidgetItem *frameID=new QTableWidgetItem(QString::number(obj.ID,16));
    frameID->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,4,frameID);
-   vec.push_back(frameID);
+//   vec.push_back(frameID);
 
    QTableWidgetItem *framelen=new QTableWidgetItem(QString::number(obj.DataLen,10));
    framelen->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,5,framelen);
-   vec.push_back(framelen);
+//   vec.push_back(framelen);
 
    //这里写 Data
    QTableWidgetItem *df=new QTableWidgetItem(data_info);
    df->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,6,df);
-   vec.push_back(df);
+//   vec.push_back(df);
 
    QTableWidgetItem *dt=new QTableWidgetItem(datetime);
    dt->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,7,dt);
-   vec.push_back(dt);
+//   vec.push_back(dt);
 
-   list.append(vec);
+//   list.append(vec);
    if(rowcount>settings.maxrowcount){
        ui->tableWidget->removeRow(0);
-       int size=list.begin()->size();
-       for(auto i=0;i<size;i++){
-            delete (*list.begin())[i];
-       }
-       list.removeFirst();
+//       int size=list.begin()->size();
+//       for(auto i=0;i<size;i++){
+//            delete (*list.begin())[i];
+//       }
+//       list.removeFirst();
    }else{
        rowcount+=1;
    }
@@ -222,6 +221,11 @@ void frameDisplay::on_pushButton_2_clicked(){
         ui->pushButton_2->setText("停止显示");
     }
     dispaly_allowshow=!dispaly_allowshow;
+}
+
+void frameDisplay::setStartTime(){
+    showMessage("设置了开始时间",true);
+    this->startTime=GetTickCount();
 }
 
 Q_DECLARE_METATYPE(QVector<uint>);
@@ -254,8 +258,8 @@ void frameDisplay::on_pushButton_clicked(){
     QVariant data=QVariant::fromValue(newData);
 
     emit db.saveTable(content,data,id,type,name,len,
-                              QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss"));
-    timeClick=GetTickCount();
+                              QDateTime::currentDateTime().toString("yyyy_MM_dd"));
+    startTime=GetTickCount();
     dispaly_ifreceive=true;
 }
 

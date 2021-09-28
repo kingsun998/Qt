@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     tb->addTab(stander,"检测标准设置");
     //发送给表
     connect(chart,&chartDisplay::sendMessage,framedisplay,&frameDisplay::getMessage);
-
+    connect(chart,&chartDisplay::StartTest,framedisplay,&frameDisplay::setStartTime);
     //初始化db服务
 //    db.init();
 //    qDebug()<<db.ChartThreadIsAlive();

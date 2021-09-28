@@ -6,6 +6,7 @@
 #include <ECanVci.h>
 #include <windows.h>
 #include <map>
+#include <QDebug>
 #include <QMap>
 
 extern class settings settings;
@@ -32,7 +33,7 @@ public:
 
     //framedisplay
     int maxrowcount;
-    double saveChart_Interval;
+    double saveTable_Interval;
     std::map<int,QString> send_frame_type;
     std::map<int,QString> send_frame_format;
     uint send_frame_id;
@@ -75,6 +76,13 @@ public:
     //stander
     QMap<bool,Qt::GlobalColor> testColor;
 
+    //dbservice
+    int xlsxMaxline;
+
+    bool allow_show;
 
 };
+
+void showMessage(QString str,bool flag);
 #endif // SETTINGS_H
+

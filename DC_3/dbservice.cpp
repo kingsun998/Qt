@@ -40,45 +40,62 @@ void Dbservice::init(){
 }
 
 saveChart::saveChart(){
-
+    current_page=-1;
 }
 saveTable::saveTable(){
+    current_page=-1;
+}
+
+
+void saveChart::createXlsx(QString filename){
+    libxl::Book* book=xlCreateBookW();
+    //  创建新的excel
+    this->current_page=0;
+    createSheet(book);
+    book->save(filename.toStdWString().c_str());
+    book->release();
+}
+
+void saveChart::createSheet(libxl::Book *book){
+    //  创建新的excel
+    // 默认为-1，这里变成0
+    libxl::Sheet* sheet = book->addSheet(QString::number(this->current_page).toStdWString().c_str());
+
+    sheet->writeStr(0,0, QString("时间戳").toStdWString().c_str());
+
+    int colnums=1;
+    for(int i=0;i<settings.lineNums;i++){
+        sheet->writeStr(0,colnums,QString("温度_"+settings.splineName[settings.CompanyType][i]).toStdWString().c_str());
+        colnums++;
+    }
+    for(int i=0;i<settings.lineNums;i++){
+        sheet->writeStr(0,colnums,QString("状态_"+settings.splineName[settings.CompanyType][i]).toStdWString().c_str());
+        colnums++;
+    }
+
+    for(int i=0;i<settings.lineNums;i++){
+        sheet->writeStr(0,colnums,QString("上升时间_"+settings.splineName[settings.CompanyType][i]).toStdWString().c_str());
+        colnums++;
+    }
 
 }
 
 void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString date){
+
     QVector<QVector<double>> temperature=tp.value<QVector<QVector<double>>>();
     QVector<QString> timestamp=ts.value<QVector<QString>>();
     QVector<QVector<QString>> status=sta.value<QVector<QVector<QString>>>();
     QVector<QVector<double>> time=tm.value<QVector<QVector<double>>>();
 
     QString filename=QCoreApplication::applicationDirPath()+"/savefiles/charts/"+date+
-            QString(settings.CompanyName[settings.CompanyType])+".xls";
-    libxl::Book* book=nullptr;
+            "_"+settings.CompanyName[settings.CompanyType]+".xls";
+
 
     if(!QFile::exists(filename)){
         //不存在
-        book=xlCreateBookW();
-        libxl::Sheet* sheet = book->addSheet(L"Sheet1");
-        sheet->writeStr(0,0, QString("时间戳").toStdWString().c_str());
-        int colnums=0;
-        for(int i=0;i<settings.lineNums;i++){
-            sheet->writeStr(0,colnums,("温度_"+settings.splineName[settings.CompanyType][colnums]).toStdWString().c_str());
-            colnums++;
-        }
-        for(int i=0;i<settings.lineNums;i++){
-            sheet->writeStr(0,colnums,("状态_"+settings.splineName[settings.CompanyType][colnums]).toStdWString().c_str());
-            colnums++;
-        }
-        for(int i=0;i<settings.lineNums;i++){
-            sheet->writeStr(0,colnums,("上升时间_"+settings.splineName[settings.CompanyType][colnums]).toStdWString().c_str());
-            colnums++;
-        }
-
-        book->save(filename.toStdWString().c_str());
-        book->release();
+        createXlsx(filename);
     }
-
+//    showMessage(" 到这里 ",true);
     int mx=1e+9,a;
     for(int i=0;i<settings.totalnums;i++){
         a=temperature[i].size();
@@ -102,20 +119,29 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
         return;
     }
 
-    book=xlCreateBookW();
+    libxl::Book* book=xlCreateBookW();
+
     if(book)
     {
         book->load(filename.toStdWString().c_str());
-
+//        showMessage("到这里1.5",true);
         //Qstring 转换为 wchart
-        libxl::Sheet* sheet = book->getSheet(0);
-        int base=sheet->lastRow();
-
+        this->current_page=book->sheetCount()-1;
+        libxl::Sheet* sheet = book->getSheet(current_page);
+//        showMessage("到这里2",true);
+        long base=sheet->lastRow()+1;
+//        showMessage("到这里2.5",true);
         if(sheet)
         {
-            for (int line=base,i=0;i<mx;i++,line++) {
+            for (long line=base,i=0;i<mx;i++,line++) {
+//                showMessage(QString::number(line),true);
+                if(line>settings.xlsxMaxline){
+                    this->current_page++;
+                    createSheet(book);
+                    sheet = book->getSheet(current_page);
+                    line=sheet->lastRow()+1;
+                }
                 int col=0;
-
                 sheet->writeStr(line, col++,timestamp[i].toStdWString().c_str());
                 for (int j=0;j<settings.lineNums;j++) {
                     sheet->writeNum(line,col++, temperature[j][i]);
@@ -135,6 +161,34 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
     qDebug()<<"图表保存完成.";
 }
 
+
+
+
+
+
+
+void saveTable::createXlsx(QString filename){
+    libxl::Book* book=xlCreateBookW();
+    current_page=0;
+    //  创建新的excel
+    createSheet(book);
+    book->save(filename.toStdWString().c_str());
+    book->release();
+}
+
+void saveTable::createSheet(libxl::Book *book){
+    //  创建新的excel
+
+    libxl::Sheet* sheet = book->addSheet(QString::number(this->current_page).toStdWString().c_str());
+    sheet->writeStr(0,0, QString("时间戳").toStdWString().c_str());
+    sheet->writeStr(0,1, reinterpret_cast<const wchar_t *>(QString("公司名称").utf16()));
+    sheet->writeStr(0,2, reinterpret_cast<const wchar_t *>(QString("帧种类").utf16()));
+    sheet->writeStr(0,3, reinterpret_cast<const wchar_t *>(QString("帧ID").utf16()));
+    sheet->writeStr(0,4, reinterpret_cast<const wchar_t *>(QString("数据长度").utf16()));
+    sheet->writeStr(0,5, reinterpret_cast<const wchar_t *>(QString("数据内容").utf16()));
+
+}
+
 //content,data,id,type,name,len,
 void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
                        QVariant type,QVariant name,QVariant len,QString date){
@@ -147,43 +201,38 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
 //    qDebug()<<"数组s大小 "<<newFrameLen.size();
     QVector<QString> newFrameContent=content.value<QVector<QString>>();
     QVector<uint> newFrameID=id.value<QVector<uint>>();
-    libxl::Book* book=nullptr;
 
-    QString filename=QCoreApplication::applicationDirPath()+"/savefiles/frames/"+date+
-            QString(settings.CompanyName[settings.CompanyType])+".xls";
+
+    QString filename=QCoreApplication::applicationDirPath()+"/savefiles/frames/"+date+".xls";
     if(!QFile::exists(filename)){
         //不存在
-        book=xlCreateBookW();
-        libxl::Sheet* sheet = book->addSheet(L"Sheet1");
-
-        sheet->writeStr(0,0, QString("时间戳").toStdWString().c_str());
-        sheet->writeStr(0,1, reinterpret_cast<const wchar_t *>(QString("公司名称").utf16()));
-        sheet->writeStr(0,2, reinterpret_cast<const wchar_t *>(QString("帧种类").utf16()));
-        sheet->writeStr(0,3, reinterpret_cast<const wchar_t *>(QString("帧ID").utf16()));
-        sheet->writeStr(0,4, reinterpret_cast<const wchar_t *>(QString("数据长度").utf16()));
-        sheet->writeStr(0,5, reinterpret_cast<const wchar_t *>(QString("数据内容").utf16()));
-        book->save(filename.toStdWString().c_str());
-        book->release();
+        createXlsx(filename);
     }
-    book=xlCreateBookW();
+    libxl::Book* book=xlCreateBookW();
     if(book)
     {
         book->load(filename.toStdWString().c_str());
         //Qstring 转换为 wchart
-        libxl::Sheet* sheet = book->getSheet(0);
-        int base=sheet->lastRow();
-//        qDebug()<<"Base "<<base;
+        this->current_page=book->sheetCount()-1;
+        libxl::Sheet* sheet = book->getSheet(current_page);
+        int base=sheet->lastRow()+1;
         if(sheet)
         {
             int size=newDateList.length();
-            for (auto i=0;i<size;i++,base++) {
+            for (long i=0,line=base;i<size;i++,line++) {
+                if(line>settings.xlsxMaxline){
+                    this->current_page++;
+                    createSheet(book);
+                    sheet = book->getSheet(current_page);
+                    line=sheet->lastRow()+1;
+                }
                 int col=0;
-                sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newDateList[i].utf16()));
-                sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newCompanyName[i].utf16()));
-                sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newFrameType[i].utf16()));
-                sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(QString::number(newFrameID[i],16).utf16()));
-                sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(QString::number(newFrameLen[i],16).utf16()));
-                sheet->writeStr(base,col++, reinterpret_cast<const wchar_t *>(newFrameContent[i].utf16()));
+                sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(newDateList[i].utf16()));
+                sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(newCompanyName[i].utf16()));
+                sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(newFrameType[i].utf16()));
+                sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(QString::number(newFrameID[i],16).utf16()));
+                sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(QString::number(newFrameLen[i],16).utf16()));
+                sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(newFrameContent[i].utf16()));
             }
         }
         book->save(filename.toStdWString().c_str());

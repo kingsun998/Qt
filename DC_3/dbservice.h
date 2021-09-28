@@ -23,6 +23,9 @@ public:
     saveChart();
 
 private:
+    int current_page=-1;
+    void createXlsx(QString filename);
+    void createSheet(libxl::Book *book);
     std::ofstream file;
 };
 
@@ -36,8 +39,12 @@ public slots:
 public:
     saveTable();
 private:
+    int current_page=-1;
+    void createXlsx(QString filename);
+    void createSheet(libxl::Book *book);
     std::ofstream file;
 };
+
 
 class Dbservice: public QObject
 {
