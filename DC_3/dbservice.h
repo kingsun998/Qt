@@ -23,6 +23,7 @@ public:
     saveChart();
 
 private:
+    bool first_page;
     int current_page=-1;
     void createXlsx(QString filename);
     void createSheet(libxl::Book *book);
@@ -35,10 +36,11 @@ class saveTable:public QObject
 signals:
 public slots:
     void insert(QVariant content,QVariant timestamp,QVariant id,
-                QVariant type,QVariant name,QVariant len,QString date);
+                QVariant type,QVariant name,QVariant len,QVariant ifsend,QString date);
 public:
     saveTable();
 private:
+    bool first_page;
     int current_page=-1;
     void createXlsx(QString filename);
     void createSheet(libxl::Book *book);
@@ -58,7 +60,7 @@ public:
 signals:
     void saveChart(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString date);
     void saveTable(QVariant content,QVariant timestamp,QVariant id,
-                   QVariant type,QVariant name,QVariant len,QString date);
+                   QVariant type,QVariant name,QVariant len,QVariant ifsend,QString date);
 public slots:
 private:
    QThread chartThread;

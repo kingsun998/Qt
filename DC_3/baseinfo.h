@@ -31,6 +31,8 @@ private slots:
 
     void on_lineEdit_6_editingFinished();
 
+    void on_radioButton_clicked(bool checked);
+
 private:
     Ui::baseinfo_ui *ui;
 };

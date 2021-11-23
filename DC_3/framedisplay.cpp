@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <mutex>
 #include <subcomdialog.h>
+#include <qmessagebox.h>
 frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
     ui(new Ui::framedisplay_ui)
 {
@@ -72,6 +73,11 @@ frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
     ui->comboBox_3->setCurrentIndex(4);
     ui->comboBox_4->setCurrentIndex(0);
     ui->comboBox_5->setCurrentIndex(0);
+
+    sendtimer=new QTimer();
+    sendtimer->setInterval(100);
+    connect(sendtimer,&QTimer::timeout,this,&frameDisplay::sendHandleTimeOut);
+    index=ui->spinBox->text().toInt();
 }
 
 void frameDisplay::receiveMesFromCom(QVariant var){
@@ -123,7 +129,7 @@ void frameDisplay::dispaly_comResult(QVariant var,int arraytype){
 
 
 
-void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycode){
+void frameDisplay::getMessage(ulong index,CAN_OBJ obj,QString datetime,int companycode){
     //保存信息
     if(!dispaly_ifreceive){
         return;
@@ -142,7 +148,9 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycod
         messageExtern = "标准帧";
     }
     FrameType.push_back(messageExtern);
-    CompanyName.push_back(settings.CompanyName[companycode]);
+    ifFrameReceive.push_back(true?companycode>=0:false);
+
+    CompanyName.push_back(settings.CompanyName[0?companycode<0:companycode]);
     FrameID.push_back(obj.ID);
     FrameLen.push_back(obj.DataLen);
     QString data_info = QString("%1").arg(obj.Data[0], 2, 16, QLatin1Char('0')).toUpper();
@@ -152,6 +160,13 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycod
     }
     FrameContent.push_back(data_info);
     Data.push_back(datetime);
+    QString ReceiveOrSend;
+    if(companycode>0){
+        ReceiveOrSend="接受帧";
+    }else{
+        ReceiveOrSend="发送帧";
+    }
+
     //显示
    if(dispaly_allowshow==false){
        return;
@@ -160,7 +175,7 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycod
 
 //   QVector<QTableWidgetItem *> vec;
 
-   QTableWidgetItem *lineid=new QTableWidgetItem(QString::number(mx,10));
+   QTableWidgetItem *lineid=new QTableWidgetItem(QString::number(index,10));
    lineid->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,0,lineid);
 //   vec.push_back(lineid);
@@ -175,9 +190,9 @@ void frameDisplay::getMessage(int mx,CAN_OBJ obj,QString datetime,int companycod
    ui->tableWidget->setItem(rowcount,2,messageExternItem);
 //   vec.push_back(messageExternItem);
 
-   QTableWidgetItem *frametype=new QTableWidgetItem("远程帧|本地帧");
-   frametype->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,3,frametype);
+   QTableWidgetItem *frameReceiveOrsend=new QTableWidgetItem(ReceiveOrSend);
+   frameReceiveOrsend->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,3,frameReceiveOrsend);
 //   vec.push_back(frametype);
 
    QTableWidgetItem *frameID=new QTableWidgetItem(QString::number(obj.ID,16));
@@ -241,12 +256,15 @@ void frameDisplay::on_pushButton_clicked(){
     QVector<QString> newCompanyName;
     QVector<uint> newFrameID;
     QVector<uint> newFrameLen;
+    QVector<bool> newifFrameReceive;
     QVector<QString> newFrameContent;
     QVector<QString> newData;
+
     newFrameType.swap(FrameType);
     newCompanyName.swap(CompanyName);
     newFrameID.swap(FrameID);
     newFrameLen.swap(FrameLen);
+    newifFrameReceive.swap(ifFrameReceive);
     newFrameContent.swap(FrameContent);
     newData.swap(Data);
 
@@ -254,10 +272,11 @@ void frameDisplay::on_pushButton_clicked(){
     QVariant name=QVariant::fromValue(newCompanyName);
     QVariant id=QVariant::fromValue(newFrameID);
     QVariant len=QVariant::fromValue(newFrameLen);
+    QVariant ifsend=QVariant::fromValue(newifFrameReceive);
     QVariant content=QVariant::fromValue(newFrameContent);
     QVariant data=QVariant::fromValue(newData);
 
-    emit db.saveTable(content,data,id,type,name,len,
+    emit db.saveTable(content,data,id,type,name,len,ifsend,
                               QDateTime::currentDateTime().toString("yyyy_MM_dd"));
     startTime=GetTickCount();
     dispaly_ifreceive=true;
@@ -345,4 +364,89 @@ void frameDisplay::on_comboBox_2_currentIndexChanged(const QString &arg1){
 //停止位
 void frameDisplay::on_comboBox_4_currentIndexChanged(const QString &arg1){
     parameter.stopbits=arg1.toInt();
+}
+//初始化Can
+void frameDisplay::on_pushButton_8_clicked(){
+    if(settings.caninit==false){
+        //CAN没有初始化
+        DWORD drl;
+        drl=OpenDevice(settings.devicetype,settings.deviceid,0);
+        if (drl != STATUS_OK)
+        {
+            QMessageBox::information(this,"提示","链接失败",QMessageBox::Warning);
+            return ;
+        }
+        drl=InitCAN(settings.devicetype,settings.deviceid,settings.canid,&settings.pInitConfig);
+        if (drl != STATUS_OK)
+        {
+            QMessageBox::information(this,"提示","初始化CAN失败",QMessageBox::Warning);
+            return ;
+        }
+        settings.caninit=true;
+    }
+}
+
+void frameDisplay::on_pushButton_9_clicked(){
+    DWORD drl;
+    drl=CloseDevice(settings.devicetype,settings.deviceid);
+    if (drl != STATUS_OK)
+    {
+        QMessageBox::information(this,"提示","关闭链接失败",QMessageBox::Warning);
+        return ;
+    }
+    settings.caninit=false;
+}
+
+void frameDisplay::on_pushButton_7_clicked(){
+    if(settings.caninit){
+        if(ui->radioButton->isChecked()){
+            //选中，循环发送
+            sendtimer->start();
+        }
+        else{
+            //发送一次
+            sendCan();
+        }
+    }
+    else{
+        QMessageBox::information(this,"提示","请先初始化CAN",QMessageBox::Warning);
+    }
+}
+//计时器，间隔为0.1s
+void frameDisplay::sendHandleTimeOut(){
+    sendCan();
+}
+
+//停止发送
+void frameDisplay::on_pushButton_10_clicked(){
+    sendtimer->stop();
+}
+
+void frameDisplay::sendCan(){
+    QString mes=ui->lineEdit->text();
+    QStringList mslist=mes.split(" ");
+    CAN_OBJ obj;
+    for(int i=0;i<8&&i<mslist.length();i++){
+        obj.Data[i]=QstringToInt(mslist[i]);
+    }
+    ULONG nums=Transmit(settings.devicetype,settings.deviceid,settings.canid,&obj,1);
+    for(ULONG i=0;i<nums;i++){
+        obj.ID=index+i;
+        emit writeToTable(index+i,objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),-1);
+    }
+    index+=nums;
+}
+
+uint frameDisplay::QstringToInt(QString str){
+    QByteArray publishPlotocal=str.toLatin1();
+    QByteArray tempByteHigh,tempBytelow;
+    tempByteHigh[0]=publishPlotocal.at(0);
+    if(str.length()==1){
+        return tempByteHigh.toInt(NULL,16);
+    }
+    tempBytelow[0]=publishPlotocal.at(1);
+    return tempByteHigh.toInt(NULL,16)*16+tempBytelow.toInt(NULL,16);
+}
+void frameDisplay::on_spinBox_valueChanged(int arg1){
+    index=arg1;
 }

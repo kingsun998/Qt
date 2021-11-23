@@ -29,9 +29,11 @@ public:
 
 signals:
     void sendMesToCom(QString mes);
-
+    void writeToTable(ulong index,CAN_OBJ obj,QString datetime,int companycode);
 public slots:
-    void getMessage(int mx,CAN_OBJ obj,QString datetime,int companycode);
+    void getMessage(ulong index,CAN_OBJ obj,QString datetime,int companycode);
+    void sendHandleTimeOut();
+    void sendCan();
     void sendMessage(QVariant var);
     void setStartTime();
 private slots:
@@ -49,8 +51,6 @@ private slots:
     void receiveMesFromCom(QVariant var);
     void on_pushButton_5_clicked();
 
-
-
     void dispaly_comResult(QVariant var,int arraytype);
     //波特率
     void on_comboBox_currentIndexChanged(const QString &arg1);
@@ -62,6 +62,20 @@ private slots:
     void on_comboBox_2_currentIndexChanged(const QString &arg1);
     //停止位
     void on_comboBox_4_currentIndexChanged(const QString &arg1);
+    //初始化CAN
+    void on_pushButton_8_clicked();
+    //关闭CAN
+    void on_pushButton_9_clicked();
+    //CAN发送数据
+    void on_pushButton_7_clicked();
+    //CAN停止发送
+    void on_pushButton_10_clicked();
+    //改变发送ID
+    void on_spinBox_valueChanged(int arg1);
+
+public:
+    uint QstringToInt(QString str);
+
 
 private:
 //    QStandardItemModel* model;
@@ -74,14 +88,16 @@ private:
     QVector<uint> FrameLen;
     QVector<QString> FrameContent;
     QVector<QString> Data;
+    QVector<bool> ifFrameReceive;
     bool dispaly_ifreceive;
 
     //计时器
-    QTimer *timer;
+    QTimer *sendtimer;
     DWORD startTime;
     double saveInterval_miseconds;
-
     Status status;
+
+
     //发送信息属性
     QString send_frame_type;
     QString send_frame_format;
@@ -95,11 +111,13 @@ private:
     //串口
     ComParameter parameter;
     bool switchReceive;
-
+    //CAN send
+    CAN_OBJ objs[50];
     //记录item
 //    QList<QVector<QTableWidgetItem *>> list;
 
     //子窗口
     SubComDialog *dialog;
+    ULONG index;
 };
 #endif // FRAMEDISPALY_H

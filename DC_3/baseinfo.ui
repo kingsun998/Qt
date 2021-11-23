@@ -222,8 +222,17 @@
       <string>其他设置</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="2">
+       <widget class="QLineEdit" name="lineEdit_2"/>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLineEdit" name="lineEdit_6"/>
+      </item>
       <item row="0" column="7">
        <widget class="QLineEdit" name="lineEdit_4"/>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLineEdit" name="lineEdit_3"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_16">
@@ -232,37 +241,8 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>表格存储时间(mins):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>测量温度:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QLineEdit" name="lineEdit_6"/>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLineEdit" name="lineEdit_3"/>
-      </item>
       <item row="1" column="2">
        <widget class="QLineEdit" name="lineEdit_5"/>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLineEdit" name="lineEdit_2"/>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_13">
@@ -281,6 +261,33 @@
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>测量温度:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>表格存储时间(mins):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="6">
+       <widget class="QRadioButton" name="radioButton">
+        <property name="text">
+         <string>测试模式</string>
         </property>
        </widget>
       </item>

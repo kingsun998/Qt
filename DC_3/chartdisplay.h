@@ -28,7 +28,7 @@ public:
     ~chartDisplay();
     void Calculate(int index,double y);
 signals:
-    void sendMessage(uint,CAN_OBJ,QString,int);
+    void sendMessage(ulong,CAN_OBJ,QString,int);
     void sendToTable(int lineId,int canid,double deviceid,double date);
     void sendtochart(int chartype,int mx,int index1,double tcf,double tcs,double tct);
 //    表示按下了开始测试按钮
@@ -73,7 +73,7 @@ private:
     QGroupBox groupbox[4];
 
     //测试开关
-    bool iftest;
+    bool RunTest;
 
 
     QVector<QLabel *> ReceiveVal;

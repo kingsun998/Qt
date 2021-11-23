@@ -27,6 +27,9 @@ settings::settings()
 
     Y_min=-10;
     Y_max=400;
+    //baseinfo
+    TestMode=false;
+
     //chartdisplay
     pInitConfig.AccCode=0;
     pInitConfig.AccMask=0xffffff;
@@ -44,13 +47,14 @@ settings::settings()
     Bt_temperature=25;
     Tp_temperature=400*0.63;
 
-    saveInterval_minus=0.1;
+    saveInterval_minus=1;
 
     lineNums=7;
 
     CompanyType=0;
 
     totalnums=11;
+    caninit=false;
     //sendmessages
     sendMessageInterval=100;
     canindex=1;
@@ -60,7 +64,7 @@ settings::settings()
 
     //framedisplay
     maxrowcount=20;
-    saveTable_Interval=0.1;
+    saveTable_Interval=1;
 
     send_frame_interval=1000;
     send_frame_type={{0,"数据帧"},{1,"远程帧"}};
@@ -72,7 +76,7 @@ settings::settings()
     memcpy(ox_ascii,ascii,16);
 
     //dbserver
-    xlsxMaxline=70;
+    xlsxMaxline=65000;
 
     allow_show=true;
 }

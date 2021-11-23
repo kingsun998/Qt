@@ -19,7 +19,7 @@ chartDisplay::chartDisplay(QWidget *parent):
     ui->chartLayout->addWidget(schartView);
 
     //测试开关默认关闭
-    iftest=false;
+    RunTest=false;
 
     //时间启动器
     timer=new QTimer();
@@ -234,9 +234,11 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
     int tmp;
     double V1,V2,V3,V4;
     double Tcf,Tcs,Tct;
+    qDebug()<<"获取新的帧"<<obj.ID;
+
     switch (obj.ID) {
-        case 419395283: //18ff76d3
-        case 419242115://18FD2083    这两帧处理方式一样
+        case 419395283: //18ff76d3  B公司处理
+        case 419242115://18FD2083    这两帧处理方式一样   A公司处理
             //计算数值和时间
             suit_Cell(0,0,mx,0,0,1,1,2,3,obj.Data);
             //计算错误码
@@ -265,9 +267,8 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
 
             saveTimestamp.push_back(datetime);
             break;
-        case 352140931:  //14fd3e83
+        case 352140931:  //14fd3e83   A公司处理
             suit_Cell(0,1,mx,2,0,1,3,3,4,obj.Data);
-
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[2]>>i&1;
@@ -286,7 +287,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             status[2].push_back(settings.errorCode_TC[error1]);
             status[3].push_back(settings.errorCode_TC[error2]);
             break;
-        case 419280003:  //18fdb483
+        case 419280003:  //18fdb483  A公司
             suit_Cell(1,2,mx,4,2,3,-1,-1,-1,obj.Data);
             //计算错误码
             for(int i=0;i<5;i++){
@@ -298,7 +299,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             saveTimestamp.push_back(datetime);
             status[4].push_back(settings.errorCode_TC[error1]);
             break;
-        case 419395027:  //18ff75d3
+        case 419395027:  //18ff75d3  A公司
             if(companytypecode==0){
                 suit_Cell(1,3,mx,5,0,1,6,2,3,obj.Data);
             }else if(companytypecode==1){
@@ -337,7 +338,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 status[3].push_back(settings.errorCode_ECU[error2]);
             }
             break;
-        case 285034371:   //10fd4783
+        case 285034371:   //10fd4783    B公司处理
             V1=(obj.Data[1]*256+obj.Data[0])*1.0/200-100;
             V2=(obj.Data[3]*256+obj.Data[2])*1.0/200-100;
             V3=(obj.Data[5]*256+obj.Data[4])*1.0/200-100;
@@ -353,7 +354,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
 
             break;
 
-        case 419394771:  //18ff74d3   //特殊帧
+        case 419394771:  //18ff74d3   //特殊帧  B公司处理
             Tcf=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
             //保存数据
             saveTempeture[4].push_back(Tcf);
@@ -439,8 +440,8 @@ Q_DECLARE_METATYPE(QVector<QVector<QString>>)
 Q_DECLARE_METATYPE(QVector<QString>)
 Q_DECLARE_METATYPE(QVector<QVector<double>>)
 void chartDisplay::handleTimeOut(){
+        //这部分是公用的
         double newtime=GetTickCount();
-
         if(newtime-saveTime>saveInterval_miseconds){
             QDateTime start=QDateTime::currentDateTime();
             QVector<QVector<double>> save_mid_temperature;
@@ -460,28 +461,37 @@ void chartDisplay::handleTimeOut(){
             QVariant ts=QVariant::fromValue(save_mid_timestamp);
             QVariant sta=QVariant::fromValue(save_mid_status);
             QVariant tm=QVariant::fromValue(save_mid_time);
-//            qDebug()<<QDateTime::currentDateTime().toString("hh_mm_ss");
+
             emit db.saveChart(tp,ts,sta,tm,QDateTime::currentDateTime().toString("yyyy_MM_dd"));
             saveTime=newtime;
             QDateTime end=QDateTime::currentDateTime();
         }
 
-//        ULONG len=Receive(settings.devicetype,settings.deviceid,settings.canid,objs,50,100);
-        uint len=10;
-        uint objs_id[4]={0x18FD2083,0x14FD3E83,0x18FDB483,0x18FF75D3};
-        for(int i=0;i<len;i++){
-            for(int j=0;j<8;j++){
-                // 随机数种子
-                qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-                objs[i].Data[j]= qrand()%16;   //随机生成0到9的随机数
-                objs[i].ID=objs_id[i];
+        if(settings.TestMode){
+            uint len=1;
+            uint objs_id[4]={0x18FD2083,0x14FD3E83,0x18FDB483,0x18FF75D3};
+            for(int i=0;i<4;i++){
+                CAN_OBJ obj;
+                for(int j=0;j<8;j++){
+                    // 随机数种子
+                    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+                    obj.Data[j]= qrand()%5+35;   //随机生成0到9的随机数
+                }
+                qDebug()<<obj.Data[0]<<' '<<obj.Data[1]<<' '<<obj.Data[2]<<' '<<
+                                       obj.Data[3]<<' '<<obj.Data[4]<<' '<<obj.Data[5]<<' '<<
+                                       obj.Data[6]<<' '<<obj.Data[7];
+                obj.ID=objs_id[i%4];
+                emit sendMessage(m_x+i,obj,QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
             }
+            m_x+=len;
         }
-//        qDebug()<<"收到"<<len<<"帧";
-        for(uint i=0;i<len;i++){
-            emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
+        else{
+            ULONG len=Receive(settings.devicetype,settings.deviceid,settings.canid,objs,50,100);
+            for(uint i=0;i<len;i++){
+                emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
+            }
+            m_x+=len;
         }
-        m_x+=len;
 }
 
 void chartDisplay::shspline(int index,bool selected){
@@ -498,70 +508,92 @@ void chartDisplay::shspline(int index,bool selected){
 void chartDisplay::on_pushButton_clicked()
 {
 
-    DWORD drl;
-    drl=OpenDevice(settings.devicetype,settings.deviceid,0);
-    if (drl != STATUS_OK)
-    {
-        QMessageBox::information(this,"提示","链接失败",QMessageBox::Warning);
-        return ;
+    if(settings.TestMode){
+        qDebug()<<"测试模式不用链接硬件，可以直接开启测试";
+        settings.caninit=true;
+    }else{
+        DWORD drl;
+        drl=OpenDevice(settings.devicetype,settings.deviceid,0);
+        if (drl != STATUS_OK)
+        {
+            QMessageBox::information(this,"提示","链接失败",QMessageBox::Warning);
+            return ;
+        }
+        drl=InitCAN(settings.devicetype,settings.deviceid,settings.canid,&settings.pInitConfig);
+        if (drl != STATUS_OK)
+        {
+            QMessageBox::information(this,"提示","初始化CAN失败",QMessageBox::Warning);
+            return ;
+        }
+        settings.caninit=true;
     }
-    drl=InitCAN(settings.devicetype,settings.deviceid,settings.canid,&settings.pInitConfig);
-    if (drl != STATUS_OK)
-    {
-        QMessageBox::information(this,"提示","初始化CAN失败",QMessageBox::Warning);
-        return ;
-    }
+
 }
 
 //关闭硬件
 void chartDisplay::on_pushButton_3_clicked()
 {
-    DWORD drl;
-    drl=CloseDevice(settings.devicetype,settings.deviceid);
-    if (drl != STATUS_OK)
-    {
-        QMessageBox::information(this,"提示","关闭链接失败",QMessageBox::Warning);
-        return ;
+    if(settings.TestMode){
+        qDebug()<<"测试模式无需关闭链接";
+    }else{
+        DWORD drl;
+        drl=CloseDevice(settings.devicetype,settings.deviceid);
+        if (drl != STATUS_OK)
+        {
+            QMessageBox::information(this,"提示","关闭链接失败",QMessageBox::Warning);
+            return ;
+        }
+        settings.caninit=false;
     }
 }
 
 //控制测试的开始和暂停
 void chartDisplay::on_pushButton_2_clicked(bool checked)
 {
-//    if(iftest==false){
-//        DWORD drl;
-//        drl=StartCAN(settings.devicetype, settings.deviceid, settings.canid);
-//        if (drl != STATUS_OK)
-//        {
-//            QMessageBox::information(this,"提示","开启失败",QMessageBox::Warning);
-//            return ;
-//        }else{
-//            iftest=true;
-//            emit StartTest();
-//            timer->start(100);
-//            //重新技术
-//
-//            ui->comboBox->setEnabled(false);
-//            saveTime=GetTickCount();
-//            ui->pushButton_2->setText("停止测试");
-//        }
-//    }else{
-//        iftest=false;
-//        timer->stop();
-//        ui->comboBox->setEnabled(true);
-//        ui->pushButton_2->setText("开启测试");
-//    }
-
-    iftest=true;
-    emit StartTest();
-    timer->start(100);
-
-    ui->comboBox->setEnabled(false);
-    saveTime=GetTickCount();
-    ui->pushButton_2->setText("停止测试");
+        if(settings.TestMode){
+            if(RunTest==false){
+                //    测试代码
+                RunTest=true;
+                emit StartTest();
+                timer->start(100);
+                ui->comboBox->setEnabled(false);
+                saveTime=GetTickCount();
+                ui->pushButton_2->setText("停止测试");
+            }
+            else{
+                RunTest=false;
+                timer->stop();
+                ui->comboBox->setEnabled(true);
+                ui->pushButton_2->setText("开启测试");
+            }
+        }
+        else{
+            if(RunTest==false){
+                DWORD drl;
+                drl=StartCAN(settings.devicetype, settings.deviceid, settings.canid);
+                if (drl != STATUS_OK)
+                {
+                    QMessageBox::information(this,"提示","开启失败",QMessageBox::Warning);
+                    return ;
+                }else{
+                    RunTest=true;
+                    emit StartTest();
+                    timer->start(100);
+                    //重新技术
+                    ui->comboBox->setEnabled(false);
+                    saveTime=GetTickCount();
+                    ui->pushButton_2->setText("停止测试");
+                }
+            }else{
+                RunTest=false;
+                timer->stop();
+                ui->comboBox->setEnabled(true);
+                ui->pushButton_2->setText("开启测试");
+            }
+        }
 }
 
-
+//两个动态表的尺度更改
 void chartDisplay::on_pushButton_4_clicked()
 {
     fchart->changeYScale(ui->lineEdit_2->text().toDouble(),ui->lineEdit->text().toDouble());

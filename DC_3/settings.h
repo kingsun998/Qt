@@ -30,6 +30,7 @@ public:
     uint bs1;
     uint bs2;
     uint brp;
+    bool TestMode;
 
     //framedisplay
     int maxrowcount;
@@ -41,6 +42,7 @@ public:
     uint send_frame_nums;
     bool id_auto_increase;
     unsigned char ox_ascii[16];
+
     //chartdisplay
     INIT_CONFIG pInitConfig;
     std::map<int,QString> errorCode_TC;
@@ -54,6 +56,7 @@ public:
     int CompanyType;
     std::map<int,QString> CompanyName;
     int totalnums;
+    bool caninit;
 
     //chart
     int firstChartLineNum;

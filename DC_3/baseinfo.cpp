@@ -1,5 +1,6 @@
 ﻿#include "baseinfo.h"
 #include "ui_baseinfo.h"
+#include "qdebug.h"
 
 baseInfo::baseInfo(QWidget *parent) :
     QWidget(parent),
@@ -25,11 +26,15 @@ void baseInfo::on_lineEdit_3_editingFinished()
     }
 }
 
+// 修改图表保存时间间隔
 void baseInfo::on_lineEdit_4_editingFinished()
 {
     QString num=ui->lineEdit_4->text();
     if(num!=""||num!=nullptr){
+        qDebug()<<"更新图表保存时间"<<num.toDouble();
         settings.saveInterval_minus=num.toDouble();
+    }else{
+        qDebug()<<"请输入保存时间";
     }
 }
 
@@ -56,4 +61,10 @@ void baseInfo::on_lineEdit_6_editingFinished()
     if(num!=""||num!=nullptr){
         settings.saveTable_Interval=num.toDouble();
     }
+}
+
+void baseInfo::on_radioButton_clicked(bool checked)
+{
+    qDebug()<<checked;
+    settings.TestMode=checked;
 }

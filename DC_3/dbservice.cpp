@@ -90,9 +90,9 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
     QString filename=QCoreApplication::applicationDirPath()+"/savefiles/charts/"+date+
             "_"+settings.CompanyName[settings.CompanyType]+".xls";
 
-
     if(!QFile::exists(filename)){
         //不存在
+        first_page=true;
         createXlsx(filename);
     }
 //    showMessage(" 到这里 ",true);
@@ -129,7 +129,11 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
         this->current_page=book->sheetCount()-1;
         libxl::Sheet* sheet = book->getSheet(current_page);
 //        showMessage("到这里2",true);
-        long base=sheet->lastRow()+1;
+        long base=sheet->lastRow();
+        if(first_page){
+            base+=1;
+            first_page=false;
+        }
 //        showMessage("到这里2.5",true);
         if(sheet)
         {
@@ -139,7 +143,7 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
                     this->current_page++;
                     createSheet(book);
                     sheet = book->getSheet(current_page);
-                    line=sheet->lastRow()+1;
+                    line=sheet->lastRow();
                 }
                 int col=0;
                 sheet->writeStr(line, col++,timestamp[i].toStdWString().c_str());
@@ -161,12 +165,6 @@ void saveChart::insert(QVariant tp,QVariant ts,QVariant sta,QVariant tm,QString 
     qDebug()<<"图表保存完成.";
 }
 
-
-
-
-
-
-
 void saveTable::createXlsx(QString filename){
     libxl::Book* book=xlCreateBookW();
     current_page=0;
@@ -181,21 +179,22 @@ void saveTable::createSheet(libxl::Book *book){
 
     libxl::Sheet* sheet = book->addSheet(QString::number(this->current_page).toStdWString().c_str());
     sheet->writeStr(0,0, QString("时间戳").toStdWString().c_str());
-    sheet->writeStr(0,1, reinterpret_cast<const wchar_t *>(QString("公司名称").utf16()));
-    sheet->writeStr(0,2, reinterpret_cast<const wchar_t *>(QString("帧种类").utf16()));
-    sheet->writeStr(0,3, reinterpret_cast<const wchar_t *>(QString("帧ID").utf16()));
-    sheet->writeStr(0,4, reinterpret_cast<const wchar_t *>(QString("数据长度").utf16()));
-    sheet->writeStr(0,5, reinterpret_cast<const wchar_t *>(QString("数据内容").utf16()));
+    sheet->writeStr(0,1, QString("发送/接受").toStdWString().c_str());
+    sheet->writeStr(0,2, reinterpret_cast<const wchar_t *>(QString("公司名称").utf16()));
+    sheet->writeStr(0,3, reinterpret_cast<const wchar_t *>(QString("帧种类").utf16()));
+    sheet->writeStr(0,4, reinterpret_cast<const wchar_t *>(QString("帧ID").utf16()));
+    sheet->writeStr(0,5, reinterpret_cast<const wchar_t *>(QString("数据长度").utf16()));
+    sheet->writeStr(0,6, reinterpret_cast<const wchar_t *>(QString("数据内容").utf16()));
 
 }
 
 //content,data,id,type,name,len,
 void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
-                       QVariant type,QVariant name,QVariant len,QString date){
+                       QVariant type,QVariant name,QVariant len,QVariant ifsend,QString date){
     QVector<QString> newFrameType=type.value<QVector<QString>>();
     QVector<QString> newDateList=timestamp.value<QVector<QString>>();
 //    qDebug()<<"数组s大小 "<<newDateList.size();
-
+    QVector<bool> newIfsend=ifsend.value<QVector<bool>>();
     QVector<QString> newCompanyName=name.value<QVector<QString>>();
     QVector<uint>  newFrameLen=len.value<QVector<uint>>();
 //    qDebug()<<"数组s大小 "<<newFrameLen.size();
@@ -206,6 +205,7 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
     QString filename=QCoreApplication::applicationDirPath()+"/savefiles/frames/"+date+".xls";
     if(!QFile::exists(filename)){
         //不存在
+        first_page=true;
         createXlsx(filename);
     }
     libxl::Book* book=xlCreateBookW();
@@ -215,7 +215,11 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
         //Qstring 转换为 wchart
         this->current_page=book->sheetCount()-1;
         libxl::Sheet* sheet = book->getSheet(current_page);
-        int base=sheet->lastRow()+1;
+        int base=sheet->lastRow();
+        if(first_page){
+            base+=1;
+            first_page=false;
+        }
         if(sheet)
         {
             int size=newDateList.length();
@@ -224,10 +228,16 @@ void saveTable::insert(QVariant content,QVariant timestamp,QVariant id,
                     this->current_page++;
                     createSheet(book);
                     sheet = book->getSheet(current_page);
-                    line=sheet->lastRow()+1;
+                    line=sheet->lastRow();
                 }
                 int col=0;
-                sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(newDateList[i].utf16()));
+                sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(newDateList[i].utf16()));\
+                if(newIfsend[i]){
+                    sheet->writeStr(line,col++, QString("发送帧").toStdWString().c_str());
+                }
+                else{
+                    sheet->writeStr(line,col++, QString("接受帧").toStdWString().c_str());
+                }
                 sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(newCompanyName[i].utf16()));
                 sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(newFrameType[i].utf16()));
                 sheet->writeStr(line,col++, reinterpret_cast<const wchar_t *>(QString::number(newFrameID[i],16).utf16()));
