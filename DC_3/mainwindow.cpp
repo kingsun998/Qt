@@ -19,11 +19,15 @@ MainWindow::MainWindow(QWidget *parent) :
     BootLoader *bootloader=new BootLoader();
     tb->addTab(bootloader,"程序刷写");
 
+
 //    SendMessages *sendmessages=new SendMessages();
 //    tb->addTab(sendmessages,"发送消息");
 
     standarSet *stander=new standarSet();
     tb->addTab(stander,"检测标准设置");
+
+    DeviceUnion *deviceunion=new DeviceUnion();
+    tb->addTab(deviceunion,"扫描枪");
     //发送给表
     connect(chart,&chartDisplay::sendMessage,framedisplay,&frameDisplay::getMessage);
     connect(chart,&chartDisplay::StartTest,framedisplay,&frameDisplay::setStartTime);

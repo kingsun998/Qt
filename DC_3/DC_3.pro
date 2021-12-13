@@ -7,6 +7,7 @@
 QT       += core gui
 QT       += charts
 QT       += axcontainer
+QT       += sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = DC_3
@@ -36,11 +37,13 @@ SOURCES += \
         comprocess.cpp \
         comservice.cpp \
         dbservice.cpp \
+        deviceunion.cpp \
         framedisplay.cpp \
         main.cpp \
         mainwindow.cpp \
         mychart.cpp \
         settings.cpp \
+        sqlprocess.cpp \
         standarset.cpp \
         bootloader.cpp \
         scandevrangedialog.cpp \
@@ -54,7 +57,9 @@ HEADERS += \
         comprocess.h \
         comservice.h \
         dbservice.h \
+        deviceunion.h \
         framedispaly.h \
+        include/hidapi/hidapi.h \
         include/libxl/IBookT.h \
         include/libxl/IFontT.h \
         include/libxl/IFormatT.h \
@@ -66,6 +71,7 @@ HEADERS += \
         mainwindow.h \
         mychart.h \
         settings.h \
+        sqlprocess.h \
         standarset.h \
         bootloader.h \
         subcomdialog.h \
@@ -77,6 +83,7 @@ HEADERS += \
 FORMS += \
         baseinfo.ui \
         chartdisplay.ui \
+        deviceunion.ui \
         framedisplay.ui \
         mainwindow.ui \
         standarset.ui \
@@ -129,3 +136,8 @@ DEPENDPATH += $$PWD/include
 #INCLUDEPATH += $$PWD/include
 #DEPENDPATH += $$PWD/include
 
+
+win32: LIBS += -L$$PWD/lib/ -lhidapi
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
