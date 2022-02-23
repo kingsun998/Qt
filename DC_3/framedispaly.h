@@ -9,6 +9,7 @@
 #include <QMap>
 #include <QTableWidgetItem>
 #include <subcomdialog.h>
+#include <dbcontroller.h>
 
 typedef  struct {
     bool init=false;
@@ -31,7 +32,7 @@ signals:
     void sendMesToCom(QString mes);
     void writeToTable(ulong index,CAN_OBJ obj,QString datetime,int companycode);
 public slots:
-    void getMessage(ulong index,CAN_OBJ obj,QString datetime,int companycode);
+    void getMessage(ulong index,CAN_OBJ obj,QString datetime,QString companyname);
     void sendHandleTimeOut();
     void sendCan();
     void sendMessage(QVariant var);
@@ -91,6 +92,7 @@ private:
     QVector<bool> ifFrameReceive;
     bool dispaly_ifreceive;
 
+    std::mutex mtx;
     //计时器
     QTimer *sendtimer;
     DWORD startTime;

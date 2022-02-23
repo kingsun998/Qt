@@ -3,15 +3,14 @@
 #include <QValueAxis>
 #include <QSplineSeries>
 
-Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int linenum,int companytypecode):
+Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int chartType,int linenum,int companytypecode):
     QChart(QChart::ChartTypeCartesian, parent, wFlags)
 {
     this->companytypecode=companytypecode;
     //设置图像种类
     this->linenums=linenum;
-    chartType=type;
+    this->chartType=chartType;
     axisX=new QValueAxis();
-//    axisX->setTitleFont(QFont());
     axisX->setTitleText("时间(s)");
     axisY=new QValueAxis();
     axisY->setTitleText("温度(℃)");
@@ -22,14 +21,14 @@ Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int type,int line
         my_series[i]=new QSplineSeries(this);
         pointsNum.push_back(0);
         //设置画笔颜色
-        if(type==0){
-            my_series[i]->setName(settings.splineName[companytypecode][i]);
+        if(chartType==0){
+            my_series[i]->setName(settings.company_usedate_names[i]);
             QPen pen(settings.splinePen[i]);
             pen.setWidth(settings.penweight);
             my_series[i]->setPen(pen);
         }else {
-            my_series[i]->setName(settings.splineName[companytypecode][i+4]);
-            QPen pen(settings.splinePen[i+4]);
+            my_series[i]->setName(settings.company_usedate_names[i+(settings.splinePen.size()+1)/2]);
+            QPen pen(settings.splinePen[i+(settings.splinePen.size()+1)/2]);
             pen.setWidth(settings.penweight);
             my_series[i]->setPen(pen);
         }
@@ -61,76 +60,24 @@ void Mychart::changeSplineName(int companytypecode){
     }
     axisX->setRange(-settings.defaultXlen/2,+settings.defaultXlen/2);
     for(int i=0;i<linenums;i++){
-//        qDebug()<<linenums;
         if(chartType==0){
-            my_series[i]->setName(settings.splineName[companytypecode][i]);
+            my_series[i]->setName(settings.company_usedate_names[i]);
         }else {
-            my_series[i]->setName(settings.splineName[companytypecode][i+4]);
+            my_series[i]->setName(settings.company_usedate_names[i+3]);
         }
     }
 }
 
-void Mychart::getMessage(int charttype,int mx,int index,double tcf,double tcs,double tct){
-    //type是图标种类，index是曲线下标
-
-    if(charttype==chartType){
-        switch (index) {
-            case 0:
-                my_series[0]->append(mx,tcf);
-                my_series[1]->append(mx,tcs);
-                pointsNum[0]++;
-                pointsNum[1]++;
-                if(pointsNum[0]>settings.maxpoints){
-                    my_series[0]->remove(0);
-                    my_series[1]->remove(0);
-                }
-            break;
-            case 1:
-                my_series[2]->append(mx,tcf);
-                my_series[3]->append(mx,tcs);
-                pointsNum[2]++;
-                pointsNum[3]++;
-                if(pointsNum[2]>settings.maxpoints){
-                    my_series[2]->remove(0);
-                    my_series[3]->remove(0);
-                }
-                axisX->setRange(mx-settings.defaultXlen/2,mx+settings.defaultXlen/2);
-            break;
-            case 2:
-                my_series[0]->append(mx,tcf);
-                pointsNum[0]++;
-                if(pointsNum[0]>settings.maxpoints){
-                    my_series[0]->remove(0);
-                }
-            break;
-            case 3:
-                my_series[1]->append(mx,tcf);
-                my_series[2]->append(mx,tcs);
-                pointsNum[1]++;
-                pointsNum[2]++;
-                if(pointsNum[1]>settings.maxpoints){
-                    my_series[1]->remove(0);
-                    my_series[2]->remove(0);
-                }
-                axisX->setRange(mx-settings.defaultXlen/2,mx+settings.defaultXlen/2);
-            break;
-            case 4:
-                my_series[0]->append(mx,tcf);
-                my_series[1]->append(mx,tcs);
-                my_series[2]->append(mx,tct);
-                pointsNum[0]++;
-                pointsNum[1]++;
-                pointsNum[2]++;
-                if(pointsNum[0]>settings.maxpoints){
-                    my_series[0]->remove(0);
-                    my_series[1]->remove(0);
-                    my_series[2]->remove(0);
-                }
-                axisX->setRange(mx-settings.defaultXlen/2,mx+settings.defaultXlen/2);
-            break;
-            default:break;
-        }
-    }
+void Mychart::getMessage(int mx,uint index,double val){
+     my_series[index]->append(mx,val);
+     if(pointsNum[index]<settings.maxpoints){
+         pointsNum[index]++;
+     }else{
+         my_series[index]->remove(0);
+     }
+     if(index==2){
+         axisX->setRange(mx-settings.defaultXlen/2,mx+settings.defaultXlen/2);
+     }
 }
 
 void Mychart::show_hidden_Series(int index,bool selected){

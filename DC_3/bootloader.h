@@ -1,4 +1,4 @@
-#ifndef BOOTLOADER_H
+﻿#ifndef BOOTLOADER_H
 #define BOOTLOADER_H
 
 #include <QtGui>
@@ -6,10 +6,10 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QProgressDialog>
-#include "scandevrangedialog.h"
-#include "usb_device.h"
-#include "dialogaddnode.h"
-#include "can_bootloader.h"
+#include <usb2xxx/can_bootloader.h>
+#include <usb2xxx/usb_device.h>
+#include <usb2xxx/scandevrangedialog.h>
+#include <usb2xxx/dialogaddnode.h>
 
 namespace Ui {
 class bootloader_ui;

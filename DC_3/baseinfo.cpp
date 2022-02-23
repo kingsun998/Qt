@@ -38,6 +38,18 @@ void baseInfo::on_lineEdit_4_editingFinished()
     }
 }
 
+void baseInfo::on_lineEdit_6_editingFinished()
+{
+    QString num=ui->lineEdit_6->text();
+
+    if(num!=""||num!=nullptr){
+        qDebug()<<"更新保存表格时间"<<num.toDouble();
+        settings.saveTable_Interval=num.toDouble();
+    }else{
+        qDebug()<<"请输出保存时间";
+    }
+}
+
 void baseInfo::on_lineEdit_5_editingFinished()
 {
     QString num=ui->lineEdit_5->text();
@@ -55,13 +67,7 @@ void baseInfo::on_comboBox_8_activated(int index)
     settings.setbote();
 }
 
-void baseInfo::on_lineEdit_6_editingFinished()
-{
-    QString num=ui->lineEdit_6->text();
-    if(num!=""||num!=nullptr){
-        settings.saveTable_Interval=num.toDouble();
-    }
-}
+
 
 void baseInfo::on_radioButton_clicked(bool checked)
 {

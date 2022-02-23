@@ -11,9 +11,10 @@
 #include <QCheckBox>
 #include <qlabel.h>
 #include <qlist.h>
-#include <dbservice.h>
 #include <qglobal.h>
 #include <QGroupBox>
+#include <datastruct.h>
+#include <dbcontroller.h>
 namespace Ui {
 class chartdisplay_ui;
 }
@@ -32,7 +33,7 @@ signals:
     void sendToTable(int lineId,int canid,double deviceid,double date);
     void sendtochart(int chartype,int mx,int index1,double tcf,double tcs,double tct);
 //    表示按下了开始测试按钮
-    void StartTest();
+    void setFrameStartTime();
 private slots:
     void handleTimeOut();
     //控制测试的开始和暂停
@@ -45,7 +46,7 @@ private slots:
 
     void on_pushButton_4_clicked();
 
-    void changeCompanyType();
+//    void changeCompanyType();
     void suit_Cell(int chartype,int code,uint mx,int index1,int low1,int high1,
                    int index2,int low2,int high2,BYTE *date);
 
@@ -75,10 +76,11 @@ private:
     //测试开关
     bool RunTest;
 
-
     QVector<QLabel *> ReceiveVal;
     QVector<QLabel *> ReceiveStatus;
     QVector<QLabel *> ReceiveTime;
+    //缓存
+    QVector<int>  show_clock;
     //下标
     uint m_x;
     //接受的总帧数
@@ -93,13 +95,12 @@ private:
     //savetime;
     //接受的数据
     double saveTime;
-    QVector<QVector<double>> saveTempeture;
-    QVector<QString> saveTimestamp;
-    QVector<QVector<QString>> status;
-    QVector<QVector<double>> time;
+    QVector<double> lastrecord;
+
+    DataStruct  Receive;
+    QVector<QString> ReceiveTimestamp;
     double saveInterval_miseconds;  //以毫秒计算的间隔
 
-    CAN_OBJ objs[50];
     int companytypecode;
 
     void resetAry();
@@ -107,6 +108,8 @@ private:
     bool PrecesionMode;
     double TestTemperature;
     double offset;
+
+
 };
 
 #endif // CHARTDISPLAY_H

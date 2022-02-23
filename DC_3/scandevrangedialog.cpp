@@ -1,4 +1,4 @@
-#include "scandevrangedialog.h"
+﻿#include "usb2xxx/scandevrangedialog.h"
 #include "ui_scandevrangedialog.h"
 
 ScanDevRangeDialog::ScanDevRangeDialog(QWidget *parent) :

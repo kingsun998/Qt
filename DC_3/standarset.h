@@ -1,7 +1,9 @@
-#ifndef STANDARSET_H
+﻿#ifndef STANDARSET_H
 #define STANDARSET_H
 
 #include <QWidget>
+#include "xlsxdocument.h"
+
 
 namespace Ui {
 class standarset_ui;
@@ -11,6 +13,9 @@ class standarSet:public QWidget
 {
 public:
     standarSet(QWidget *parent=nullptr);
+
+private slots:
+    void click(bool check);
 
 private:
     Ui::standarset_ui *ui;

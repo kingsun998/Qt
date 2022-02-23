@@ -1,6 +1,5 @@
 ﻿#include "framedispaly.h"
 #include "ui_framedisplay.h"
-#include "dbservice.h"
 #include <memory>
 #include <windows.h>
 #include <mutex>
@@ -31,6 +30,7 @@ frameDisplay::frameDisplay(QWidget *parent) : QWidget(parent),
     dispaly_ifreceive=true;
 
     saveInterval_miseconds=settings.saveTable_Interval*60*1000;
+
 
     send_frame_type=settings.send_frame_type[0];
     send_frame_format=settings.send_frame_format[0];
@@ -129,7 +129,7 @@ void frameDisplay::dispaly_comResult(QVariant var,int arraytype){
 
 
 
-void frameDisplay::getMessage(ulong index,CAN_OBJ obj,QString datetime,int companycode){
+void frameDisplay::getMessage(ulong index,CAN_OBJ obj,QString datetime,QString companyname){
     //保存信息
     if(!dispaly_ifreceive){
         return;
@@ -148,9 +148,9 @@ void frameDisplay::getMessage(ulong index,CAN_OBJ obj,QString datetime,int compa
         messageExtern = "标准帧";
     }
     FrameType.push_back(messageExtern);
-    ifFrameReceive.push_back(true?companycode>=0:false);
+    ifFrameReceive.push_back(true);
 
-    CompanyName.push_back(settings.CompanyName[0?companycode<0:companycode]);
+    CompanyName.push_back(companyname);
     FrameID.push_back(obj.ID);
     FrameLen.push_back(obj.DataLen);
     QString data_info = QString("%1").arg(obj.Data[0], 2, 16, QLatin1Char('0')).toUpper();
@@ -161,72 +161,55 @@ void frameDisplay::getMessage(ulong index,CAN_OBJ obj,QString datetime,int compa
     FrameContent.push_back(data_info);
     Data.push_back(datetime);
     QString ReceiveOrSend;
-    if(companycode>0){
-        ReceiveOrSend="接受帧";
-    }else{
-        ReceiveOrSend="发送帧";
-    }
-
+    ReceiveOrSend="接受帧";
     //显示
    if(dispaly_allowshow==false){
        return;
    }
    ui->tableWidget->insertRow(rowcount);
 
-//   QVector<QTableWidgetItem *> vec;
-
    QTableWidgetItem *lineid=new QTableWidgetItem(QString::number(index,10));
    lineid->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,0,lineid);
-//   vec.push_back(lineid);
 
-   QTableWidgetItem *devicetype=new QTableWidgetItem(QString::number(settings.devicetype));
-   devicetype->setTextAlignment(Qt::AlignHCenter);
-   ui->tableWidget->setItem(rowcount,1,devicetype);
-//   vec.push_back(devicetype);
+
+   QTableWidgetItem *cpname=new QTableWidgetItem(companyname);
+   cpname->setTextAlignment(Qt::AlignHCenter);
+   ui->tableWidget->setItem(rowcount,1,cpname);
+
 
    QTableWidgetItem *messageExternItem=new QTableWidgetItem(messageExtern);
    messageExternItem->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,2,messageExternItem);
-//   vec.push_back(messageExternItem);
+
 
    QTableWidgetItem *frameReceiveOrsend=new QTableWidgetItem(ReceiveOrSend);
    frameReceiveOrsend->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,3,frameReceiveOrsend);
-//   vec.push_back(frametype);
 
    QTableWidgetItem *frameID=new QTableWidgetItem(QString::number(obj.ID,16));
    frameID->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,4,frameID);
-//   vec.push_back(frameID);
 
    QTableWidgetItem *framelen=new QTableWidgetItem(QString::number(obj.DataLen,10));
    framelen->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,5,framelen);
-//   vec.push_back(framelen);
 
    //这里写 Data
    QTableWidgetItem *df=new QTableWidgetItem(data_info);
    df->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,6,df);
-//   vec.push_back(df);
 
    QTableWidgetItem *dt=new QTableWidgetItem(datetime);
    dt->setTextAlignment(Qt::AlignHCenter);
    ui->tableWidget->setItem(rowcount,7,dt);
-//   vec.push_back(dt);
 
-//   list.append(vec);
    if(rowcount>settings.maxrowcount){
        ui->tableWidget->removeRow(0);
-//       int size=list.begin()->size();
-//       for(auto i=0;i<size;i++){
-//            delete (*list.begin())[i];
-//       }
-//       list.removeFirst();
    }else{
        rowcount+=1;
    }
+
 }
 
 void frameDisplay::on_pushButton_2_clicked(){
@@ -249,47 +232,14 @@ void frameDisplay::on_pushButton_clicked(){
 //    qDebug()<<&settings;
     dispaly_ifreceive=false;
     //加一层锁
-    std::mutex mutex;
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::mutex> lock(mtx);
 
-    QVector<QString> newFrameType;
-    QVector<QString> newCompanyName;
-    QVector<uint> newFrameID;
-    QVector<uint> newFrameLen;
-    QVector<bool> newifFrameReceive;
-    QVector<QString> newFrameContent;
-    QVector<QString> newData;
-
-    newFrameType.swap(FrameType);
-    newCompanyName.swap(CompanyName);
-    newFrameID.swap(FrameID);
-    newFrameLen.swap(FrameLen);
-    newifFrameReceive.swap(ifFrameReceive);
-    newFrameContent.swap(FrameContent);
-    newData.swap(Data);
-
-    QVariant type=QVariant::fromValue(newFrameType);
-    QVariant name=QVariant::fromValue(newCompanyName);
-    QVariant id=QVariant::fromValue(newFrameID);
-    QVariant len=QVariant::fromValue(newFrameLen);
-    QVariant ifsend=QVariant::fromValue(newifFrameReceive);
-    QVariant content=QVariant::fromValue(newFrameContent);
-    QVariant data=QVariant::fromValue(newData);
-
-    emit db.saveTable(content,data,id,type,name,len,ifsend,
-                              QDateTime::currentDateTime().toString("yyyy_MM_dd"));
+    dbSingleTable *obj=new dbSingleTable(FrameContent,Data,FrameID,FrameType,CompanyName,FrameLen,
+                                         ifFrameReceive,QDateTime::currentDateTime().toString("yyyy_MM_dd"));
+    dbcontroller.addObject(obj);
     startTime=GetTickCount();
     dispaly_ifreceive=true;
 }
-
-////修改发送间隔
-//void frameDisplay::on_spinBox_2_valueChanged(int arg1){
-//    settings.send_frame_interval=arg1;
-//}
-////修改发送数量
-//void frameDisplay::on_spinBox_3_valueChanged(int arg1){
-//    send_frame_nums=arg1;
-//}
 
 //开启测试按钮
 void frameDisplay::on_pushButton_6_clicked(){

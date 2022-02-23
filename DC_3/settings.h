@@ -8,6 +8,8 @@
 #include <map>
 #include <QDebug>
 #include <QMap>
+#include <mutex>
+#include <settings.h>
 
 extern class settings settings;
 
@@ -52,10 +54,9 @@ public:
     double Bt_temperature;
     double Tp_temperature;
     double saveInterval_minus;
-    int lineNums;
+
     int CompanyType;
-    std::map<int,QString> CompanyName;
-    int totalnums;
+    QStringList CompanyName;
     bool caninit;
 
     //chart
@@ -65,7 +66,7 @@ public:
     int defaultXlen;
     int defaultXtickCount;
     int defaultYtickCount;
-    QMap<int,QVector<QString>> splineName;
+
     QVector<Qt::GlobalColor> splinePen;
     int penweight;
     int maxpoints;
@@ -79,11 +80,28 @@ public:
     //stander
     QMap<bool,Qt::GlobalColor> testColor;
 
-    //dbservice
+    //dbcontroller
     int xlsxMaxline;
-
     bool allow_show;
+    QVector<QString> dirnames;
+    double mergeFile_interval;
 
+    //testdisplay
+    int timer_interval;
+
+    QVector<QString> company_datenames;
+    QVector<QString> company_usedate_names;
+    QVector<QString> company_col_title;
+
+    //hightempTest,precisionTest  status
+    std::map<int,QString> Test_status;
+    std::map<int,Qt::GlobalColor> Test_status_color;
+
+    //mergefile
+    int mergesize;
+    //show_clock  显示间隔
+    int show_clock;
+    std::mutex mtx;
 };
 
 void showMessage(QString str,bool flag);

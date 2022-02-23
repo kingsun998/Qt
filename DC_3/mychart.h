@@ -15,11 +15,11 @@ QT_CHARTS_USE_NAMESPACE
 class Mychart : public QChart
 {
 public:
-    Mychart(QGraphicsItem *parent = 0, Qt::WindowFlags wFlags = 0,int type=0,int linenum=4,int companytypecode=0);
+    Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int chartType,int linenum,int companytypecode);
     ~Mychart();
     void changeYScale(double y_bt=-10000000,double y_tp=-10000000);
 public slots:
-    void getMessage(int charttype,int mx,int index,double tcf,double tcs=-1,double tct=-1);
+    void getMessage(int mx,uint index,double val);
     void show_hidden_Series(int index,bool selected);
     void changeSplineName(int companytypecode);
 private:

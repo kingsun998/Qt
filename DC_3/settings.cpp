@@ -10,12 +10,9 @@ settings::settings()
     defaultXlen=40;
     defaultXtickCount=11;
     defaultYtickCount=11;
-    splineName={
-        {0,{"A1DOC intake","A1DOC outlet","A1SCR intake","A1SCR outlet",
-                 "AT1IG2 intake","CJ","uC","V1","V2","V3","V4"}},
-        {1,{"EGTS 2-1","EGTS 2-2","CJ","μC","EGTS 3-1","EGTS 3-2","EGTS 3-3","V1","V2","V3","V4"}}
-    };
-    splinePen={Qt::red,Qt::yellow,Qt::green,Qt::blue,Qt::cyan,Qt::darkMagenta,Qt::gray};
+    //图表的名称及颜色
+    splinePen={Qt::red,Qt::green,Qt::blue,Qt::cyan,Qt::darkMagenta,Qt::gray};
+
     penweight=2;
     maxpoints=200;
 
@@ -43,28 +40,28 @@ settings::settings()
     errorCode_ECU={{0,"Pass"},{8,"ECU μC EEP"},{9,"ECU ASIC EEP"},{10,"ECU High Volt"},
                {11,"ECU Low Volt"},{15,"ECU Overtemp"},{16,"Not complete"}};
 
-    CompanyName={{0,"A"},{1,"B"}};
+
+    CompanyName.append("A");
+    CompanyName.append("B");
+
     Bt_temperature=25;
     Tp_temperature=400*0.63;
 
     saveInterval_minus=1;
 
-    lineNums=7;
-
     CompanyType=0;
 
-    totalnums=11;
     caninit=false;
     //sendmessages
-    sendMessageInterval=100;
+    sendMessageInterval=500;
     canindex=1;
 
     //stander
-    testColor={{false,Qt::red},{true,Qt::green}};
+    testColor={{0,Qt::red},{1,Qt::green},{-1,Qt::gray}};
 
     //framedisplay
     maxrowcount=20;
-    saveTable_Interval=1;
+    saveTable_Interval=saveInterval_minus;
 
     send_frame_interval=1000;
     send_frame_type={{0,"数据帧"},{1,"远程帧"}};
@@ -75,10 +72,26 @@ settings::settings()
     unsigned char ascii[16]={0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x41,0x42,0x43,0x44,0x45,0x46};
     memcpy(ox_ascii,ascii,16);
 
-    //dbserver
-    xlsxMaxline=65000;
-
+    //dbcontroller
+    mergeFile_interval=1;
     allow_show=true;
+    xlsxMaxline=65000;
+    dirnames={"charts","frames","testsChannel1","testsChannel2","tempcharts","tempframes","temptestsChannel1","temptestsChannel2"};
+
+    //testdisplay
+    company_datenames={"T1","T2","T3","T4","CJ","μC","V1","V2","V3","V4"};
+    company_usedate_names={"T1","T2","T3","T4","CJ","μC"};
+    company_col_title={"val","status","time","hightempTest","precisionTest"};
+
+    //usbcanunion
+    timer_interval=200;
+    //hightempTest,precisionTest  status
+    Test_status={{0,"error"},{1,"pass"},{2,"no test"},{3,"..."}};
+    Test_status_color={{0,Qt::red},{1,Qt::green},{2,Qt::gray}};
+    //mergefile  dbcontroller
+    mergesize=4;
+    //show_clock
+    show_clock=3;
 }
 
 void settings::setbote(){

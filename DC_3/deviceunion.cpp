@@ -55,7 +55,6 @@ void DeviceUnion::on_pushButton_3_clicked()
         input_list[i]->setText("");
     }
     at=0;
-
 }
 
 void DeviceUnion::next(QString msg){
@@ -106,3 +105,4 @@ void DeviceUnion::on_groupBox_clicked()
 {
      ui->lineEdit_4->setFocus();
 }
+

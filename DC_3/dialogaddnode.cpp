@@ -1,6 +1,7 @@
-#include "dialogaddnode.h"
+﻿#include "usb2xxx/dialogaddnode.h"
+#include "usb2xxx/can_bootloader.h"
 #include "ui_dialogaddnode.h"
-#include "can_bootloader.h"
+
 DialogAddNode::DialogAddNode(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogAddNode)

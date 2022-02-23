@@ -2,6 +2,7 @@
 #include "ui_chartdisplay.h"
 #include <direct.h>
 #include <QTime>
+#include <usbcanunion.h>
 #include <QMessageBox>
 chartDisplay::chartDisplay(QWidget *parent):
     ui(new Ui::chartdisplay_ui),
@@ -11,13 +12,13 @@ chartDisplay::chartDisplay(QWidget *parent):
     //设置需要展示类型
     companytypecode=settings.CompanyType;
     //
-    fchart=new Mychart(0,0,0,4,companytypecode);
+    fchart=new Mychart(0,0,0,3,companytypecode);
     schart=new Mychart(0,0,1,3,companytypecode);
     fchartView=new QChartView(fchart);
     schartView=new QChartView(schart);
     ui->chartLayout->addWidget(fchartView);
     ui->chartLayout->addWidget(schartView);
-
+    qDebug()<<"ok1.1.1";
     //测试开关默认关闭
     RunTest=false;
 
@@ -30,24 +31,25 @@ chartDisplay::chartDisplay(QWidget *parent):
     //设置多选按钮
     btg=new QButtonGroup();
     //设置大小
-    timestart.resize(settings.lineNums);
-    records_bt.resize(settings.lineNums);
-    timeend.resize(settings.lineNums);
-    records_tp.resize(settings.lineNums);
+    qDebug()<<"ok1.1.2";
+    timestart.resize(settings.company_usedate_names.size());
+    records_bt.resize(settings.company_usedate_names.size());
+    timeend.resize(settings.company_usedate_names.size());
+    records_tp.resize(settings.company_usedate_names.size());
 
-    saveTempeture.resize(settings.totalnums);
-//    saveTimestamp.resize(settings.totalnums);
-    status.resize(settings.totalnums);
-    time.resize(settings.totalnums);
+    ReceiveTimestamp.resize(settings.company_usedate_names.size());
+    lastrecord.resize(settings.company_usedate_names.size());
 
-    pb.resize(settings.totalnums);
-    ReceiveVal.resize(settings.totalnums);
-    ReceiveTime.resize(settings.totalnums);
-    ReceiveStatus.resize(settings.totalnums);
 
-    for(int i=0;i<settings.totalnums;i++){
+    pb.resize(settings.company_usedate_names.size());
+    ReceiveVal.resize(settings.company_usedate_names.size());
+    ReceiveTime.resize(settings.company_usedate_names.size());
+    ReceiveStatus.resize(settings.company_usedate_names.size());
+    show_clock.resize(settings.company_usedate_names.size());
+
+    for(int i=0;i<settings.company_usedate_names.size();i++){
         pb[i]=new QCheckBox();
-        pb[i]->setText(settings.splineName[companytypecode][i]);
+        pb[i]->setText(settings.company_usedate_names[i]);
         vboxlayout[3].addWidget(pb[i]);
         btg->addButton(pb[i]);
         timestart[i]=0;
@@ -55,6 +57,8 @@ chartDisplay::chartDisplay(QWidget *parent):
         pb[i]->setCheckState(Qt::Checked);
         records_bt[i]=false;
         records_tp[i]=false;
+        //最后的时间
+        lastrecord[i]=0;
 
         ReceiveVal[i]=new QLabel();
         ReceiveTime[i]=new QLabel();
@@ -63,7 +67,10 @@ chartDisplay::chartDisplay(QWidget *parent):
         vboxlayout[0].addWidget(ReceiveVal[i]);
         vboxlayout[1].addWidget(ReceiveStatus[i]);
         vboxlayout[2].addWidget(ReceiveTime[i]);
+
+        show_clock[i]=0;
     }
+
     groupbox[0].setTitle("数值");
     groupbox[0].setMinimumWidth(100);
     groupbox[0].setLayout(&vboxlayout[0]);
@@ -81,17 +88,18 @@ chartDisplay::chartDisplay(QWidget *parent):
     ui->horizontalLayout_2->addWidget(&groupbox[0]);
     ui->horizontalLayout_2->addWidget(&groupbox[1]);
     ui->horizontalLayout_2->addWidget(&groupbox[2]);
+
+
     // 设置不互斥
     btg->setExclusive(false);//这样的话就支持多选了。
     QList<QAbstractButton *> list=btg->buttons();
-    for(int i=0;i<settings.lineNums;i++){
+    for(int i=0;i<settings.company_datenames.size();i++){
         list[i]->setChecked(true);
     }
-//    qDebug()<<settings.lineNums<<"  "<<settings.totalnums;
-    for(int i=settings.lineNums;i<settings.totalnums;i++){
+    for(int i=settings.company_usedate_names.size();i<settings.company_datenames.size();i++){
         list[i]->setEnabled(false);
     }
-    list[settings.totalnums-1]->setChecked(false);
+
     //设置多选按钮
     connect(btg,SIGNAL(buttonToggled(int,bool)),this,SLOT(shspline(int,bool)));
 
@@ -104,19 +112,6 @@ chartDisplay::chartDisplay(QWidget *parent):
     connect(this,&chartDisplay::sendtochart,schart,&Mychart::getMessage);
 
     ui->comboBox->setMaximumWidth(100);
-
-    QString dir=QCoreApplication::applicationDirPath()+"/savefiles/";
-    QString chartdir=QCoreApplication::applicationDirPath()+"/savefiles/charts/";
-    QString framedir=QCoreApplication::applicationDirPath()+"/savefiles/frames/";
-    QDir Dir(dir);
-    qDebug()<<"current path:"<<QCoreApplication::applicationDirPath();
-    if (!Dir.exists())
-    {
-//        qDebug()<<"__________create dir_______________";
-        _mkdir(dir.toLatin1().data());
-        _mkdir(chartdir.toLatin1().data());
-        _mkdir(framedir.toLatin1().data());
-    }
 
     PrecesionMode=false;
     TestTemperature=0;
@@ -133,13 +128,13 @@ void chartDisplay::resetAry(){
     //接受的总帧数
     totalnums=0;
 
-    for(int i=0;i<settings.lineNums;i++){
+    for(int i=0;i<settings.company_usedate_names.size();i++){
         timestart[i]=0;
         records_bt[i]=false;
         timeend[i]=0;
         records_tp[i]=false;
     }
-    for(int i=0;i<settings.totalnums;i++){
+    for(int i=0;i<settings.company_usedate_names.size();i++){
         saveTempeture[i].clear();
 
         status[i].clear();
@@ -147,9 +142,9 @@ void chartDisplay::resetAry(){
     }
     saveTimestamp.clear();
 
-    saveTempeture.resize(settings.totalnums);
-    status.resize(settings.totalnums);
-    time.resize(settings.totalnums);
+    saveTempeture.resize(settings.company_usedate_names.size());
+    status.resize(settings.company_usedate_names.size());
+    time.resize(settings.company_usedate_names.size());
 }
 
 void chartDisplay::Calculate(int index,double y){
@@ -167,16 +162,16 @@ void chartDisplay::Calculate(int index,double y){
     }
     if(!records_tp[index]&&y>settings.Tp_temperature){
         timeend[index]=GetTickCount();
-//        qDebug()<<timeend[index]<<" "<<timestart[index];
-//        qDebug()<<records_tp[index]<<" "<<records_bt[index];
         records_tp[index]=true;
     }
     double tp=(timeend[index]-timestart[index])/1000;
     time[index].push_back(tp>0?tp:0);
 }
 
+
+
 void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,int high1,int index2,int low2,int high2,BYTE *Data){
-//    qDebug()<<"msg  4";
+
     int low=Data[low1];
     int high=Data[high1];
     double Tcf=(high*256+low)*0.03125-273;
@@ -184,8 +179,14 @@ void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,i
     saveTempeture[index1].push_back(Tcf);
     //计算时间
     Calculate(index1,Tcf);
-    ReceiveTime[index1]->setText(QString::number(time[index1].last()));
-    ReceiveVal[index1]->setText(QString::number(Tcf));
+    ReceiveTime[index1]->setText(QString::number(time[index1].last(),'f',2));
+    //显示间隔
+    if(!show_clock[index1]){
+        lastrecord[index1]=Tcf;
+    }
+    show_clock[index1]=(++show_clock[index1])%settings.show_clock;
+    ReceiveVal[index1]->setText(QString::number(lastrecord[index1],'f',2));
+
     if(PrecesionMode){
         QPalette pf;
         bool flg;
@@ -208,8 +209,13 @@ void chartDisplay::suit_Cell(int chartype,int code,uint mx,int index1,int low1,i
     double Tcs=(high*256+low)*0.03125-273;
     saveTempeture[index2].push_back(Tcs);
     Calculate(index2,Tcs);
-    ReceiveTime[index2]->setText(QString::number(time[index2].last()));
-    ReceiveVal[index2]->setText(QString::number(Tcs));
+    ReceiveTime[index2]->setText(QString::number(time[index2].last(),'f',2));
+    //显示间隔
+    if(!show_clock[index2]){
+        lastrecord[index2]=Tcs;
+    }
+    show_clock[index2]=(++show_clock[index2])%settings.show_clock;
+    ReceiveVal[index2]->setText(QString::number(lastrecord[index2],'f',2));
 //    qDebug()<<"msg  6";
     //若已经开启测试模式，则变换其颜色
     if(PrecesionMode){
@@ -232,14 +238,16 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
     int error2=0;
     int base=1;
     int tmp;
+    int index1,index2;
     double V1,V2,V3,V4;
     double Tcf,Tcs,Tct;
-    qDebug()<<"获取新的帧"<<obj.ID;
+//    qDebug()<<"获取新的帧"<<obj.ID;
 
     switch (obj.ID) {
         case 419395283: //18ff76d3  B公司处理
-        case 419242115://18FD2083    这两帧处理方式一样   A公司处理
-            //计算数值和时间
+        case 419242115://18FD2083  T1 T4   这两帧处理方式一样   A公司处理
+            index1=0;
+            index2=3;
             suit_Cell(0,0,mx,0,0,1,1,2,3,obj.Data);
             //计算错误码
             for(int i=0;i<5;i++){
@@ -247,7 +255,6 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 error1+=base*tmp;
                 base*=2;
             }
-
             base=1;
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -259,15 +266,16 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 error2+=base*tmp;
                 base*=2;
             }
-//            qDebug()<<1<<"  "<<error1<<"   "<<error2;
-            ReceiveStatus[0]->setText(settings.errorCode_TC[error1]);
-            ReceiveStatus[1]->setText(settings.errorCode_TC[error2]);
-            status[0].push_back(settings.errorCode_TC[error1]);
-            status[1].push_back(settings.errorCode_TC[error2]);
+            ReceiveStatus[index1]->setText(settings.errorCode_TC[error1]);
+            ReceiveStatus[index2]->setText(settings.errorCode_TC[error2]);
+            Receive.obj["T1"]["status"].push_back(settings.errorCode_TC[error1]);
+            Receive.obj["T4"]["status"].push_back(settings.errorCode_TC[error1]);
 
-            saveTimestamp.push_back(datetime);
+            ReceiveTimestamp.push_back(datetime);
             break;
-        case 352140931:  //14fd3e83   A公司处理
+        case 352140931:  //14fd3e83 T2 T3   A公司处理
+            index1=1;
+            index2=2;
             suit_Cell(0,1,mx,2,0,1,3,3,4,obj.Data);
             //计算错误码
             for(int i=0;i<5;i++){
@@ -283,7 +291,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 base*=2;
             }
             ReceiveStatus[3]->setText(settings.errorCode_TC[error2]);
-//            qDebug()<<error1<<"   "<<error2;
+
             status[2].push_back(settings.errorCode_TC[error1]);
             status[3].push_back(settings.errorCode_TC[error2]);
             break;
@@ -327,7 +335,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
                 error2+=base*tmp;
                 base*=2;
             }
-//            qDebug()<<2<<"  "<<error1<<"   "<<error2;
+
             if(companytypecode==0){
                 ReceiveStatus[6]->setText(settings.errorCode_ECU[error2]);
                 status[5].push_back(settings.errorCode_ECU[error1]);
@@ -343,10 +351,10 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             V2=(obj.Data[3]*256+obj.Data[2])*1.0/200-100;
             V3=(obj.Data[5]*256+obj.Data[4])*1.0/200-100;
             V4=(obj.Data[7]*256+obj.Data[6])*1.0/200-100;
-            ReceiveVal[7]->setText(QString::number(V1));
-            ReceiveVal[8]->setText(QString::number(V2));
-            ReceiveVal[9]->setText(QString::number(V3));
-            ReceiveVal[10]->setText(QString::number(V4));
+            ReceiveVal[7]->setText(QString::number(V1,'f',2));
+            ReceiveVal[8]->setText(QString::number(V2,'f',2));
+            ReceiveVal[9]->setText(QString::number(V3,'f',2));
+            ReceiveVal[10]->setText(QString::number(V4,'f',2));
             saveTempeture[7].push_back(V1);
             saveTempeture[8].push_back(V2);
             saveTempeture[9].push_back(V3);
@@ -360,8 +368,13 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             saveTempeture[4].push_back(Tcf);
             //计算时间
             Calculate(4,Tcf);
-            ReceiveTime[4]->setText(QString::number(time[4].last()));
-            ReceiveVal[4]->setText(QString::number(Tcf));
+            ReceiveTime[4]->setText(QString::number(time[4].last(),'f',2));
+            //间隔
+            if(!show_clock[4]){
+                lastrecord[4]=Tcf;
+            }
+            show_clock[4]=(++show_clock[4])%settings.show_clock;
+            ReceiveVal[4]->setText(QString::number(lastrecord[4],'f',2));
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -373,8 +386,14 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             Tcs=(obj.Data[3]*256+obj.Data[2])*0.03125-273;
             saveTempeture[5].push_back(Tcs);
             Calculate(5,Tcs);
-            ReceiveTime[5]->setText(QString::number(time[5].last()));
-            ReceiveVal[5]->setText(QString::number(Tcs));
+            ReceiveTime[5]->setText(QString::number(time[5].last(),'f',2));
+            //间隔
+            if(!show_clock[5]){
+                lastrecord[5]=Tcs;
+            }
+            show_clock[5]=(++show_clock[5])%settings.show_clock;
+            ReceiveVal[5]->setText(QString::number(lastrecord[5],'f',2));
+
             error2=0;
             base=1;
             for(int i=5;i<8;i++){
@@ -394,8 +413,14 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             Tct=(obj.Data[5]*256+obj.Data[4])*0.03125-273;
             saveTempeture[6].push_back(Tct);
             Calculate(6,Tct);
-            ReceiveTime[6]->setText(QString::number(time[6].last()));
-            ReceiveVal[6]->setText(QString::number(Tct));
+            ReceiveTime[6]->setText(QString::number(time[6].last(),'f',2));
+            //间隔
+            if(!show_clock[6]){
+                lastrecord[6]=Tct;
+            }
+            show_clock[6]=(++show_clock[6])%settings.show_clock;
+            ReceiveVal[6]->setText(QString::number(lastrecord[6],'f',2));
+
             error2=0;
             base=1;
             for(int i=2;i<7;i++){
@@ -406,7 +431,7 @@ void chartDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime,int companyc
             ReceiveStatus[6]->setText(settings.errorCode_TC[error2]);
             status[6].push_back(settings.errorCode_TC[0]);
             base=1;
-            //判断测试
+            //判断测试，其他的都在suit_cell之中定义
             if(PrecesionMode){
                 QPalette pf,ps,pt;
                 bool flg1,flg2,flg3;
@@ -441,6 +466,7 @@ Q_DECLARE_METATYPE(QVector<QString>)
 Q_DECLARE_METATYPE(QVector<QVector<double>>)
 void chartDisplay::handleTimeOut(){
         //这部分是公用的
+
         double newtime=GetTickCount();
         if(newtime-saveTime>saveInterval_miseconds){
             QDateTime start=QDateTime::currentDateTime();
@@ -449,46 +475,35 @@ void chartDisplay::handleTimeOut(){
             QVector<QVector<QString>> save_mid_status;
             QVector<QVector<double>> save_mid_time;
             //swap 速度快，且清空
-            save_mid_temperature.swap(saveTempeture);
-            save_mid_timestamp.swap(saveTimestamp);
-            save_mid_status.swap(status);
-            save_mid_time.swap(time);
-            saveTempeture.resize(settings.totalnums);
-            status.resize(settings.totalnums);
-            time.resize(settings.totalnums);
+            qDebug()<<saveTempeture[0].size();
 
-            QVariant tp=QVariant::fromValue(save_mid_temperature);
-            QVariant ts=QVariant::fromValue(save_mid_timestamp);
-            QVariant sta=QVariant::fromValue(save_mid_status);
-            QVariant tm=QVariant::fromValue(save_mid_time);
+            dbSingleChart *obj=new dbSingleChart(saveTempeture,
+                                                 saveTimestamp,
+                                                 status,
+                                                 time,
+                                                 QDateTime::currentDateTime().toString("yyyy_MM_dd"),
+                                                 ui->comboBox->currentText());
 
-            emit db.saveChart(tp,ts,sta,tm,QDateTime::currentDateTime().toString("yyyy_MM_dd"));
+            saveTempeture.resize(settings.company_usedate_names.size());
+            status.resize(settings.company_usedate_names.size());
+            time.resize(settings.company_usedate_names.size());
+
+            dbcontroller.addObject(obj);
             saveTime=newtime;
             QDateTime end=QDateTime::currentDateTime();
         }
 
         if(settings.TestMode){
-            uint len=1;
-            uint objs_id[4]={0x18FD2083,0x14FD3E83,0x18FDB483,0x18FF75D3};
-            for(int i=0;i<4;i++){
-                CAN_OBJ obj;
-                for(int j=0;j<8;j++){
-                    // 随机数种子
-                    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-                    obj.Data[j]= qrand()%5+35;   //随机生成0到9的随机数
-                }
-                qDebug()<<obj.Data[0]<<' '<<obj.Data[1]<<' '<<obj.Data[2]<<' '<<
-                                       obj.Data[3]<<' '<<obj.Data[4]<<' '<<obj.Data[5]<<' '<<
-                                       obj.Data[6]<<' '<<obj.Data[7];
-                obj.ID=objs_id[i%4];
-                emit sendMessage(m_x+i,obj,QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
+            ULONG len=usbcanunion.StartTestMode();
+            for(uint i=0;i<len;i++){
+                emit sendMessage(m_x+i,usbcanunion.objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
             }
             m_x+=len;
         }
         else{
-            ULONG len=Receive(settings.devicetype,settings.deviceid,settings.canid,objs,50,100);
+            ULONG len=usbcanunion.ReceiveFromCan();
             for(uint i=0;i<len;i++){
-                emit sendMessage(m_x+i,objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
+                emit sendMessage(m_x+i,usbcanunion.objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"),companytypecode);
             }
             m_x+=len;
         }
@@ -513,13 +528,13 @@ void chartDisplay::on_pushButton_clicked()
         settings.caninit=true;
     }else{
         DWORD drl;
-        drl=OpenDevice(settings.devicetype,settings.deviceid,0);
+        drl=usbcanunion.openUsbCan();
         if (drl != STATUS_OK)
         {
             QMessageBox::information(this,"提示","链接失败",QMessageBox::Warning);
             return ;
         }
-        drl=InitCAN(settings.devicetype,settings.deviceid,settings.canid,&settings.pInitConfig);
+        drl=usbcanunion.initUsbCan();
         if (drl != STATUS_OK)
         {
             QMessageBox::information(this,"提示","初始化CAN失败",QMessageBox::Warning);
@@ -537,7 +552,7 @@ void chartDisplay::on_pushButton_3_clicked()
         qDebug()<<"测试模式无需关闭链接";
     }else{
         DWORD drl;
-        drl=CloseDevice(settings.devicetype,settings.deviceid);
+        drl=usbcanunion.closeUsbCan();
         if (drl != STATUS_OK)
         {
             QMessageBox::information(this,"提示","关闭链接失败",QMessageBox::Warning);
@@ -554,8 +569,8 @@ void chartDisplay::on_pushButton_2_clicked(bool checked)
             if(RunTest==false){
                 //    测试代码
                 RunTest=true;
-                emit StartTest();
-                timer->start(100);
+                emit usbcanunion.setFrameStartTime();
+                timer->start(settings.timer_interval);
                 ui->comboBox->setEnabled(false);
                 saveTime=GetTickCount();
                 ui->pushButton_2->setText("停止测试");
@@ -570,14 +585,14 @@ void chartDisplay::on_pushButton_2_clicked(bool checked)
         else{
             if(RunTest==false){
                 DWORD drl;
-                drl=StartCAN(settings.devicetype, settings.deviceid, settings.canid);
+                drl=usbcanunion.startUsbCan();
                 if (drl != STATUS_OK)
                 {
                     QMessageBox::information(this,"提示","开启失败",QMessageBox::Warning);
                     return ;
                 }else{
                     RunTest=true;
-                    emit StartTest();
+                    emit usbcanunion.setFrameStartTime();
                     timer->start(100);
                     //重新技术
                     ui->comboBox->setEnabled(false);
@@ -604,20 +619,11 @@ void chartDisplay::on_comboBox_currentIndexChanged(int index)
 {
     settings.CompanyType=ui->comboBox->currentIndex();
     companytypecode=ui->comboBox->currentIndex();
-    changeCompanyType();
+
     resetAry();
     fchart->changeSplineName(companytypecode);
     schart->changeSplineName(companytypecode);
 }
-
-void chartDisplay::changeCompanyType(){
-    //设置 名称
-    for(int i=0;i<settings.lineNums;i++){
-        pb[i]->setText(settings.splineName[companytypecode][i]);
-    }
-    //
-}
-
 
 
 void chartDisplay::on_radioButton_toggled(bool checked)
