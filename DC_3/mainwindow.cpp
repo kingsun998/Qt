@@ -3,7 +3,8 @@
 //对目录操作的库
 #include <direct.h>
 #include <QDir>
-
+#include <usbcanunion.h>
+#include <test.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -11,12 +12,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setCentralWidget(ui->tabWidget);
+
+
+
     QTabWidget *tb=ui->tabWidget;
     baseInfo *baseinfo=new baseInfo();
     tb->addTab(baseinfo,"参数设置");
 
-//    chartDisplay *chart=new chartDisplay();
-//    tb->addTab(chart,"图表显示");
 
     frameDisplay *framedisplay=new frameDisplay();
     tb->addTab(framedisplay,"报文显示");
@@ -25,19 +27,16 @@ MainWindow::MainWindow(QWidget *parent) :
     BootLoader *bootloader=new BootLoader();
     tb->addTab(bootloader,"程序刷写");
 
-//    SendMessages *sendmessages=new SendMessages();
-//    tb->addTab(sendmessages,"发送消息");
-
     standarSet *stander=new standarSet();
     tb->addTab(stander,"检测标准设置");
-
-    DeviceUnion *deviceunion=new DeviceUnion();
-    tb->addTab(deviceunion,"扫描枪");
 
     TestDisplay *testdisplay=new TestDisplay();
     tb->addTab(testdisplay,"双通测试");
 
-    HttpServer::instance().run();
+    Test* test=new Test();
+    tb->addTab(test,"测试");
+
+//    HttpServer::instance().run();
 
     //检测是否可以写入计时器
     timer=new QTimer();
@@ -47,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mergeFiletimer=new QTimer();
     mergeFiletimer->setInterval(1000*60*settings.mergeFile_interval);
    //单通道发送给表
-//    connect(chart,&chartDisplay::sendMessage,framedisplay,&frameDisplay::getMessage);
+
     //开启表的开始计时器
     connect(&usbcanunion,&UsbCanUnion::setFrameStartTime,framedisplay,&frameDisplay::setStartTime);
     //双通道发送给表
@@ -60,13 +59,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //初始化文件夹
     QString dir=QCoreApplication::applicationDirPath()+"/savefiles/";
+
+    QDir dr;
     if(!QDir(dir).exists()){
-        _mkdir(dir.toLatin1().data());
+        dr.mkdir(dir);
     }
     for (int i=0;i<settings.dirnames.size();i++) {
         QString dirname=QCoreApplication::applicationDirPath()+"/savefiles/"+settings.dirnames[i];
         if(!QDir(dirname).exists()){
-            _mkdir(dirname.toLatin1().data());
+            dr.mkdir(dirname);
         }
     }
     timer->start();

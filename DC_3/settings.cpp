@@ -60,7 +60,7 @@ settings::settings()
     testColor={{0,Qt::red},{1,Qt::green},{-1,Qt::gray}};
 
     //framedisplay
-    maxrowcount=20;
+    maxrowcount=100;
     saveTable_Interval=saveInterval_minus;
 
     send_frame_interval=1000;
@@ -73,7 +73,7 @@ settings::settings()
     memcpy(ox_ascii,ascii,16);
 
     //dbcontroller
-    mergeFile_interval=1;
+    mergeFile_interval=30;
     allow_show=true;
     xlsxMaxline=65000;
     dirnames={"charts","frames","testsChannel1","testsChannel2","tempcharts","tempframes","temptestsChannel1","temptestsChannel2"};
@@ -82,7 +82,7 @@ settings::settings()
     company_datenames={"T1","T2","T3","T4","CJ","μC","V1","V2","V3","V4"};
     company_usedate_names={"T1","T2","T3","T4","CJ","μC"};
     company_col_title={"val","status","time","hightempTest","precisionTest"};
-
+    HightempThreshold=5;
     //usbcanunion
     timer_interval=200;
     //hightempTest,precisionTest  status
@@ -92,6 +92,18 @@ settings::settings()
     mergesize=4;
     //show_clock
     show_clock=3;
+
+    //mqtt
+    mqtt_ip_address="127.0.0.1";
+    mqtt_port=1883;
+    topic="topic";
+    qos=1;
+
+    //test
+    baurd=9600;
+    stopbit=1;
+    check=0;
+    datalen=8;
 }
 
 void settings::setbote(){

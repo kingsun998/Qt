@@ -88,7 +88,7 @@ public:
 
     //testdisplay
     int timer_interval;
-
+    int HightempThreshold;
     QVector<QString> company_datenames;
     QVector<QString> company_usedate_names;
     QVector<QString> company_col_title;
@@ -102,6 +102,18 @@ public:
     //show_clock  显示间隔
     int show_clock;
     std::mutex mtx;
+
+    //mqtt
+    QString mqtt_ip_address;
+    quint16 mqtt_port;
+    QString topic;
+    quint8 qos;
+
+    //test
+    int baurd;
+    int stopbit;
+    int check;
+    int datalen;
 };
 
 void showMessage(QString str,bool flag);

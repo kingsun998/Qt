@@ -5,6 +5,7 @@
 #include "ui_bootloader_ch.h"
 #endif
 #include <QDebug>
+#include <usbcanunion.h>
 
 BootLoader::BootLoader(QWidget *parent) :
     QWidget(parent),
@@ -154,6 +155,9 @@ void BootLoader::on_updateFirmwarePushButton_clicked()
     if(!ConfFlag){
         return;
     }
+//    if(ui->comboBox->currentText()==1){
+//        int WINAPI CAN_BOOT_EnterBootMode(int DevHandle,int CANIndex,unsigned char NAD);
+//    }
     if(!firmwareFile.open(QFile::ReadOnly)){
         QMessageBox::warning(this,"警告","打开文件失败！");
         return;
@@ -209,6 +213,7 @@ void BootLoader::on_updateFirmwarePushButton_clicked()
                 //成功进入BOOT模式，开始升级固件
                 ui->nodeListTableWidget->item(r,4)->setText("开始擦除固件，该操作可能比较耗时...");
                 QCoreApplication::processEvents(QEventLoop::AllEvents);//防止界面卡死，可处理别的事件
+
                 ret = CAN_BOOT_EraseApp(DeviceHandle,
                                         ui->channelIndexComboBox->currentIndex(),
                                         NodeAddr,

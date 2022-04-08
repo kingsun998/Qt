@@ -9,7 +9,6 @@
 #include <qdebug.h>
 #include <QCoreApplication>
 #include <settings.h>
-#include <xlsxdocument.h>
 #include <QThread>
 
 extern class dbController dbcontroller;
@@ -68,7 +67,6 @@ public:
 public:
     QVector<QMap<QString,QMap<QString,QVector<QString>>>>  map;
     QVector<QVector<QString>> time;
-    QString date;
     QString compandy_type;
     QVector<QString> title_col;
     QVector<QString> use_dates;

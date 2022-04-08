@@ -1,6 +1,8 @@
 ﻿#include "testdisplay.h"
 #include "ui_testdisplay.h"
 #include "QDateTime"
+#include <usbcanunion.h>
+#include <dbcontroller.h>
 #include "QMessageBox"
 
 TestDisplay::TestDisplay(QWidget *parent) :
@@ -46,16 +48,27 @@ TestDisplay::TestDisplay(QWidget *parent) :
     //控制区域
     gridlayout.append(new QGridLayout());
 
-    QVector<QString> buttonnames={"跳转","连接设备","开启设备","关闭设备","高温稳定性重置"};
-    QVector<QString> lineeditnames={"Y轴最小值","Y轴最大值"};
+    QVector<QString> buttonnames={"跳转","扫描二维码","发送数据","连接设备","开启设备","关闭设备"};
+    QVector<QString> lineeditnames={"Y轴最小值","Y轴最大值","输入稳定性阈值","输入要测试的精度","输入预测试时间"};
     QStringList radionames={"高温稳定性测试","精度测试"};
+
+    buttonmap={{"scalejump",0},{"scan",1},{"senddata",2},{"connectdevice",3},{"opendevice",4},{"closedevice",5}};
+    lineeditmap={{"xaxis",0},{"yaxis",1},{"hightemp",2},{"precesionval",3},{"precesiontime",4}};
+
     for (int i=0;i<radionames.size();i++) {
         lineedit.append(new QLineEdit());
         lineedit[i]->setPlaceholderText(lineeditnames[i]);
         gridlayout[2]->addWidget(lineedit[i],0,i,1,1);
     }
-    pushbuttons.append(new QPushButton(buttonnames[0]));
-    gridlayout[2]->addWidget(pushbuttons[0],0,2);
+    pushbuttons.append(new QPushButton(buttonnames[buttonmap["scalejump"]]));
+    gridlayout[2]->addWidget(pushbuttons[buttonmap["scalejump"]],0,2);
+
+    pushbuttons.append(new QPushButton(buttonnames[buttonmap["scan"]]));
+    gridlayout[2]->addWidget(pushbuttons[buttonmap["scan"]],0,3);
+
+    pushbuttons.append(new QPushButton(buttonnames[buttonmap["senddata"]]));
+    gridlayout[2]->addWidget(pushbuttons[buttonmap["senddata"]],0,4);
+
     vboxlayout[0]->addLayout(gridlayout[2]);
 
     gridlayout.append(new QGridLayout());
@@ -66,26 +79,36 @@ TestDisplay::TestDisplay(QWidget *parent) :
 
 
     for (int i=0;i<3;i++) {
-        pushbuttons.append(new QPushButton(buttonnames[i+1]));
-        gridlayout[3]->addWidget(pushbuttons[i+1],0,i+1);
+        pushbuttons.append(new QPushButton(buttonnames[i+buttonmap["connectdevice"]]));
+        gridlayout[3]->addWidget(pushbuttons[i+buttonmap["connectdevice"]],0,i+1);
     }
-
-    highTempCheckBox=new QCheckBox("高温稳定性测试");
-    precisionCheckBox=new QCheckBox("精度测试");
+    testname={"高温稳定性测试","精度测试"};
+    highTempCheckBox=new QCheckBox(testname[0]);
     gridlayout[3]->addWidget(highTempCheckBox,0,4);
-    gridlayout[3]->addWidget(precisionCheckBox,0,5);
 
     lineedit.append(new QLineEdit());
-    lineedit[2]->setPlaceholderText("输入要测试的精度");
-    lineedit[2]->setMaximumWidth(200);
-    gridlayout[3]->addWidget(lineedit[2],0,6);
+    lineedit[lineeditmap["hightemp"]]->setPlaceholderText(lineeditnames[lineeditmap["hightemp"]]);
+    lineedit[lineeditmap["hightemp"]]->setMaximumWidth(200);
+    gridlayout[3]->addWidget(lineedit[lineeditmap["hightemp"]],0,5);
+
+    precisionCheckBox=new QCheckBox(testname[1]);
+    gridlayout[3]->addWidget(precisionCheckBox,0,6);
 
     lineedit.append(new QLineEdit());
-    lineedit[3]->setPlaceholderText("输入预测试时间");
-    lineedit[3]->setMaximumWidth(200);
-    gridlayout[3]->addWidget(lineedit[3],0,7);
+    lineedit[lineeditmap["precesionval"]]->setPlaceholderText(lineeditnames[lineeditmap["precesionval"]]);
+    lineedit[lineeditmap["precesionval"]]->setMaximumWidth(200);
+    gridlayout[3]->addWidget(lineedit[lineeditmap["precesionval"]],0,7);
+
+    lineedit.append(new QLineEdit());
+    lineedit[lineeditmap["precesiontime"]]->setPlaceholderText(lineeditnames[lineeditmap["precesiontime"]]);
+    lineedit[lineeditmap["precesiontime"]]->setMaximumWidth(200);
+    gridlayout[3]->addWidget(lineedit[lineeditmap["precesiontime"]],0,8);
 
     vboxlayout[0]->addLayout(gridlayout[3]);
+
+    //添加测试按钮 checkebox
+    testcheckbox.push_back(highTempCheckBox);
+    testcheckbox.push_back(precisionCheckBox);
 
     w=new QWidget();
     w->setLayout(vboxlayout[0]);
@@ -119,7 +142,7 @@ TestDisplay::TestDisplay(QWidget *parent) :
     highTempTest.resize(2*company_date.size());
     highTempStatus.resize(2*company_date.size());
     precisionStatus.resize(2*company_date.size());
-
+    precisionError.resize(2*company_date.size());
     for (int i=0;i<2*company_date.size();i++) {
         highTempStatus[i]=true;
         highTempTest[i]=0;
@@ -158,14 +181,17 @@ TestDisplay::TestDisplay(QWidget *parent) :
     connect(precisionCheckBox,&QCheckBox::clicked,this,&TestDisplay::precisionTestSwitch);
 
     //跳转按钮
-    connect(pushbuttons[0],&QPushButton::clicked,this,&TestDisplay::YscaleJump);
+    connect(pushbuttons[buttonmap["scalejump"]],&QPushButton::clicked,this,&TestDisplay::YscaleJump);
     // Can操作
-    connect(pushbuttons[1],&QPushButton::clicked,this,&TestDisplay::connectCan);
-    connect(pushbuttons[2],&QPushButton::clicked,this,&TestDisplay::startCan);
-    connect(pushbuttons[3],&QPushButton::clicked,this,&TestDisplay::disconnectCan);
+    connect(pushbuttons[buttonmap["scan"]],&QPushButton::clicked,this,&TestDisplay::newscan);
+    connect(pushbuttons[buttonmap["senddata"]],&QPushButton::clicked,this,&TestDisplay::senddata);
+    connect(pushbuttons[buttonmap["connectdevice"]],&QPushButton::clicked,this,&TestDisplay::connectCan);
+    connect(pushbuttons[buttonmap["opendevice"]],&QPushButton::clicked,this,&TestDisplay::startCan);
+    connect(pushbuttons[buttonmap["closedevice"]],&QPushButton::clicked,this,&TestDisplay::disconnectCan);
     //测试
-    connect(lineedit[2],&QLineEdit::editingFinished,this,&TestDisplay::getPrecesion);
-    connect(lineedit[3],&QLineEdit::editingFinished,this,&TestDisplay::getPrePrecesionTime);
+    connect(lineedit[lineeditmap["hightemp"]],&QLineEdit::editingFinished,this,&TestDisplay::getHighThreshold);
+    connect(lineedit[lineeditmap["precesionval"]],&QLineEdit::editingFinished,this,&TestDisplay::getPrecesion);
+    connect(lineedit[lineeditmap["precesiontime"]],&QLineEdit::editingFinished,this,&TestDisplay::getPrePrecesionTime);
     connect(&pretimer,&QTimer::timeout,this,&TestDisplay::handlePrePrecesionTimeOut);
     saveInterval_miseconds=settings.saveInterval_minus*60*1000;
 
@@ -191,11 +217,17 @@ TestDisplay::TestDisplay(QWidget *parent) :
     IfTestHighTemp=false;
     IfTestPrecision=false;
     IfTestPrePrecesion=false;
-    lineedit[3]->setEnabled(false);
+//    lineedit[lineeditmap["precesiontime"]]->setEnabled(false);
+    lineedit[lineeditmap["hightemp"]]->setEnabled(false);
     pretime=10;
     companyname=settings.CompanyName[0];
 
     offset=0;
+
+    scangunmes.resize(8);
+    resetScangunmes();
+
+    company_type=0;
 }
 
 TestDisplay::~TestDisplay()
@@ -237,10 +269,12 @@ int TestDisplay::PrecesionTest(int index,double val){
     bool flg;
     if(precisionStatus[index]){
         if(!IfTestPrePrecesion){
+            val=lowPassFilter(index,val);
+            precisionError[index]=val-TestTemperature;
             if(offset>0){
-                flg=abs(val-TestTemperature)<TestTemperature*(offset);
+                flg=abs(precisionError[index])<TestTemperature*(offset);
             }else{
-                flg=abs(val-TestTemperature)<1.5;
+                flg=abs(precisionError[index])<1.5;
             }
             int idx=(flg==true?1:0);
             ps.setColor(QPalette::WindowText,settings.Test_status_color[idx]);
@@ -263,10 +297,11 @@ int TestDisplay::PrecesionTest(int index,double val){
 int TestDisplay::highTempStableTest(int index,double val){
     //若已经为false，就直接返回false
     if(highTempStatus[index]){
+        val=lowPassFilter(index,val);
         if(val<870){
             QPalette ps;
             int idx;
-            if(val-highTempTest[index]<-5){
+            if(val-highTempTest[index]<-settings.HightempThreshold){
                 idx=0;
             }else{
                 idx=1;
@@ -327,6 +362,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
         /// A1
         ///*
         case 0x18FD2083: //0x18FD2083 A1 T1  T4
+            if(company_type){
+                return;
+            }
             index1=2*0;
             index2=2*3;
             //计算数值和时间
@@ -392,6 +430,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
 
             break;
          case 0x14FD3E83:  //0x14FD3E83 A1 T2  T3
+             if(company_type){
+                 return;
+             }
              index1=2*1;
              index2=2*2;
              Tcf=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
@@ -456,7 +497,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              ReceiveVal_A1.obj["T3"]["status"].push_back(settings.errorCode_TC[error2]);
              break;
         case 0x18FF7AD3: //0x18FF7AD3 A1 CJ  μC
-
+            if(company_type){
+                return;
+            }
             index1=2*4;
             index2=2*5;
             //计算数值和时间
@@ -507,6 +550,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             break;
 
         case 0x10FD4783:   //0x10FD4783 A1  测试电压值
+            if(company_type){
+                return;
+            }
             index1=2*6;
             index2=2*7;
             index3=2*8;
@@ -525,7 +571,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
         /// A2
         ///*
         case 0x18FD2084: //0x18FD2083 A2 T1  T4
-
+            if(company_type){
+                return;
+            }
             //计算数值和时间
             index1=2*0+1;
             index2=2*3+1;
@@ -593,6 +641,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveTimestamp[1].push_back(datetime);
             break;
          case 0x14FD3E84:  //0x14FD3E83 A2 T2  T3
+             if(company_type){
+                 return;
+             }
              index1=2*1+1;
              index2=2*2+1;
              Tcf=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
@@ -657,6 +708,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              ReceiveVal_A2.obj["T3"]["status"].push_back(settings.errorCode_TC[error2]);
              break;
         case 0x18FF7AD4: //0x18FF7AD4 A2 CJ  μC
+            if(company_type){
+                return;
+            }
             index1=2*4+1;
             index2=2*5+1;
             //计算数值和时间
@@ -706,6 +760,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             break;
 
         case 0x10FD4784:   //0x10FD4784   测试电压值
+            if(company_type){
+                return;
+            }
             index1=2*6+1;
             index2=2*7+1;
             index3=2*8+1;
@@ -724,6 +781,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
         /// B1
         /// *
         case 0x18FF76D3:  //0x18FF76D3  B1 T3  T4
+            if(!company_type){
+                return;
+            }
             //计算数值和时间
             index1=2*2;
             index2=2*3;
@@ -788,6 +848,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveTimestamp[0].push_back(datetime);
             break;
          case 0x18FF77D3:  //0x18FF77D3 B1 CJ  μC
+             if(!company_type){
+                 return;
+             }
              index1=2*4;
              index2=2*5;
              Tcf=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
@@ -837,6 +900,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              break;
 
         case 0x18FF74D3: //0x18FF74D3  B1 T1 T2
+            if(!company_type){
+                return;
+            }
             index1=2*0;
             index2=2*1;
 
@@ -863,7 +929,7 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             }
 
             emit sendtochart_First_Up(mx/4,0,Tcf);
-            emit sendtochart_First_Up(mx/4,1,Tcf);
+            emit sendtochart_First_Up(mx/4,1,Tcs);
 
             error2=0;
             base=1;
@@ -904,6 +970,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             break;
 
         case 0x10FD47D3:   //0x10FD47D3   //测试用数据帧，热电偶电压值
+            if(!company_type){
+                return;
+            }
             index1=2*6;
             index2=2*7;
             index3=2*8;
@@ -921,6 +990,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
         /// B2
         ///*
         case 0x18FF76D4: //0x18FF76D4 B2 T3  T4
+            if(!company_type){
+                return;
+            }
             //计算数值和时间
             index1=2*2+1;
             index2=2*3+1;
@@ -988,6 +1060,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveTimestamp[1].push_back(datetime);
             break;
          case 0x18FF77D4:  //0x18FF77D4 B2 CJ  μC
+             if(!company_type){
+                 return;
+             }
              index1=2*4+1;
              index2=2*5+1;
              Tcf=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
@@ -997,7 +1072,7 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              ReceiveVal_B2.obj["μC"]["precisionTest"].push_back(".");
 
              emit sendtochart_Second_Down(mx/4,1,Tcf);
-             emit sendtochart_Second_Down(mx/4,2,Tcf);
+             emit sendtochart_Second_Down(mx/4,2,Tcs);
 
              //保存数据
              ReceiveVal_B2.obj["CJ"]["val"].push_back(QString::number(Tcf,'f',2));
@@ -1038,6 +1113,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              break;
 
         case 0x18FF74D4:  //0x18FF74D4 B2 T1 T2
+            if(!company_type){
+                return;
+            }
             index1=2*0+1;
             index2=2*1+1;
             Tcf=(obj.Data[1]*256+obj.Data[0])*0.03125-273;
@@ -1063,7 +1141,7 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             }
 
             emit sendtochart_Second_Up(mx/4,0,Tcf);
-            emit sendtochart_Second_Up(mx/4,1,Tcf);
+            emit sendtochart_Second_Up(mx/4,1,Tcs);
 
             ReceiveVal_B2.obj["T1"]["val"].push_back(QString::number(Tcf,'f',2));
             //计算时间
@@ -1101,6 +1179,9 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             break;
 
         case 0x10FD47D4:   //0x10FD47D4  B2 测试用数据帧，热电偶电压值
+            if(!company_type){
+                return;
+            }
             index1=2*6+1;
             index2=2*7+1;
             index3=2*8+1;
@@ -1173,7 +1254,6 @@ void TestDisplay::handleTimeOut(){
                 emit sendMessage(m_x+i,usbcanunion.objs[i],QDateTime::currentDateTime().toString("yyyy_MM_dd hh:mm:ss:zzz"));
             }
             m_x+=len;
-
         }
 }
 
@@ -1181,20 +1261,20 @@ void TestDisplay::shspline(int index,bool selected){
 
     index=-index-2;
     qDebug()<<"clicked  "<<index<<"  turn to "<<selected;
-    if(index<4){
+    if(index<3){
        mycharts[0]->show_hidden_Series(index,selected);
        mycharts[2]->show_hidden_Series(index,selected);
 
     }else{
-//       schart->show_hidden_Series(index-4,selected);
-       mycharts[1]->show_hidden_Series(index-4,selected);
-       mycharts[3]->show_hidden_Series(index-4,selected);
+       mycharts[1]->show_hidden_Series(index-3,selected);
+       mycharts[3]->show_hidden_Series(index-3,selected);
     }
 }
 
 void TestDisplay::change_Company(int index){
     qDebug()<<index;
     companyname=combobox[0]->currentText();
+    company_type=index;
     for (int i=0;i<mycharts.size();i++) {
         mycharts[i]->changeSplineName(index);
     }   
@@ -1240,13 +1320,13 @@ void TestDisplay::startCan(){
             timer->start(settings.timer_interval);
             combobox[0]->setEnabled(false);
             saveTime=GetTickCount();
-            pushbuttons[2]->setText("停止测试");
+            pushbuttons[buttonmap["opendevice"]]->setText("停止测试");
         }
         else{
             IfRun=false;
             timer->stop();
             combobox[0]->setEnabled(true);
-            pushbuttons[2]->setText("开启测试");
+            pushbuttons[buttonmap["opendevice"]]->setText("开启测试");
         }
     }
     else{
@@ -1264,13 +1344,13 @@ void TestDisplay::startCan(){
                 //重新技术
                 combobox[0]->setEnabled(false);
                 saveTime=GetTickCount();
-                pushbuttons[2]->setText("停止测试");
+                pushbuttons[buttonmap["opendevice"]]->setText("停止测试");
             }
         }else{
             IfRun=false;
             timer->stop();
             combobox[0]->setEnabled(true);
-            pushbuttons[2]->setText("开启测试");
+            pushbuttons[buttonmap["opendevice"]]->setText("开启测试");
         }
     }
 }
@@ -1291,8 +1371,8 @@ void TestDisplay::disconnectCan(){
 }
 
 void TestDisplay::YscaleJump(){
-    double ymin=lineedit[0]->text().toDouble();
-    double ymax=lineedit[1]->text().toDouble();
+    double ymin=lineedit[lineeditmap["xaxis"]]->text().toDouble();
+    double ymax=lineedit[lineeditmap["yaxis"]]->text().toDouble();
 
     for (int i=0;i<mycharts.size();i++) {
         qDebug()<<ymin<<"  "<<ymax;
@@ -1302,6 +1382,7 @@ void TestDisplay::YscaleJump(){
 
 void TestDisplay::highTempTestSwitch(bool state){
     qDebug()<<state;
+    lineedit[lineeditmap["hightemp"]]->setEnabled(state);
     this->IfTestHighTemp=state;
     int size=this->highTempStatus.size();
     for (int i=0;i<size;i++) {
@@ -1312,40 +1393,80 @@ void TestDisplay::highTempTestSwitch(bool state){
 
 void TestDisplay::precisionTestSwitch(bool state){
     this->IfTestPrecision=state;
+    if(state){
+        QString &&tmp=lineedit[lineeditmap["precesionval"]]->text();
+        TestTemperature=tmp==""?20:tmp.toDouble();
+        if(TestTemperature>=40&&TestTemperature<=375){
+            offset=1.5;
+        }
+        if(TestTemperature>375&&TestTemperature<=800){
+            offset=0.004;
+        }
+        tmp=lineedit[lineeditmap["precesiontime"]]->text();
+        this->pretime=tmp==" "?0:tmp.toInt();
+        IfTestPrePrecesion=true;
+        pretimer.setInterval(this->pretime*1000);
+        pretimer.start();
+    }
     int size=this->precisionStatus.size();
     for (int i=0;i<size;i++) {
         precisionStatus[i]=true;
     }
-    lineedit[3]->setEnabled(state);
+
 }
 
-
 void TestDisplay::getPrecesion(){
-    TestTemperature=lineedit[2]->text().toDouble();
-    if(TestTemperature>=40&&TestTemperature<=375){
-        offset=1.5;
-    }
-    if(TestTemperature>375&&TestTemperature<=800){
-        offset=0.004;
-    }
-    int size=this->precisionStatus.size();
-    for (int i=0;i<size;i++) {
-        precisionStatus[i]=true;
-    }
+
 }
 
 void TestDisplay::getPrePrecesionTime(){
-    this->pretime=lineedit[3]->text().toInt();
-    pretimer.setInterval(this->pretime*1000);
-    int size=this->precisionStatus.size();
-    for (int i=0;i<size;i++) {
-        precisionStatus[i]=true;
-    }
-    IfTestPrePrecesion=true;
-    pretimer.start();
+
 }
 
 void TestDisplay::handlePrePrecesionTimeOut(){
     IfTestPrePrecesion=false;
     pretimer.stop();
+}
+
+void TestDisplay::getHighThreshold(){
+    settings.HightempThreshold=lineedit[lineeditmap["hightemp"]]->text().toInt();
+}
+
+void TestDisplay::resetScangunmes(){
+    for (int i=0;i<scangunmes.size();i++) {
+        scangunmes[i]="--";
+    }
+}
+
+void TestDisplay::newscan(){
+    resetScangunmes();
+    scangun=new ScanGun(this,&scangunmes);
+    //关闭是删除
+    scangun->setAttribute(Qt::WA_DeleteOnClose);
+    scangun->show();
+}
+
+void TestDisplay::senddata(){
+
+    MqttDataStruct data;
+    int size=scangunmes.size();
+    QVector<QString> vec={"T1_0","T1_1","T1_2","T1_3","T2_0","T2_1","T2_2","T2_3"};
+    for (int i=0;i<size;i++) {
+        if(scangunmes[i]=="--")
+            continue;
+        data.AddObject(vec[i],"sensorId",scangunmes[i]);
+        if(highTempCheckBox->isChecked()){
+            data.AddObject(vec[i],"highTempTest",highTempStatus[i]?"Pass":"Error");
+        }
+        if(precisionCheckBox->isChecked()){
+            data.AddObject(vec[i],"PrecisionTest",precisionStatus[i]?"Pass":"Error");
+            data.AddObject(vec[i],"PrecisionError",QString::number(precisionError[i]));
+        }
+
+    }
+    mqtt.publish_Mes(data);
+}
+
+QVector<QString>* TestDisplay::getScanMes(){
+    return &scangunmes;
 }

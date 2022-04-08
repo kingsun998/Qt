@@ -33,6 +33,21 @@ private slots:
 
     void on_radioButton_clicked(bool checked);
 
+
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_3_clicked();
+
+    void on_pushButton_clicked();
+
+    void on_lineEdit_10_editingFinished();
+
+    void on_lineEdit_11_editingFinished();
+
+    void on_lineEdit_12_editingFinished();
+
+    void on_lineEdit_13_editingFinished();
+
 private:
     Ui::baseinfo_ui *ui;
 };

@@ -1,0 +1,157 @@
+﻿#include "settings.h"
+
+class settings settings;
+
+settings::settings()
+{
+    firstChartLineNum=4;
+    secondChartLineNum=3;
+    pointsnum=20;
+    defaultXlen=160;
+    defaultXtickCount=11;
+    defaultYtickCount=11;
+    splineName={
+        {0,{"A1DOC intake","A1SCR intake","A1SCR outlet","A1DOC outlet",
+                 "AT1IG2 intake","CJ","uC","V1","V2","V3","V4"}},
+        {1,{"EGTS 2-1","EGTS 2-2","CJ","μC","EGTS 3-1","EGTS 3-2","EGTS 3-3","V1","V2","V3","V4"}}
+    };
+
+    splinePen={Qt::red,Qt::yellow,Qt::green,Qt::blue,Qt::cyan,Qt::darkMagenta,Qt::gray};
+    penweight=2;
+    maxpoints=200;
+
+    boterate=1000;
+
+    deviceid=0;
+    canid=0;
+    devicetype=3;
+
+    Y_min=-10;
+    Y_max=400;
+    //baseinfo
+    TestMode=false;
+
+    //chartdisplay
+    pInitConfig.AccCode=0;
+    pInitConfig.AccMask=0xffffff;
+    pInitConfig.Filter=0;
+    pInitConfig.Timing0=0x01;
+    pInitConfig.Timing1=0x1c;
+    errorCode_TC={{0,"Pass"},{1,"TC Short to Vbat"},{2,"TC Short to Gnd"},{5,"TC Open ckt"},
+               {6,"TC ASIC"},{11,"TC CJ"},{13,"TC ECU"},{16,"Not complete"}};
+    errorCode_CJ={{0,"Pass"},{1,"CJ Short ckt"},{4,"CJ Open ckt"},{6,"CJ ASIC"},
+               {14,"CJ Plausibility"},{16,"Not complete"}};
+    errorCode_ECU={{0,"Pass"},{8,"ECU μC EEP"},{9,"ECU ASIC EEP"},{10,"ECU High Volt"},
+               {11,"ECU Low Volt"},{15,"ECU Overtemp"},{16,"Not complete"}};
+
+    CompanyName={{0,"A"},{1,"B"}};
+    Bt_temperature=25;
+    Tp_temperature=400*0.63;
+
+    saveInterval_minus=0.1;
+
+    lineNums=7;
+    CompanyType=0;
+
+    totalnums=11;
+    caninit=false;
+
+    Test_status={{0,"error"},{1,"pass"},{2,"no test"},{3,"..."}};
+    Test_status_color={{0,Qt::red},{1,Qt::green},{2,Qt::gray}};
+    //sendmessages
+    sendMessageInterval=100;
+    canindex=1;
+
+    //stander
+    testColor={{false,Qt::red},{true,Qt::green}};
+
+    //framedisplay
+    maxrowcount=20;
+
+    send_frame_interval=1000;
+    send_frame_type={{0,"数据帧"},{1,"远程帧"}};
+    send_frame_format={{0,"标准帧"},{1,"扩展帧"}};
+    send_frame_id=0;
+    send_frame_nums=0;
+    id_auto_increase=false;
+    unsigned char ascii[16]={0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x41,0x42,0x43,0x44,0x45,0x46};
+    memcpy(ox_ascii,ascii,16);
+
+    //dbserver
+    xlsxMaxline=65000;
+    allow_show=true;
+
+    company_col_title={"val","status","time","precisionTest","precisionError"};
+    company_usedate_names={
+        {0,{"A1DOC intake","A1SCR intake","A1SCR outlet","A1DOC outlet","AT1IG2 intake","CJ","uC"}},
+        {1,{"EGTS 2-1","EGTS 2-2","CJ","μC","EGTS 3-1","EGTS 3-2","EGTS 3-3"}}
+    };
+    mergeFile_interval=1;
+    dirlist={"charts","table","tempcharts","temptable"};
+    mergesize=4;
+}
+
+void settings::setbote(){
+    switch (boterate) {
+    case 1000:
+        this->sjw=1;
+        this->bs1=15;
+        this->bs2=5;
+        this->brp=2;
+    break;
+    case 800:
+        this->sjw=1;
+        this->bs1=2;
+        this->bs2=1;
+        this->brp=13;
+    break;
+    case 666:
+        this->sjw=1;
+        this->bs1=16;
+        this->bs2=4;
+        this->brp=3;
+    break;
+    case 500:
+        this->sjw=1;
+        this->bs1=16;
+        this->bs2=4;
+        this->brp=4;
+    break;
+    case 400:
+        this->sjw=1;
+        this->bs1=12;
+        this->bs2=2;
+        this->brp=7;
+    break;
+    case 250:
+        this->sjw=1;
+        this->bs1=6;
+        this->bs2=1;
+        this->brp=21;
+    break;
+    case 125:
+        this->sjw=1;
+        this->bs1=6;
+        this->bs2=1;
+        this->brp=42;
+    break;
+    case 100:
+        this->sjw=1;
+        this->bs1=15;
+        this->bs2=4;
+        this->brp=21;
+    break;
+    default:
+        break;
+    }
+}
+
+
+void showMessage(QString str,bool flag){
+    if(settings.allow_show){
+        if(flag){
+           qDebug()<<str;
+        }
+    }
+
+}

@@ -14,7 +14,7 @@
    <string>USB2XXX USB2CAN Bootloader Pro</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="image.qrc">
     <normaloff>:/images/easyicon_net.png</normaloff>:/images/easyicon_net.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -456,6 +456,20 @@
                </widget>
               </item>
               <item>
+               <widget class="QComboBox" name="comboBox">
+                <item>
+                 <property name="text">
+                  <string>APP</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>BOOT</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="biaodingpushButton">
                 <property name="text">
                  <string>标定</string>
@@ -476,7 +490,7 @@
   </layout>
   <action name="exitAction">
    <property name="icon">
-    <iconset>
+    <iconset resource="image.qrc">
      <normaloff>:/images/gif_48_026.gif</normaloff>:/images/gif_48_026.gif</iconset>
    </property>
    <property name="text">
@@ -485,7 +499,7 @@
   </action>
   <action name="scanNodeAction">
    <property name="icon">
-    <iconset>
+    <iconset resource="image.qrc">
      <normaloff>:/images/gif_48_086.gif</normaloff>:/images/gif_48_086.gif</iconset>
    </property>
    <property name="text">
@@ -494,7 +508,7 @@
   </action>
   <action name="contactUsAction">
    <property name="icon">
-    <iconset>
+    <iconset resource="image.qrc">
      <normaloff>:/images/gif_48_079.gif</normaloff>:/images/gif_48_079.gif</iconset>
    </property>
    <property name="text">
@@ -503,7 +517,7 @@
   </action>
   <action name="aboutAction">
    <property name="icon">
-    <iconset>
+    <iconset resource="image.qrc">
      <normaloff>:/images/gif_48_052.gif</normaloff>:/images/gif_48_052.gif</iconset>
    </property>
    <property name="text">
@@ -512,7 +526,7 @@
   </action>
   <action name="openFirmwareFileAction">
    <property name="icon">
-    <iconset>
+    <iconset resource="image.qrc">
      <normaloff>:/images/gif_48_045.gif</normaloff>:/images/gif_48_045.gif</iconset>
    </property>
    <property name="text">
@@ -521,7 +535,7 @@
   </action>
   <action name="actionAddNode">
    <property name="icon">
-    <iconset>
+    <iconset resource="image.qrc">
      <normaloff>:/images/gif_48_002.gif</normaloff>:/images/gif_48_002.gif</iconset>
    </property>
    <property name="text">
@@ -530,7 +544,7 @@
   </action>
   <action name="actionScanDevice">
    <property name="icon">
-    <iconset>
+    <iconset resource="image.qrc">
      <normaloff>:/images/gif_48_091.gif</normaloff>:/images/gif_48_091.gif</iconset>
    </property>
    <property name="text">
@@ -539,7 +553,7 @@
   </action>
   <action name="actionDocument">
    <property name="icon">
-    <iconset>
+    <iconset resource="image.qrc">
      <normaloff>:/images/gif_48_003.gif</normaloff>:/images/gif_48_003.gif</iconset>
    </property>
    <property name="text">
@@ -548,6 +562,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="image.qrc"/>
+ </resources>
  <connections/>
 </ui>

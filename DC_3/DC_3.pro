@@ -6,12 +6,12 @@
 
 QT       += core gui
 QT       += charts
-QT       += axcontainer
 QT       += sql
 QT       += network
-QT       += xlsx
 QT       += mqtt
+QT       += axcontainer
 QT       += network
+QT       += serialport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = DC_3
@@ -39,39 +39,36 @@ RC_FILE =  \
 SOURCES += \
         baseinfo.cpp \
         bootloader.cpp \
-        comprocess.cpp \
-        comservice.cpp \
         datastruct.cpp \
         dbcontroller.cpp \
-        deviceunion.cpp \
         dialogaddnode.cpp \
         framedisplay.cpp \
         httpserver.cpp \
         main.cpp \
         mainwindow.cpp \
-        mqttdialog.cpp \
+        mqttcommunication.cpp \
+        mqttdatastruct.cpp \
         mychart.cpp \
         mytcpsocket.cpp \
         scandevrangedialog.cpp \
+        scangun.cpp \
         settings.cpp \
         sqlprocess.cpp \
         standarset.cpp \
         subcomdialog.cpp \
+        test.cpp \
         testdisplay.cpp \
-        usbcanunion.cpp
-#        chartdisplay.cpp \
+        usbcanunion.cpp \
+        wzserialport.cpp
+
 HEADERS += \
         ECanVci.h \
         baseinfo.h \
         bootloader.h \
-        comprocess.h \
-        comservice.h \
         datastruct.h \
         dbcontroller.h \
-        deviceunion.h \
         framedispaly.h \
         httpserver.h \
-        include/hidapi/hidapi.h \
         include/libxl/IAutoFilterT.h \
         include/libxl/IBookT.h \
         include/libxl/IFilterColumnT.h \
@@ -86,31 +83,32 @@ HEADERS += \
         include/usb2xxx/scandevrangedialog.h \
         include/usb2xxx/usb_device.h \
         mainwindow.h \
-        mqttdialog.h \
+        mqttcommunication.h \
+        mqttdatastruct.h \
         mychart.h \
         mytcpsocket.h \
+        scangun.h \
         settings.h \
         sqlprocess.h \
         standarset.h \
         subcomdialog.h \
+        test.h \
         testdisplay.h \
-        usbcanunion.h
-#        chartdisplay.h \
-
+        usbcanunion.h \
+        wzserialport.h
 FORMS += \
         baseinfo.ui \
-        deviceunion.ui \
         framedisplay.ui \
         mainwindow.ui \
-        mqttdialog.ui \
+        scangun.ui \
         standarset.ui \
         subcomdialog.ui \
         bootloader_ch.ui \
         bootloader_en.ui \
         scandevrangedialog.ui \
         dialogaddnode.ui \
+        test.ui \
         testdisplay.ui
-#        chartdisplay.ui \
 
 		
 OTHER_FILES += \
@@ -123,24 +121,6 @@ OTHER_FILES += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-
-# 使用qxlsx操作excel，且使用的是内部安装，这不用再导入了
-
-unix:!macx|win32: LIBS += -L$$PWD/lib/ -lECanVci
-
-INCLUDEPATH += $$PWD/include
-DEPENDPATH += $$PWD/include
-
-
-win32: LIBS += -L$$PWD/lib/ -llibxl
-
-INCLUDEPATH += $$PWD/include
-DEPENDPATH += $$PWD/include
-
-
-
-
 
 DISTFILES += \
     App(1).bin \
@@ -278,12 +258,24 @@ DISTFILES += \
     lib/ECanVci.lib \
     lib/USB2XXX.dll \
     lib/USB2XXX.lib \
-    lib/hidapi.dll \
-    lib/hidapi.lib \
-    lib/libusb-1.0.dll \
     lib/libxl.dll \
     lib/libxl.lib
 
+
+
+
+
+
+
+win32: LIBS += -L$$PWD/lib/ -llibxl
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
+
+win32: LIBS += -L$$PWD/lib/ -lECanVci
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
 
 win32: LIBS += -L$$PWD/lib/ -lUSB2XXX
 

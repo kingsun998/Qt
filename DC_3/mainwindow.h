@@ -9,7 +9,7 @@
 #include <framedispaly.h>
 #include <baseinfo.h>
 #include <bootloader.h>
-#include <deviceunion.h>
+#include <scangun.h>
 #include <testdisplay.h>
 #include <httpserver.h>
 #include <qtimer.h>

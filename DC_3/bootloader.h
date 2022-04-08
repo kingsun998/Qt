@@ -6,10 +6,10 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QProgressDialog>
-#include <usb2xxx/can_bootloader.h>
-#include <usb2xxx/usb_device.h>
-#include <usb2xxx/scandevrangedialog.h>
-#include <usb2xxx/dialogaddnode.h>
+#include <include/usb2xxx/can_bootloader.h>
+#include <include/usb2xxx/usb_device.h>
+#include <include/usb2xxx/scandevrangedialog.h>
+#include <include/usb2xxx/dialogaddnode.h>
 
 namespace Ui {
 class bootloader_ui;
@@ -53,6 +53,7 @@ private slots:
 
 
     void on_pushButton_clicked();
+
 
 private:
     Ui::bootloader_ui *ui;

@@ -73,10 +73,8 @@ ComProcess::ComProcess(QObject *parent)
     connect(&service,&ComService::callback,this,&ComProcess::getResult);
     //发送请求信息
     connect(this,&ComProcess::sendRequestCommand,&service,&ComService::sendRequest);
-    //发送参数信息
-    connect(this,&ComProcess::sendParameterCommand,&service,&ComService::sendParameter);
-    //初始化信号
-    connect(this,&ComProcess::setParameterCommand,&service,&ComService::setParameter);
+
+
 
     ifsending=false;
     qDebug()<<"current threadid:"<<QThread::currentThreadId();
@@ -87,8 +85,9 @@ ComProcess::~ComProcess(){
     comthread.wait();
 }
 
+//初始化信号
 void ComProcess::init(ComParameter& comparameter){
-    emit setParameterCommand(comparameter);
+//    service.openPort(comparameter);
 }
 
 

@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <mychart.h>
-#include <ECanVci.h>
 #include <QChartView>
 #include <QButtonGroup>
 #include <QLabel>
@@ -11,13 +10,13 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
-#include <usbcanunion.h>
 #include <QGridLayout>
 #include <QPushButton>
 #include <QLineEdit>
 #include <datastruct.h>
-#include <dbcontroller.h>
-#include "QComboBox"
+#include <QComboBox>
+#include <scangun.h>
+#include <mqttcommunication.h>
 
 namespace Ui {
 class TestDisplay;
@@ -31,19 +30,25 @@ public:
     explicit TestDisplay(QWidget *parent = nullptr);
     ~TestDisplay();
     double Calculate(int index,double y);
-
+    QVector<QString>* getScanMes();
 signals:
     void sendMessage(ulong,CAN_OBJ,QString);
     void SendToFrame(ulong,CAN_OBJ,QString,QString);
+    void sendToTable(int lineId,int canid,double deviceid,double date);
+    void sendtochart_First_Up(int mx,uint index,double val);
+    void sendtochart_First_Down(int mx,uint index,double val);
+    void sendtochart_Second_Up(int mx,uint index,double val);
+    void sendtochart_Second_Down(int mx,uint index,double val);
 private slots:
     void handleTimeOut();
 //  控制测试的开始和暂停
     void shspline(int,bool);
     void show_detail(uint mx,CAN_OBJ obj,QString datetime);
     void change_Company(int company_id);
-//    void change_TestMode(int company_id);
     void highTempTestSwitch(bool state);
     void precisionTestSwitch(bool state);
+    void newscan();
+    void senddata();
     //Can操作
     void connectCan();
     void disconnectCan();
@@ -56,17 +61,12 @@ private slots:
     void setnotest(int index);
     void getPrecesion();
     //pretime
+    void getHighThreshold();
     void getPrePrecesionTime();
     void handlePrePrecesionTimeOut();
     //低通滤波
     double lowPassFilter(int index,double val);
-signals:
-    void sendToTable(int lineId,int canid,double deviceid,double date);
-    void sendtochart_First_Up(int mx,uint index,double val);
-    void sendtochart_First_Down(int mx,uint index,double val);
-    void sendtochart_Second_Up(int mx,uint index,double val);
-    void sendtochart_Second_Down(int mx,uint index,double val);
-
+    void resetScangunmes();
 //    表示按下了开始测试按钮
 private:
     Ui::TestDisplay *ui;
@@ -74,7 +74,6 @@ private:
     QVector<QWidget *> bodyblocks;
 
     QButtonGroup *buttongroup;
-    QButtonGroup *testButtongroup;
 
     QLabel *label;
     QTimer *timer;
@@ -89,7 +88,8 @@ private:
     QVector<QHBoxLayout *> hboxlayout;
     QVector<QLineEdit *> lineedit;
     QVector<QPushButton *> pushbuttons;
-
+    QMap<QString,int> buttonmap;
+    QMap<QString,int> lineeditmap;
     //测试开关
     bool IfRun;
     //需要用到的名称
@@ -140,6 +140,7 @@ private:
     //精度测试
     QCheckBox *precisionCheckBox;
     QVector<bool> precisionStatus;
+    QVector<double> precisionError;
     bool IfTestPrecision;
     //show_clock
     QVector<int> show_clock;
@@ -147,7 +148,15 @@ private:
     bool IfTestPrePrecesion;
     int pretime;
     QTimer pretimer;
+    QVector<QString> testname;
+    QVector<QCheckBox*> testcheckbox;
+    //扫描枪
+    ScanGun *scangun;
+    QVector<QString> scangunmes;
+    //mqtt
+    //MqttCommunication *mqtt;
 
+    int company_type;
 };
 
 #endif // TESTDISPLAY_H

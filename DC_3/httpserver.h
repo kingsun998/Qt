@@ -5,7 +5,7 @@
 #include <QtNetwork>
 #include <qvector.h>
 #include <mytcpsocket.h>
-#include <deviceunion.h>
+#include <scangun.h>
 
 class HttpServer : public QObject
 {

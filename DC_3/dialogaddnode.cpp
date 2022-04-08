@@ -1,5 +1,5 @@
-﻿#include "usb2xxx/dialogaddnode.h"
-#include "usb2xxx/can_bootloader.h"
+﻿#include "include/usb2xxx/dialogaddnode.h"
+#include "include/usb2xxx/can_bootloader.h"
 #include "ui_dialogaddnode.h"
 
 DialogAddNode::DialogAddNode(QWidget *parent) :

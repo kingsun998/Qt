@@ -13,26 +13,27 @@ ComService::~ComService(){
 
 }
 
-void ComService::setParameter(const ComParameter parameter){
-    this->parent=parameter.widget;
-    this->dequein=parameter.dequein;
-    this->dequeout=parameter.dequeout;
-    this->Datalength=parameter.datalength;
-    CommTimeouts.ReadIntervalTimeout = parameter.ReadIntervalTimeout;
-    CommTimeouts.ReadTotalTimeoutMultiplier = parameter.ReadTotalTimeoutMultiplier;
-    CommTimeouts.ReadTotalTimeoutConstant = parameter.ReadTotalTimeoutConstant;
-    CommTimeouts.WriteTotalTimeoutMultiplier = parameter.WriteTotalTimeoutMultiplier;
-    CommTimeouts.WriteTotalTimeoutConstant = parameter.WriteTotalTimeoutConstant;
-    this->parity=parameter.parity;
-    this->baudRate=parameter.baudrate;
-    this->bitssize=parameter.bitssize;
-    this->stopbits=parameter.stopbits;
-    this->Comindex=parameter.comindex;
-    //初始化
-    this->init();
-}
+//void ComService::setParameter(const ComParameter parameter){
+//    this->parent=parameter.widget;
+//    this->dequein=parameter.dequein;
+//    this->dequeout=parameter.dequeout;
+//    this->Datalength=parameter.datalength;
+//    CommTimeouts.ReadIntervalTimeout = parameter.ReadIntervalTimeout;
+//    CommTimeouts.ReadTotalTimeoutMultiplier = parameter.ReadTotalTimeoutMultiplier;
+//    CommTimeouts.ReadTotalTimeoutConstant = parameter.ReadTotalTimeoutConstant;
+//    CommTimeouts.WriteTotalTimeoutMultiplier = parameter.WriteTotalTimeoutMultiplier;
+//    CommTimeouts.WriteTotalTimeoutConstant = parameter.WriteTotalTimeoutConstant;
+//    this->parity=parameter.parity;
+//    this->baudRate=parameter.baudrate;
+//    this->bitssize=parameter.bitssize;
+//    this->stopbits=parameter.stopbits;
+//    this->Comindex=parameter.comindex;
+//    //初始化
+//    this->init();
+//}
 
-bool ComService::openPort(){
+bool ComService::openPort(const char* portname, int baudrate, char parity, char databit, char stopbit, char synchronizeflag)
+{
     comhandle=INVALID_HANDLE_VALUE;
     //初始化临界区
     InitializeCriticalSection(&communicationSync);
@@ -76,10 +77,10 @@ bool ComService::closePort(){
 bool ComService::init(){
 //    qDebug()<<"current thread id:"<<QThread::currentThreadId();
     qDebug()<<"串口 init";
-    if(!openPort()){
-        QMessageBox::information(parent,"错误","串口打开失败",QMessageBox::Warning);
-        return false;
-    }
+//    if(!openPort()){
+//        QMessageBox::information(parent,"错误","串口打开失败",QMessageBox::Warning);
+//        return false;
+//    }
     EnterCriticalSection(&communicationSync);
 //    设置缓冲区
     SetupComm(comhandle,1024,1024);

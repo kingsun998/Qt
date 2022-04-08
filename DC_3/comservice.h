@@ -10,6 +10,7 @@ typedef struct{
     uint datalength;
     uint dequein;
     uint dequeout;
+    //读取间隔
     ulong ReadIntervalTimeout;
     ulong ReadTotalTimeoutMultiplier;
     ulong ReadTotalTimeoutConstant;
@@ -17,13 +18,14 @@ typedef struct{
     ulong WriteTotalTimeoutConstant;
 
     QString comindex;
+    //奇偶校验位
     unsigned char parity;
+    //波特率
     long baudrate;
     unsigned char stopbits;
     unsigned char bitssize;
 
 }ComParameter;
-
 
 class ComService: public QObject
 {
@@ -36,9 +38,8 @@ signals:
     void sendFinish();    //sendParameter的回调函数
 public slots:
     bool init();
-    bool openPort();
+    bool openPort(const char* portname, int baudrate=115200, char parity=0, char databit=8, char stopbit=1, char synchronizeflag=0);
     bool closePort();
-    void setParameter(const ComParameter parameter);
     //用于发送请求，
     ulong sendRequest(const unsigned char *array,uint arraysize,int arrayType);
     ulong sendParameter(const unsigned char *array,uint arraysize,int arrayType);

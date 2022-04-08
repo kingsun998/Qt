@@ -1,7 +1,8 @@
 ﻿#include "baseinfo.h"
 #include "ui_baseinfo.h"
 #include "qdebug.h"
-
+#include <mqttcommunication.h>
+#include <qmessagebox.h>
 baseInfo::baseInfo(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::baseinfo_ui)
@@ -73,4 +74,49 @@ void baseInfo::on_radioButton_clicked(bool checked)
 {
     qDebug()<<checked;
     settings.TestMode=checked;
+}
+
+//void baseInfo::on_pushButton_clicked()
+//{
+//    mqtt.init(,ui->lineEdit_8->text(),ui->lineEdit_9->text());
+//}
+
+void baseInfo::on_pushButton_2_clicked()
+{
+    mqtt.connect();
+}
+
+
+
+void baseInfo::on_pushButton_3_clicked()
+{
+    mqtt.scribe();
+}
+
+void baseInfo::on_pushButton_clicked()
+{
+    QString ip=ui->lineEdit_7->text()==""?settings.mqtt_ip_address:ui->lineEdit_7->text();
+    QString port=ui->lineEdit_8->text()==""?QString::number(settings.mqtt_port):ui->lineEdit_8->text();
+    QString topic=ui->lineEdit_9->text()==""?settings.topic:ui->lineEdit_9->text();
+    mqtt.init(ip,port,topic);
+}
+
+void baseInfo::on_lineEdit_10_editingFinished()
+{
+    settings.baurd=ui->lineEdit_10->text().toInt();
+}
+
+void baseInfo::on_lineEdit_11_editingFinished()
+{
+    settings.stopbit=ui->lineEdit_11->text().toInt();
+}
+
+void baseInfo::on_lineEdit_12_editingFinished()
+{
+    settings.check=ui->lineEdit_12->text().toInt();
+}
+
+void baseInfo::on_lineEdit_13_editingFinished()
+{
+    settings.datalen=ui->lineEdit_13->text().toInt();
 }

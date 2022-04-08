@@ -41,7 +41,7 @@ Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int chartType,int
 
     setAnimationOptions(QChart::NoAnimation);
     axisX->setTickCount(settings.defaultXtickCount);
-    axisX->setRange(-settings.defaultXlen/2, settings.defaultXlen/2);
+    axisX->setRange(-settings.defaultXlen, 0);
     axisY->setRange(settings.Y_min, settings.Y_max);
     axisY->setTickCount(settings.defaultYtickCount);
 //    startTimer(20);
@@ -58,7 +58,7 @@ void Mychart::changeSplineName(int companytypecode){
         my_series[i]->clear();
         pointsNum[i]=0;
     }
-    axisX->setRange(-settings.defaultXlen/2,+settings.defaultXlen/2);
+    axisX->setRange(-settings.defaultXlen,0);
     for(int i=0;i<linenums;i++){
         if(chartType==0){
             my_series[i]->setName(settings.company_usedate_names[i]);
@@ -76,7 +76,7 @@ void Mychart::getMessage(int mx,uint index,double val){
          my_series[index]->remove(0);
      }
      if(index==2){
-         axisX->setRange(mx-settings.defaultXlen/2,mx+settings.defaultXlen/2);
+         axisX->setRange(mx-settings.defaultXlen,mx);
      }
 }
 

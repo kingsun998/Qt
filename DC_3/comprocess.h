@@ -28,6 +28,7 @@ public slots:
     void handleTimeOut();
     void getResult(QVariant var,int arytype);
 public:
+    //初始化信号
     void init(ComParameter& parameter);
     ComService* getService();
     //开启请求计时器

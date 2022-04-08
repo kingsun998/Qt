@@ -2,7 +2,6 @@
 #define STANDARSET_H
 
 #include <QWidget>
-#include "xlsxdocument.h"
 
 
 namespace Ui {

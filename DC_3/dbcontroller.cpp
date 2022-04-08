@@ -1,5 +1,5 @@
 ﻿#include "dbcontroller.h"
-#include "libxl/libxl.h"
+#include "include/libxl/libxl.h"
 
 class dbController dbcontroller;
 
@@ -33,7 +33,6 @@ dbDoubleChart::dbDoubleChart(QMap<QString,QMap<QString,QVector<QString>>> &tp1,
     this->map.append(tps2);
     this->time.swap(time);
 
-    this->date=date;
     this->compandy_type=compandy_type;
 
     this->title_col=settings.company_col_title;
@@ -167,11 +166,7 @@ void dbSingleChart::save(){
                  if(j>=title_size-2&&k>=usedate_size-3){
                      continue;
                  }
-                 if(col<8){
-                     sheet->writeNum(line, col++,map[use_dates[k]][title_col[j]][i].toDouble());
-                 }else{
-                     sheet->writeStr(line, col++,map[use_dates[k]][title_col[j]][i].toStdWString().c_str());
-                 }
+                 sheet->writeStr(line, col++,map[use_dates[k]][title_col[j]][i].toStdWString().c_str());
              }
          }
          sheet->writeStr(line, col++,company_type.toStdWString().c_str());
@@ -281,7 +276,7 @@ void dbDoubleChart::save(){
         int base=sheet->lastRow();
         int title_size=title_col.size();
         int usedate_size=use_dates.size();
-        int numcols=settings.company_usedate_names.size()+1;
+//        int numcols=settings.company_usedate_names.size()+1;
         for (long line=base,i=0;i<mx;i++) {
             int col=0;
             if(line>settings.xlsxMaxline){
@@ -296,11 +291,7 @@ void dbDoubleChart::save(){
                     if(j>=title_size-2&&k>=usedate_size-3){
                         continue;
                     }
-                    if(col<numcols){
-                        sheet->writeNum(line, col++,map[mpidx][use_dates[k]][title_col[j]][i].toDouble());
-                    }else{
-                        sheet->writeStr(line, col++,map[mpidx][use_dates[k]][title_col[j]][i].toStdWString().c_str());
-                    }
+                    sheet->writeStr(line, col++,map[mpidx][use_dates[k]][title_col[j]][i].toStdWString().c_str());
                 }
             }
             sheet->writeStr(line, col++,(compandy_type+QString::number(mpidx+1)).toStdWString().c_str());
@@ -391,9 +382,6 @@ void dbMergeFile::save(){
                     line=1;
                 }
                 for (int col=0;col<colnums;col++) {
-                    if(col>0&&col<numcols)
-                        sheet2->writeNum(line,col,sheet->readNum(row,col));
-                    else
                         sheet2->writeStr(line,col,sheet->readStr(row,col));
                 }
                 line++;
