@@ -262,6 +262,8 @@ void dbDoubleChart::save(){
                 mx=std::min(mx,map[mpidx][use_dates[j]][title_col[k]].size());
             }
         }
+        mx=std::min(mx,time[0].size());
+        mx=std::min(mx,time[1].size());
         qDebug()<<"chart 开始写入"<<"  mx:"<<mx;
 
         libxl::Sheet* sheet=nullptr;

@@ -11,6 +11,9 @@ MqttCommunication::MqttCommunication()
     m_client->setHostname(settings.mqtt_ip_address);
     m_client->setPort(settings.mqtt_port);
     this->topic=settings.topic;
+    m_client->setUsername(settings.username);
+    m_client->setPassword(settings.password);
+    connect(m_client, &QMqttClient::stateChanged,this,&MqttCommunication::updateLogStateChange);
 }
 
 MqttCommunication::~MqttCommunication(){
@@ -18,15 +21,19 @@ MqttCommunication::~MqttCommunication(){
 }
 void MqttCommunication::init(QString ip,QString port,QString topic)
 {
+    m_client->disconnectFromHost();
+    qDebug()<<"mqtt connected state:"<<m_client->state();
     qos=settings.qos;
     m_client->setHostname(ip);
     m_client->setPort(port.toUInt());
     this->topic=topic;
-    m_client->connectToHost();
-    qDebug()<<"mqtt connected state:"<<m_client->Connected;
+    m_client->setUsername(settings.username);
+    m_client->setPassword(settings.password);
+
+    qDebug()<<"mqtt connected state:"<<m_client->state();
 }
 
-void MqttCommunication::connect(){
+void MqttCommunication::connectToHost(){
     m_client->connectToHost();
 }
 
@@ -60,3 +67,9 @@ void MqttCommunication::publish_Mes(MqttDataStruct& data){
     }
 }
 
+void MqttCommunication::updateLogStateChange()
+{
+    if(m_client->state()==2)
+        QMessageBox::information(nullptr,"提示","连接成功",QMessageBox::Warning);
+
+}

@@ -5,7 +5,6 @@
 #include <qstandarditemmodel.h>
 #include <settings.h>
 #include <qtimer.h>
-#include <comprocess.h>
 #include <QMap>
 #include <QTableWidgetItem>
 #include <subcomdialog.h>

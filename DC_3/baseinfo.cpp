@@ -9,6 +9,7 @@ baseInfo::baseInfo(QWidget *parent) :
 {
     ui->setupUi(this);
 //    QWidget *base=ui->baseinfo_ui;
+    settings.setbote();
 }
 
 void baseInfo::on_lineEdit_2_editingFinished()
@@ -83,7 +84,7 @@ void baseInfo::on_radioButton_clicked(bool checked)
 
 void baseInfo::on_pushButton_2_clicked()
 {
-    mqtt.connect();
+    mqtt.connectToHost();
 }
 
 

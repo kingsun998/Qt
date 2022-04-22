@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <baseinfo.h>
 #include <settings.h>
-#include <chartdisplay.h>
 #include <standarset.h>
 #include <framedispaly.h>
 #include <baseinfo.h>

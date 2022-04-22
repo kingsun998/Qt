@@ -54,9 +54,8 @@ void ScanGun::next(QString msg){
 }
 
 void ScanGun::getSensorMes(){
-    int s=input_list.size();
     Mes->clear();
-    for(int i=0;i<s;i++){
+    for(int i=0;i<at;i++){
         Mes->append(input_list[i]->text());
     }
 }
@@ -115,4 +114,9 @@ void ScanGun::on_pushButton_2_clicked()
         at-=1;
         input_list[at]->setText("");
     }
+}
+
+void ScanGun::reject(){
+    emit closeTheDialog();
+    QDialog::reject();
 }

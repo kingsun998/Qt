@@ -105,6 +105,7 @@ void dbSingleChart::save(){
              mx=std::min(mx,map[use_dates[j]][title_col[k]].size());
          }
      }
+     mx=std::min(mx,time.size());
      qDebug()<<"mx:"<<mx;
      qDebug()<<filename;
      libxl::Book* book=xlCreateBook();

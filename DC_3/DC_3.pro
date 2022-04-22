@@ -53,13 +53,13 @@ SOURCES += \
         scandevrangedialog.cpp \
         scangun.cpp \
         settings.cpp \
-        sqlprocess.cpp \
-        standarset.cpp \
         subcomdialog.cpp \
         test.cpp \
         testdisplay.cpp \
         usbcanunion.cpp \
+        standarset.cpp \
         wzserialport.cpp
+#        sqlprocess.cpp \
 
 HEADERS += \
         ECanVci.h \
@@ -89,27 +89,27 @@ HEADERS += \
         mytcpsocket.h \
         scangun.h \
         settings.h \
-        sqlprocess.h \
-        standarset.h \
         subcomdialog.h \
         test.h \
         testdisplay.h \
         usbcanunion.h \
+        standarset.h \
         wzserialport.h
+#        sqlprocess.h \
+
 FORMS += \
         baseinfo.ui \
         framedisplay.ui \
         mainwindow.ui \
         scangun.ui \
-        standarset.ui \
         subcomdialog.ui \
         bootloader_ch.ui \
         bootloader_en.ui \
         scandevrangedialog.ui \
         dialogaddnode.ui \
         test.ui \
-        testdisplay.ui
-
+        testdisplay.ui \
+        standarset.ui
 		
 OTHER_FILES += \
         ico.rc
@@ -263,10 +263,6 @@ DISTFILES += \
 
 
 
-
-
-
-
 win32: LIBS += -L$$PWD/lib/ -llibxl
 
 INCLUDEPATH += $$PWD/include
@@ -281,3 +277,5 @@ win32: LIBS += -L$$PWD/lib/ -lUSB2XXX
 
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD/include
+
+

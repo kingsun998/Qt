@@ -35,21 +35,23 @@ private slots:
 
     void on_pushButton_9_clicked();
 
-    void on_pushButton_4_clicked();
+//    void on_pushButton_4_clicked();
 
     void on_pushButton_8_clicked();
 
     void on_comboBox_3_currentIndexChanged(int index);
 
+    void on_pushButton_4_clicked();
+
 public slots:
     void LoadSinglePortMes();
     void LoadEightPortMes();
-//    void tabChange(int index);
+    void scangunClose();
+//    void scangun2Close();
 private:
     Ui::Test *ui;
     ScanGun *scangun;
-    ScanGun *scangun2;
-    QVector<QString> hightmpinsulation;
+//    ScanGun *scangun2;
     QVector<QString> waterinsulation;
     QVector<QString> comport_names;
     bool openport;
@@ -57,9 +59,13 @@ private:
     QEventLoop el;
     long rowcount_eight;
     long rowcount_single;
+    int water_index;
 
     EightPortStruct eightportstruct;
     SinglePortStruct singleportstruct;
+
+    //water
+    QVector<QString> preSN;
 };
 
 #endif // TEST_H

@@ -16,7 +16,7 @@ settings::settings()
     penweight=2;
     maxpoints=200;
 
-    boterate=1000;
+    boterate=250;
 
     deviceid=0;
     canid=0;
@@ -93,17 +93,22 @@ settings::settings()
     //show_clock
     show_clock=3;
 
-    //mqtt
-    mqtt_ip_address="127.0.0.1";
+
+    mqtt_ip_address="192.168.1.27";
+//    mqtt_ip_address="127.0.0.1";
     mqtt_port=1883;
-    topic="topic";
+    topic="product_param_topic";
     qos=1;
+    username="znpw";
+    password="ZNJC_8888";
 
     //test
     baurd=9600;
     stopbit=1;
     check=0;
     datalen=8;
+    testTableMaxRowNum=16;
+    eightChannelFrameMes="";
 }
 
 void settings::setbote(){

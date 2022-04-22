@@ -4,7 +4,11 @@
 #include <QtSerialPort/QSerialPortInfo>
 #include <QMessageBox>
 #include <QDebug>
+#include <settings.h>
 
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 class WZSerialPort wzserialport_eight(1);
 class WZSerialPort wzserialport_single(0);
 PortStruct::PortStruct(){
@@ -32,10 +36,13 @@ SinglePortStruct::~SinglePortStruct(){
 void EightPortStruct::reset(){
     resistance.clear();
     resistance.resize(8);
+    voltage.clear();
+    voltage.resize(8);
     testState.clear();
     testState.resize(8);
     for (uint i=0;i<8;i++) {
-        resistance[i]=0;
+        voltage[i]="";
+        resistance[i]="";
         testState[i]=true;
     }
     time=0;
@@ -280,37 +287,53 @@ void Decode_single_channel(char* buf,int wCount,bool bReadStat,PortStruct* pt){
     for(int i=0;i<5;i++){
         spt->voltage+=buf[offset+i];
     }
-    qDebug()<<"voltage:"<<QString::fromStdString(spt->voltage);
+
     offset+=5;
+    std::string s="";
+    for(int i=0;i<6;i++){
+        s+=buf[offset+i];
+    }
+
     if(buf[offset]!=-80){
         for(int i=0;i<6;i++){
             spt->resistance+=buf[offset+i];
         }
     }else{
-        spt->resistance="PASS";
+        spt->resistance="Pass";
     }
-    qDebug()<<"resistance:"<<QString::fromStdString(spt->resistance);
     offset+=6+6;  //6+6空格
     for(int i=0;i<4;i++){
         spt->time+=buf[offset+i];
     }
     qDebug()<<"time:"<<QString::fromStdString(spt->time);
     offset+=4;
-    qDebug()<<uchar(buf[offset]);
 
     switch(uchar(buf[offset])){
         case 145:
-            spt->testState="pass";
+            spt->testState="Pass";
         break;
         case 144:
-            spt->testState="normal";
+            spt->testState="Normal";
         break;
         case 146:
-            spt->testState="testfail";
+            spt->testState="Error";
+            if(spt->resistance=="Pass"){
+                spt->resistance="Short";
+            }
         break;
     }
     qDebug()<<"testState:"<<QString::fromStdString(spt->testState);
 }
+
+static std::string dec2hex(int i) //将int转成16进制字符串
+{
+    std::stringstream ioss; //定义字符串流
+    std::string s_temp; //存放转化后字符
+    ioss << setiosflags(std::ios::uppercase) << std::hex << i; //以十六制(大写)形式输出
+    ioss >> s_temp;
+    return s_temp;
+}
+
 
 void Decode_eight_channel(char* buf,int wCount,bool bReadStat,PortStruct* pt){
     if(!bReadStat){
@@ -318,26 +341,65 @@ void Decode_eight_channel(char* buf,int wCount,bool bReadStat,PortStruct* pt){
         return ;
     }
     EightPortStruct *ept=(EightPortStruct*)pt;
-    if(buf[0]!=10){
-        qDebug()<<"帧错误";
-        return;
-    }
-    //读取IEEE 754,并将之转换为int
-    byte ary[4];
-    byte tmp[4];
-    for (uint i=0;i<8;i++) {
-        for (int j=0;j<4;j++) {
-            ary[j]=ToInt(buf+1+i*4+j);
-        }
-        for (int j=0;j<4;j++)tmp[3-j]=ary[j];
-        ept->resistance[i]=*(float*)tmp;
-        ept->testState[i]=buf[1+4*8+1+i*2]==90?true:false;
-    }
 
-    ept->time=*(buf+1+4*8);
-    qDebug()<<"resistance:"<<ept->resistance[0];
-    qDebug()<<"testState:"<<ept->testState[0];
-    qDebug()<<"time:"<<ept->time;
+    //读取IEEE 754,并将之转换为int
+//    byte ary[4];
+//    byte tmp[4];
+//    ary[j]=ToInt(buf+1+i*4+j);
+
+    for (int base=0,i=0;i<8;i++) {
+        bool flag=false,flag2=false;
+        base+=5;
+        for (int j=0;j<5;j++) {
+            ept->voltage[i]+=buf[base];
+            base++;
+        }
+        ept->voltage[i]+="V";
+
+        if(uint8_t(buf[base])==0xB0){
+            flag2=true;
+            base+=5;
+        }
+        else{
+            for (int j=0;j<5;j++) {
+                ept->resistance[i]+=buf[base];
+                base++;
+            }
+            switch (uint8_t(buf[base])) {
+                case 0x47: ept->resistance[i]+="GΩ";break;
+                case 0x4D: ept->resistance[i]+="MΩ";break;
+                case 0x6B: ept->resistance[i]+="KΩ";flag=true;break;
+                case 0x54: ept->resistance[i]+="TΩ";break;
+            }
+        }
+
+        base+=11;
+
+        switch(uint8_t(buf[base])) {
+            case 0x91:
+                if (flag2){
+                    ept->resistance[i]+="Pass";
+                 }
+                 ept->testState[i]=true;
+            break;
+            case 0x92:
+                if (flag2){
+                    ept->resistance[i]+="0Ω";
+                }
+                ept->testState[i]=false;
+                 break;
+        }
+        if(flag){
+            ept->testState[i]=false;
+        }
+        base+=2;
+
+    }
+    settings.eightChannelFrameMes="";
+    for (int i=0;i<240;i++) {
+        settings.eightChannelFrameMes+=dec2hex(uint8_t(buf[i]))+" ";
+    }
+//    qDebug()<<QString::fromStdString(mes);
 }
 
 bool WZSerialPort::receive(void (Decode)(char*,int,bool,PortStruct*))
@@ -359,6 +421,7 @@ bool WZSerialPort::receive(void (Decode)(char*,int,bool,PortStruct*))
         if(!wCount){
             return false;
         }
+        pt->reset();
         Decode(buf,wCount,bReadStat,pt);
         return true;
     }

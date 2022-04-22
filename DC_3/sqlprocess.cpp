@@ -18,17 +18,17 @@ SqlProcess::SqlProcess()
 //        qDebug()<<"open db success";
 //    }
 
-    db=QSqlDatabase::addDatabase("QODBC3");
-    db.setHostName("127.0.0.1");
-    db.setDatabaseName("sqltest");
-    db.setPort(1433);
-    db.setUserName("sa");
-    db.setPassword("wangyang");
-    if(!db.open()){
-        qDebug()<<"db error:"<<db.lastError().text();
-    }else{
-        qDebug()<<"open db success";
-    }
+//    db=QSqlDatabase::addDatabase("QODBC3");
+//    db.setHostName("127.0.0.1");
+//    db.setDatabaseName("sqltest");
+//    db.setPort(1433);
+//    db.setUserName("sa");
+//    db.setPassword("wangyang");
+//    if(!db.open()){
+//        qDebug()<<"db error:"<<db.lastError().text();
+//    }else{
+//        qDebug()<<"open db success";
+//    }
 }
 
 bool SqlProcess::insert_value(QString command)

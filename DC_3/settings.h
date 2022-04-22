@@ -108,12 +108,19 @@ public:
     quint16 mqtt_port;
     QString topic;
     quint8 qos;
-
+    QString username;
+    QString password;
     //test
     int baurd;
     int stopbit;
     int check;
     int datalen;
+    int testTableMaxRowNum;
+
+    //test+testdisplay
+    QVector<QString> eightChannelSnCode;
+
+    std::string eightChannelFrameMes;
 };
 
 void showMessage(QString str,bool flag);

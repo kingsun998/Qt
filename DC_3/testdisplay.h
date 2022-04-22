@@ -66,7 +66,6 @@ private slots:
     void handlePrePrecesionTimeOut();
     //低通滤波
     double lowPassFilter(int index,double val);
-    void resetScangunmes();
 //    表示按下了开始测试按钮
 private:
     Ui::TestDisplay *ui;
@@ -152,10 +151,9 @@ private:
     QVector<QCheckBox*> testcheckbox;
     //扫描枪
     ScanGun *scangun;
-    QVector<QString> scangunmes;
     //mqtt
     //MqttCommunication *mqtt;
-
+    QFont font;
     int company_type;
 };
 

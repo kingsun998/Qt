@@ -99,42 +99,12 @@
        <widget class="QComboBox" name="comboBox_8">
         <item>
          <property name="text">
-          <string>1000kbps</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>800kbps</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>666kbps</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>500kbps</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>400kbps</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
           <string>250kbps</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>125kbps</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>100kbps</string>
+          <string>500kbps</string>
          </property>
         </item>
        </widget>

@@ -15,7 +15,8 @@ public:
 
 private slots:
     void click(bool check);
-
+public slots:
+    void LoadEightPortMes();
 private:
     Ui::standarset_ui *ui;
 };

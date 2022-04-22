@@ -20,6 +20,8 @@ public:
     explicit ScanGun(QWidget *parent=nullptr,QVector<QString> *mes=nullptr);
     ~ScanGun();
     void getSensorMes();
+signals:
+    void closeTheDialog();
 private slots:
     void on_lineEdit_step1_returnPressed();
 
@@ -28,7 +30,8 @@ private slots:
     void on_pushButton_3_clicked();
 
     void on_pushButton_2_clicked();
-
+private:
+    void reject();
 
 private:
     QVector<QLabel *> input_list;
@@ -44,6 +47,7 @@ private:
     QVector<QChar> sl;
     QWidget *parent;
     QSet<QString> sensorId;
+
 };
 
 #endif // DEVICEUNION_H

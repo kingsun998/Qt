@@ -13,10 +13,13 @@ public:
     ~MqttCommunication();
     void publish_Mes(MqttDataStruct& mes);
     void init(QString ip_address,QString port,QString topic);
-    void connect();
+    void connectToHost();
     void scribe();
+
+
 public slots:
     void connectSuccess();
+    void updateLogStateChange();
 private:
     QMqttClient *m_client;
     QString ip_address;

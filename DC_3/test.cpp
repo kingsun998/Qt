@@ -27,7 +27,7 @@ Test::Test(QWidget *parent) :
     ui->tableWidget->setColumnWidth(1,300);
 
     QStringList stringlists2;
-    stringlists2<<"测试时间"<<"传感器ID"<<"电阻值"<<"测试状态"<<"测试花费时间";
+    stringlists2<<"测试时间"<<"传感器ID"<<"电阻值"<<"电压值"<<"测试状态"<<"测试花费时间";
     ui->tableWidget_2->setColumnCount(stringlists2.size());
     ui->tableWidget_2->setAlternatingRowColors(true);
 //    ui->tableWidget_2->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -49,11 +49,13 @@ Test::Test(QWidget *parent) :
     wzserialport_single.setPortStruct(&singleportstruct);
     wzserialport_eight.setPortStruct(&eightportstruct);
 
+    scangun=nullptr;
+
     qDebug()<<"main thread:"<<QThread::currentThreadId();
 
     rowcount_eight=0;
     rowcount_single=0;
-
+    water_index=0;
 
 }
 
@@ -76,9 +78,12 @@ Test::~Test()
 //扫描二维码
 void Test::on_pushButton_clicked()
 {
+    ui->pushButton->setEnabled(false);
+    water_index=0;
     int currentpage=ui->tabWidget->currentIndex();
     QString name=ui->tabWidget->tabText(currentpage);
     scangun=new ScanGun(this,&waterinsulation);
+    connect(scangun,&ScanGun::closeTheDialog,this,&Test::scangunClose);
     scangun->setAttribute(Qt::WA_DeleteOnClose);
     scangun->show();
 }
@@ -90,16 +95,22 @@ void Test::on_pushButton_2_clicked()
                               "未扫描");
         return;
     }
-
     SinglePortStruct *pt=&singleportstruct;
     MqttDataStruct data;
-    data.AddObject("sensor","sensorId","123");
-    data.AddObject("sensor","voltage",QString::fromStdString(pt->voltage));
-    data.AddObject("sensor","resistance",QString::fromStdString(pt->resistance));
-    data.AddObject("sensor","testState",QString::fromStdString(pt->testState));
-    data.AddObject("sensor","cost_time",QString::fromStdString(pt->time));
-    data.AddObject("sensor","test_time",pt->testtime);
-
+    data.AddTestName(3);
+    int size=waterinsulation.size();
+    qDebug()<<rowcount_single;
+    for (int i=0;i<size;i++) {
+        QString sensorName=QString::number(i);
+        int rowindex=rowcount_single-i-1;
+        data.AddObject(sensorName,"sensorId",ui->tableWidget->item(rowindex,1)->text() );
+        data.AddObject(sensorName,"voltage",ui->tableWidget->item(rowindex,2)->text());
+        data.AddObject(sensorName,"resistance",ui->tableWidget->item(rowindex,3)->text());
+        data.AddObject(sensorName,"testState",ui->tableWidget->item(rowindex,4)->text());
+        data.AddObject(sensorName,"cost_time",ui->tableWidget->item(rowindex,5)->text());
+        data.AddObject(sensorName,"test_time",ui->tableWidget->item(rowindex,0)->text());
+    }
+    qDebug()<<data.tojson();
     mqtt.publish_Mes(data);
 
 }
@@ -107,11 +118,13 @@ void Test::on_pushButton_2_clicked()
 void Test::on_pushButton_3_clicked()
 {
     //AA  FA  BF
+    ui->pushButton_3->setEnabled(false);
     emit wzserialport_single.send_receive();
 }
 // 扫描串口
 void Test::on_pushButton_5_clicked()
 {
+    ui->comboBox->clear();
     QStringList &&comname= wzserialport_single.get_available_list();
     ui->comboBox->addItems(comname);
 }
@@ -135,8 +148,12 @@ void Test::on_comboBox_currentIndexChanged(int index)
 //加载单通信息
 void Test::LoadSinglePortMes(){
     qDebug()<<"LoadSinglePortMes";
-    QString sensorid=waterinsulation.size()>0?waterinsulation[0]:" ";
-
+    QString sensorid;
+    if(water_index<waterinsulation.size()){
+        sensorid=waterinsulation[water_index++];
+    }else{
+        sensorid=" ";
+    }
     SinglePortStruct *pt=&singleportstruct;
 
     ui->tableWidget->insertRow(rowcount_single);
@@ -166,13 +183,22 @@ void Test::LoadSinglePortMes(){
     QTableWidgetItem *time=new QTableWidgetItem(QString::fromStdString(pt->time));
     time->setTextAlignment(Qt::AlignHCenter);
     ui->tableWidget->setItem(rowcount_single,5,time);
-    if(rowcount_single>settings.maxrowcount){
+    if(rowcount_single>settings.testTableMaxRowNum){
         ui->tableWidget->removeRow(0);
     }else{
         rowcount_single+=1;
     }
+    ui->pushButton_3->setEnabled(true);
 }
 
+void Test::scangunClose(){
+    disconnect(scangun,&ScanGun::closeTheDialog,this,&Test::scangunClose);
+    ui->pushButton->setEnabled(true);
+    for (int i=0;i<waterinsulation.size();i++) {
+        qDebug()<<waterinsulation[i];
+    }
+    qDebug()<<"water size:"<<waterinsulation.size();
+}
 /* *
  * 高温绝缘测试  8通
  * */
@@ -186,26 +212,30 @@ void Test::on_pushButton_9_clicked()
     }
 }
 
-// 扫码
-void Test::on_pushButton_4_clicked()
-{
-    int currentpage=ui->tabWidget->currentIndex();
-    QString name=ui->tabWidget->tabText(currentpage);
-    scangun2=new ScanGun(this,&hightmpinsulation);
-    scangun2->setAttribute(Qt::WA_DeleteOnClose);
-    scangun2->show();
-}
+//// 扫码
+//void Test::on_pushButton_4_clicked()
+//{
+//    int currentpage=ui->tabWidget->currentIndex();
+//    QString name=ui->tabWidget->tabText(currentpage);
+//    ui->pushButton_4->setEnabled(false);
+//    scangun2=new ScanGun(this,&settings.eightChannelSnCode);
+//    connect(scangun2,&ScanGun::closeTheDialog,this,&Test::scangun2Close);
+//    scangun2->setAttribute(Qt::WA_DeleteOnClose);
+//    scangun2->show();
+//}
 // 发送数据  8通
 void Test::on_pushButton_8_clicked()
 {
-    QVector<QString>::iterator itr=hightmpinsulation.begin();
+
     EightPortStruct *pt=&eightportstruct;
     MqttDataStruct data;
-    for (int i=0;i<itr->size();i++) {
+    data.AddTestName(1);
+    int size=settings.eightChannelSnCode.size();
+    for (int i=0;i<size;i++) {
         QString name="sensor_"+QString::number(i);
-        data.AddObject(name,"sensorId",itr[i]);
-//        data.AddObject(name,"sensorId","123");
-        data.AddObject(name,"resistance",QString::number(pt->resistance[i]));
+        data.AddObject(name,"sensorId",settings.eightChannelSnCode[i]);
+        data.AddObject(name,"resistance",QString::fromStdString(pt->resistance[i]));
+        data.AddObject(name,"voltage",QString::fromStdString(pt->voltage[i]));
         data.AddObject(name,"testState",pt->testState[i]?"Pass":"Error");
         data.AddObject(name,"cost_time",QString::number(pt->time));
         data.AddObject(name,"test_time",pt->testtime);
@@ -215,6 +245,7 @@ void Test::on_pushButton_8_clicked()
 // 扫描串口2
 void Test::on_pushButton_7_clicked()
 {
+    ui->comboBox_3->clear();
     QStringList &&comname= wzserialport_eight.get_available_list();
     ui->comboBox_3->addItems(comname);
 }
@@ -229,37 +260,59 @@ void Test::LoadEightPortMes(){
     EightPortStruct *pt=&eightportstruct;
 
     pt->testtime=QTime::currentTime().toString();
-
+    int actualSize=settings.eightChannelSnCode.size();
     for (uint i=0;i<8;i++) {
+        QString senserSN=i<actualSize?settings.eightChannelSnCode[i]:" ";
         ui->tableWidget_2->insertRow(rowcount_eight);
 
         QTableWidgetItem *current_time=new QTableWidgetItem(pt->testtime);
         current_time->setTextAlignment(Qt::AlignHCenter);
         ui->tableWidget_2->setItem(rowcount_eight,0,current_time);
 
-        QTableWidgetItem *sensor_id=new QTableWidgetItem(hightmpinsulation.size()<=i+1?" ":hightmpinsulation[i]);
+        QTableWidgetItem *sensor_id=new QTableWidgetItem(senserSN);
         sensor_id->setTextAlignment(Qt::AlignHCenter);
         ui->tableWidget_2->setItem(rowcount_eight,1,sensor_id);
 
-        QTableWidgetItem *resistance=new QTableWidgetItem(QString::number(pt->resistance[i]));
+        QTableWidgetItem *resistance=new QTableWidgetItem(QString::fromStdString(pt->resistance[i]));
         resistance->setTextAlignment(Qt::AlignHCenter);
         ui->tableWidget_2->setItem(rowcount_eight,2,resistance);
 
+        QTableWidgetItem *voltage=new QTableWidgetItem(QString::fromStdString(pt->voltage[i]));
+        voltage->setTextAlignment(Qt::AlignHCenter);
+        ui->tableWidget_2->setItem(rowcount_eight,3,voltage);
+
         QTableWidgetItem *status=new QTableWidgetItem(pt->testState[i]?"Pass":"Error");
         status->setTextAlignment(Qt::AlignHCenter);
-        ui->tableWidget_2->setItem(rowcount_eight,3,status);
+        ui->tableWidget_2->setItem(rowcount_eight,4,status);
 
         QTableWidgetItem *time=new QTableWidgetItem(QString::number(pt->time));
         time->setTextAlignment(Qt::AlignHCenter);
-        ui->tableWidget_2->setItem(rowcount_eight,4,time);
+        ui->tableWidget_2->setItem(rowcount_eight,5,time);
 
-        if(rowcount_eight>settings.maxrowcount){
+        if(rowcount_eight>settings.testTableMaxRowNum-1){
             ui->tableWidget_2->removeRow(0);
         }else{
             rowcount_eight+=1;
         }
     }
+//    settings.eightChannelSnCode.clear();
 
 }
 
+//void  Test::scangun2Close(){
+//    disconnect(scangun2,&ScanGun::closeTheDialog,this,&Test::scangun2Close);
+//    ui->pushButton_4->setEnabled(true);
+//    qDebug()<<"hightmp size:"<<settings.eightChannelSnCode.size();
+//}
 
+void Test::on_pushButton_4_clicked()
+{
+    if(water_index>0){
+        water_index-=1;
+        ui->tableWidget->removeRow(rowcount_single-1);
+        rowcount_single-=1;
+    }else{
+        QMessageBox::information(this,"错误","不能再撤销!");
+    }
+
+}

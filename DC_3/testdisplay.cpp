@@ -224,10 +224,10 @@ TestDisplay::TestDisplay(QWidget *parent) :
 
     offset=0;
 
-    scangunmes.resize(8);
-    resetScangunmes();
-
     company_type=0;
+
+    font.setPointSize(11);
+    font.setWeight(QFont::Black);
 }
 
 TestDisplay::~TestDisplay()
@@ -397,13 +397,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index1,Tcf);
             ReceiveVal_A1.obj["T1"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+            showLabel[0][index1]->setFont(font);
 
             ReceiveVal_A1.obj["T4"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_A1.obj["T4"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
+            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+            showLabel[0][index2]->setFont(font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -464,15 +466,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              tp=Calculate(index1,Tcf);
              ReceiveVal_A1.obj["T2"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
-
+             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+             showLabel[0][index1]->setFont(font);
 
              ReceiveVal_A1.obj["T3"]["val"].push_back(QString::number(Tcs,'f',2));
              tp=Calculate(index2,Tcs);
              ReceiveVal_A1.obj["T3"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
-
+             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+             showLabel[0][index2]->setFont(font);
              //计算错误码
              for(int i=0;i<5;i++){
                  tmp=obj.Data[6]>>i&1;
@@ -518,14 +520,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index1,Tcf);
             ReceiveVal_A1.obj["CJ"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
-
+            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+            showLabel[0][index1]->setFont(font);
 
             ReceiveVal_A1.obj["μC"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_A1.obj["μC"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
+            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+            showLabel[0][index2]->setFont(font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -607,14 +610,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index1,Tcf);
             ReceiveVal_A2.obj["T1"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
-
+            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+            showLabel[0][index1]->setFont(font);
 
             ReceiveVal_A2.obj["T4"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_A2.obj["T4"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
+            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+            showLabel[0][index2]->setFont(font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -676,14 +680,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              tp=Calculate(index1,Tcf);
              ReceiveVal_A2.obj["T2"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+             showLabel[0][index1]->setFont(font);
 
              ReceiveVal_A2.obj["T3"]["val"].push_back(QString::number(Tcs,'f',2));
              tp=Calculate(index2,Tcs);
              ReceiveVal_A2.obj["T3"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
-
+             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+             showLabel[0][index2]->setFont(font);
              //计算错误码
              for(int i=0;i<5;i++){
                  tmp=obj.Data[6]>>i&1;
@@ -728,13 +733,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index1,Tcf);
             ReceiveVal_A2.obj["CJ"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+            showLabel[0][index1]->setFont(font);
 
             ReceiveVal_A2.obj["μC"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_A2.obj["μC"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
+            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+            showLabel[0][index2]->setFont(font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -817,13 +824,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index1,Tcf);
             ReceiveVal_B1.obj["T3"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+            showLabel[0][index1]->setFont(font);
 
             ReceiveVal_B1.obj["T4"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_B1.obj["T4"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
+            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+            showLabel[0][index2]->setFont(font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -867,14 +876,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              tp=Calculate(index1,Tcf);
              ReceiveVal_B1.obj["CJ"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+             showLabel[0][index1]->setFont(font);
 
              ReceiveVal_B1.obj["μC"]["val"].push_back(QString::number(Tcs,'f',2));
              tp=Calculate(index2,Tcs);
              ReceiveVal_B1.obj["μC"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
-
+             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+             showLabel[0][index2]->setFont(font);
              //计算错误码
              for(int i=0;i<5;i++){
                  tmp=obj.Data[6]>>i&1;
@@ -938,7 +948,8 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index1,Tcf);
             ReceiveVal_B1.obj["T1"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+            showLabel[0][index1]->setFont(font);
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -953,8 +964,8 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index2,Tcs);
             ReceiveVal_B1.obj["T2"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
-
+            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+            showLabel[0][index2]->setFont(font);
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -1026,14 +1037,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index1,Tcf);
             ReceiveVal_B2.obj["T3"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+            showLabel[0][index1]->setFont(font);
 
             ReceiveVal_B2.obj["T4"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_B2.obj["T4"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
-
+            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+            showLabel[0][index2]->setFont(font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -1080,14 +1092,15 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              tp=Calculate(index1,Tcf);
              ReceiveVal_B2.obj["CJ"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+             showLabel[0][index1]->setFont(font);
 
              ReceiveVal_B2.obj["μC"]["val"].push_back(QString::number(Tcs,'f',2));
              tp=Calculate(index2,Tcs);
              ReceiveVal_B2.obj["μC"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
-
+             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+             showLabel[0][index2]->setFont(font);
              //计算错误码
              for(int i=0;i<5;i++){
                  tmp=obj.Data[6]>>i&1;
@@ -1148,7 +1161,8 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index1,Tcf);
             ReceiveVal_B2.obj["T1"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2));
+            showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
+            showLabel[0][index1]->setFont(font);
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -1163,7 +1177,8 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             tp=Calculate(index2,Tcs);
             ReceiveVal_B2.obj["T2"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
-            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2));
+            showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
+            showLabel[0][index2]->setFont(font);
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -1432,41 +1447,38 @@ void TestDisplay::getHighThreshold(){
     settings.HightempThreshold=lineedit[lineeditmap["hightemp"]]->text().toInt();
 }
 
-void TestDisplay::resetScangunmes(){
-    for (int i=0;i<scangunmes.size();i++) {
-        scangunmes[i]="--";
-    }
-}
 
 void TestDisplay::newscan(){
-    resetScangunmes();
-    scangun=new ScanGun(this,&scangunmes);
+
+    scangun=new ScanGun(this,&settings.eightChannelSnCode);
     //关闭是删除
     scangun->setAttribute(Qt::WA_DeleteOnClose);
     scangun->show();
 }
 
 void TestDisplay::senddata(){
-
     MqttDataStruct data;
-    int size=scangunmes.size();
-    QVector<QString> vec={"T1_0","T1_1","T1_2","T1_3","T2_0","T2_1","T2_2","T2_3"};
+     if(highTempCheckBox->isChecked()){
+         data.AddTestName(0);
+     }else{
+         data.AddTestName(2);
+     }
+    int size=settings.eightChannelSnCode.size();
+    int ary[8]={0,2,4,6,1,3,5,7};
     for (int i=0;i<size;i++) {
-        if(scangunmes[i]=="--")
-            continue;
-        data.AddObject(vec[i],"sensorId",scangunmes[i]);
+        QString sensor_name="sensor_"+QString::number(i);
+        data.AddObject(sensor_name,"sensorId",settings.eightChannelSnCode[i]);
         if(highTempCheckBox->isChecked()){
-            data.AddObject(vec[i],"highTempTest",highTempStatus[i]?"Pass":"Error");
+            data.AddObject(sensor_name,"highTempTest",highTempStatus[ary[i]]?"Pass":"Error");
         }
         if(precisionCheckBox->isChecked()){
-            data.AddObject(vec[i],"PrecisionTest",precisionStatus[i]?"Pass":"Error");
-            data.AddObject(vec[i],"PrecisionError",QString::number(precisionError[i]));
+            data.AddObject(sensor_name,"precisionTest",precisionStatus[ary[i]]?"Pass":"Error");
+            data.AddObject(sensor_name,"precisionError",QString::number(precisionError[ary[i]]));
         }
-
     }
     mqtt.publish_Mes(data);
 }
 
 QVector<QString>* TestDisplay::getScanMes(){
-    return &scangunmes;
+    return &settings.eightChannelSnCode;
 }

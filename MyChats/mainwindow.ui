@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>440</width>
+    <width>436</width>
     <height>300</height>
    </rect>
   </property>
@@ -20,8 +20,21 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLineEdit" name="lineEdit_3"/>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_2"/>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QScrollArea" name="scrollArea">
       <property name="widgetResizable">
        <bool>true</bool>
@@ -31,8 +44,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>420</width>
-         <height>93</height>
+         <width>399</width>
+         <height>89</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -43,7 +56,7 @@
       </widget>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item>
      <widget class="QScrollArea" name="scrollArea_2">
       <property name="maximumSize">
        <size>
@@ -59,8 +72,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>420</width>
-         <height>93</height>
+         <width>399</width>
+         <height>89</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -71,7 +84,7 @@
       </widget>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item>
      <widget class="QPushButton" name="pushButton">
       <property name="text">
        <string>发送</string>
@@ -85,7 +98,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>440</width>
+     <width>436</width>
      <height>23</height>
     </rect>
    </property>

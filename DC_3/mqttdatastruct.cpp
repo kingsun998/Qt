@@ -16,9 +16,16 @@ void MqttDataStruct::AddObject(QString name,QString properties,const QString val
     }
     map[name][properties]=val;
 }
+
+void MqttDataStruct::AddTestName(int code){
+    this->testCode=code;
+}
+
 QByteArray MqttDataStruct::tojson(){
     QMap<QString,QMap<QString,QString>>::iterator itr=map.begin();
     QJsonObject obj;
+    QJsonObject TestName;
+    QJsonArray array;
     while (itr!=map.end()) {
         auto submp=itr.value();
         QMap<QString,QString>::iterator subitr=submp.begin();
@@ -27,8 +34,11 @@ QByteArray MqttDataStruct::tojson(){
             subobj.insert(subitr.key(),subitr.value());
             subitr++;
         }
-        obj.insert(itr.key(),subobj);
+        array.append(subobj);
         itr++;
     }
+    TestName.insert("code",this->testCode);
+    obj.insert("testName",TestName);
+    obj.insert("infoList",array);
     return QJsonDocument(obj).toJson(QJsonDocument::Compact);
 }

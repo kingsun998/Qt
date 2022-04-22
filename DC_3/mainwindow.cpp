@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setCentralWidget(ui->tabWidget);
 
-
+    qDebug()<<QTime::currentTime().toString();
 
     QTabWidget *tb=ui->tabWidget;
     baseInfo *baseinfo=new baseInfo();
@@ -32,10 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     TestDisplay *testdisplay=new TestDisplay();
     tb->addTab(testdisplay,"双通测试");
-
+    qDebug()<<1;
     Test* test=new Test();
     tb->addTab(test,"测试");
-
 //    HttpServer::instance().run();
 
     //检测是否可以写入计时器
@@ -56,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //检测是否可以合并文件
     connect(mergeFiletimer,&QTimer::timeout,this,&MainWindow::mergeFileRequest);
     //初始化db服务
-
+    connect(&wzserialport_eight,&WZSerialPort::ReceiveEightPortMes,stander,&standarSet::LoadEightPortMes);
     //初始化文件夹
     QString dir=QCoreApplication::applicationDirPath()+"/savefiles/";
 

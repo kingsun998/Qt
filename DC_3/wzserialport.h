@@ -56,7 +56,8 @@ public:
 class EightPortStruct: public PortStruct
 {
 public:
-    std::vector<double> resistance;
+    std::vector<std::string> resistance;
+    std::vector<std::string> voltage;
     std::vector<bool> testState;
     int time;
     EightPortStruct();
