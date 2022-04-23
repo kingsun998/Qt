@@ -24,7 +24,8 @@ Test::Test(QWidget *parent) :
     stringlists<<"测试时间"<<"传感器ID"<<"电压值"<<"电阻值"<<"测试状态"<<"测试花费时间";
     ui->tableWidget->setColumnCount(stringlists.size());
     ui->tableWidget->setHorizontalHeaderLabels(stringlists);
-    ui->tableWidget->setColumnWidth(1,300);
+    ui->tableWidget->setMinimumWidth(400);
+    ui->tableWidget->setColumnWidth(1,400);
 
     QStringList stringlists2;
     stringlists2<<"测试时间"<<"传感器ID"<<"电阻值"<<"电压值"<<"测试状态"<<"测试花费时间";
@@ -32,19 +33,20 @@ Test::Test(QWidget *parent) :
     ui->tableWidget_2->setAlternatingRowColors(true);
 //    ui->tableWidget_2->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget_2->setHorizontalHeaderLabels(stringlists2);
-    ui->tableWidget_2->setColumnWidth(1,300);
+    ui->tableWidget_2->setMinimumWidth(400);
+    ui->tableWidget_2->setColumnWidth(1,400);
+
 
     ui->pushButton_3->setEnabled(false);
+    QFont font;
+    font.setPointSize(13);
+    ui->tableWidget->setFont(font);
+    ui->tableWidget_2->setFont(font);
     openport=false;
 
     connect(&wzserialport_single,&WZSerialPort::ReceiveSinglePortMes,this,&Test::LoadSinglePortMes);
     connect(&wzserialport_eight,&WZSerialPort::ReceiveEightPortMes,this,&Test::LoadEightPortMes);
 
-//    SinglePortStruct* sg= new SinglePortStruct();
-//    EightPortStruct* eg= new EightPortStruct();
-//    portstruct_map.insert("single_channel",sg);
-//    portstruct_map.insert("eight_channel",eg);
-//    connect(ui->tabWidget,&QTabWidget::currentChanged,this,&Test::tabChange);
 
     wzserialport_single.setPortStruct(&singleportstruct);
     wzserialport_eight.setPortStruct(&eightportstruct);
@@ -57,6 +59,26 @@ Test::Test(QWidget *parent) :
     rowcount_single=0;
     water_index=0;
 
+    pushbutton_list.append(ui->pushButton);
+    pushbutton_list.append(ui->pushButton_2);
+    pushbutton_list.append(ui->pushButton_3);
+    pushbutton_list.append(ui->pushButton_4);
+    pushbutton_list.append(ui->pushButton_5);
+    pushbutton_list.append(ui->pushButton_6);
+    pushbutton_list.append(ui->pushButton_7);
+    pushbutton_list.append(ui->pushButton_8);
+    pushbutton_list.append(ui->pushButton_9);
+    for (int i=0;i<pushbutton_list.size();i++) {
+        pushbutton_list[i]->setFont(*settings.pushbutton_font);
+        pushbutton_list[i]->setMinimumSize(130,40);
+    }
+    QVector<QComboBox*> combobox_list;
+    combobox_list.append(ui->comboBox);
+    combobox_list.append(ui->comboBox_3);
+    for (int i=0;i<combobox_list.size();i++) {
+        combobox_list[i]->setFont(*settings.pushbutton_font);
+        combobox_list[i]->setMinimumSize(130,40);
+    }
 }
 
 Test::~Test()
@@ -289,7 +311,7 @@ void Test::LoadEightPortMes(){
         time->setTextAlignment(Qt::AlignHCenter);
         ui->tableWidget_2->setItem(rowcount_eight,5,time);
 
-        if(rowcount_eight>settings.testTableMaxRowNum-1){
+        if(rowcount_eight>settings.testTableMaxRowNum){
             ui->tableWidget_2->removeRow(0);
         }else{
             rowcount_eight+=1;

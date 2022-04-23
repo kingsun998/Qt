@@ -17,7 +17,8 @@ TestDisplay::TestDisplay(QWidget *parent) :
     company_date=settings.company_datenames;
     vboxlayout.append(new QVBoxLayout());
     gridlayout.append(new QGridLayout());
-
+//    QFont font;
+//    font.setPixelSize(5);
     for(int i=0;i<2;i++){
         index=i;
         mycharts.append(new Mychart(0,0,0,3,0));
@@ -25,6 +26,8 @@ TestDisplay::TestDisplay(QWidget *parent) :
 
         chartviews.append(new QChartView(mycharts[2*i]));
         chartviews.append(new QChartView(mycharts[2*i+1]));
+//        mycharts[2*i]->setFont(font);
+//        mycharts[2*i+1]->setFont(font);
         // 设置了宽为2
         gridlayout[0]->addWidget(chartviews[2*i],0,i);
         gridlayout[0]->addWidget(chartviews[2*i+1],1,i);
@@ -60,13 +63,18 @@ TestDisplay::TestDisplay(QWidget *parent) :
         lineedit[i]->setPlaceholderText(lineeditnames[i]);
         gridlayout[2]->addWidget(lineedit[i],0,i,1,1);
     }
+
+    QSize buttonsize(150,45);
     pushbuttons.append(new QPushButton(buttonnames[buttonmap["scalejump"]]));
+    pushbuttons[0]->setMinimumSize(buttonsize);
     gridlayout[2]->addWidget(pushbuttons[buttonmap["scalejump"]],0,2);
 
     pushbuttons.append(new QPushButton(buttonnames[buttonmap["scan"]]));
+    pushbuttons[1]->setMinimumSize(buttonsize);
     gridlayout[2]->addWidget(pushbuttons[buttonmap["scan"]],0,3);
 
     pushbuttons.append(new QPushButton(buttonnames[buttonmap["senddata"]]));
+    pushbuttons[2]->setMinimumSize(buttonsize);
     gridlayout[2]->addWidget(pushbuttons[buttonmap["senddata"]],0,4);
 
     vboxlayout[0]->addLayout(gridlayout[2]);
@@ -74,13 +82,15 @@ TestDisplay::TestDisplay(QWidget *parent) :
     gridlayout.append(new QGridLayout());
     combobox.append(new QComboBox());
     combobox[0]->addItems(settings.CompanyName);
-
+    combobox[0]->setMinimumSize(QSize(50,40));
+    combobox[0]->setMinimumSize(buttonsize);
     gridlayout[3]->addWidget(combobox[0],0,0);
 
 
     for (int i=0;i<3;i++) {
         pushbuttons.append(new QPushButton(buttonnames[i+buttonmap["connectdevice"]]));
         gridlayout[3]->addWidget(pushbuttons[i+buttonmap["connectdevice"]],0,i+1);
+        pushbuttons[3+i]->setMinimumSize(buttonsize);
     }
     testname={"高温稳定性测试","精度测试"};
     highTempCheckBox=new QCheckBox(testname[0]);
@@ -226,8 +236,17 @@ TestDisplay::TestDisplay(QWidget *parent) :
 
     company_type=0;
 
-    font.setPointSize(11);
-    font.setWeight(QFont::Black);
+    //更改字号
+    for (int i=0;i<pushbuttons.size();i++) {
+        pushbuttons[i]->setFont(*settings.pushbutton_font);
+        pushbuttons[i]->setMinimumSize(100,40);
+    }
+    for (int i=0;i<combobox.size();i++) {
+        combobox[i]->setMinimumSize(100,40);
+        combobox[i]->setFont(*settings.pushbutton_font);
+    }
+
+
 }
 
 TestDisplay::~TestDisplay()
@@ -280,6 +299,7 @@ int TestDisplay::PrecesionTest(int index,double val){
             ps.setColor(QPalette::WindowText,settings.Test_status_color[idx]);
             showLabel[3][index]->setText(settings.Test_status[idx]);
             showLabel[3][index]->setPalette(ps);
+            showLabel[3][index]->setFont(*settings.showlabel_font);
             precisionStatus[index]=flg;
             return idx;
         }
@@ -310,6 +330,7 @@ int TestDisplay::highTempStableTest(int index,double val){
             showLabel[3][index]->setText(settings.Test_status[idx]);
             ps.setColor(QPalette::WindowText,settings.Test_status_color[idx]);
             showLabel[3][index]->setPalette(ps);
+            showLabel[3][index]->setFont(*settings.showlabel_font);
             highTempStatus[index]=idx;
             return idx;
         }else{
@@ -398,14 +419,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_A1.obj["T1"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-            showLabel[0][index1]->setFont(font);
+            showLabel[0][index1]->setFont(*settings.showlabel_font);
 
             ReceiveVal_A1.obj["T4"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_A1.obj["T4"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-            showLabel[0][index2]->setFont(font);
+            showLabel[0][index2]->setFont(*settings.showlabel_font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -467,14 +488,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              ReceiveVal_A1.obj["T2"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
              showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-             showLabel[0][index1]->setFont(font);
+             showLabel[0][index1]->setFont(*settings.showlabel_font);
 
              ReceiveVal_A1.obj["T3"]["val"].push_back(QString::number(Tcs,'f',2));
              tp=Calculate(index2,Tcs);
              ReceiveVal_A1.obj["T3"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
              showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-             showLabel[0][index2]->setFont(font);
+             showLabel[0][index2]->setFont(*settings.showlabel_font);
              //计算错误码
              for(int i=0;i<5;i++){
                  tmp=obj.Data[6]>>i&1;
@@ -521,14 +542,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_A1.obj["CJ"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-            showLabel[0][index1]->setFont(font);
+            showLabel[0][index1]->setFont(*settings.showlabel_font);
 
             ReceiveVal_A1.obj["μC"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_A1.obj["μC"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-            showLabel[0][index2]->setFont(font);
+            showLabel[0][index2]->setFont(*settings.showlabel_font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -611,14 +632,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_A2.obj["T1"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-            showLabel[0][index1]->setFont(font);
+            showLabel[0][index1]->setFont(*settings.showlabel_font);
 
             ReceiveVal_A2.obj["T4"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_A2.obj["T4"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-            showLabel[0][index2]->setFont(font);
+            showLabel[0][index2]->setFont(*settings.showlabel_font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -681,14 +702,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              ReceiveVal_A2.obj["T2"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
              showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-             showLabel[0][index1]->setFont(font);
+             showLabel[0][index1]->setFont(*settings.showlabel_font);
 
              ReceiveVal_A2.obj["T3"]["val"].push_back(QString::number(Tcs,'f',2));
              tp=Calculate(index2,Tcs);
              ReceiveVal_A2.obj["T3"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
              showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-             showLabel[0][index2]->setFont(font);
+             showLabel[0][index2]->setFont(*settings.showlabel_font);
              //计算错误码
              for(int i=0;i<5;i++){
                  tmp=obj.Data[6]>>i&1;
@@ -734,14 +755,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_A2.obj["CJ"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-            showLabel[0][index1]->setFont(font);
+            showLabel[0][index1]->setFont(*settings.showlabel_font);
 
             ReceiveVal_A2.obj["μC"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_A2.obj["μC"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-            showLabel[0][index2]->setFont(font);
+            showLabel[0][index2]->setFont(*settings.showlabel_font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -825,14 +846,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_B1.obj["T3"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-            showLabel[0][index1]->setFont(font);
+            showLabel[0][index1]->setFont(*settings.showlabel_font);
 
             ReceiveVal_B1.obj["T4"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_B1.obj["T4"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-            showLabel[0][index2]->setFont(font);
+            showLabel[0][index2]->setFont(*settings.showlabel_font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -877,14 +898,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              ReceiveVal_B1.obj["CJ"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
              showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-             showLabel[0][index1]->setFont(font);
+             showLabel[0][index1]->setFont(*settings.showlabel_font);
 
              ReceiveVal_B1.obj["μC"]["val"].push_back(QString::number(Tcs,'f',2));
              tp=Calculate(index2,Tcs);
              ReceiveVal_B1.obj["μC"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
              showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-             showLabel[0][index2]->setFont(font);
+             showLabel[0][index2]->setFont(*settings.showlabel_font);
              //计算错误码
              for(int i=0;i<5;i++){
                  tmp=obj.Data[6]>>i&1;
@@ -949,7 +970,7 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_B1.obj["T1"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-            showLabel[0][index1]->setFont(font);
+            showLabel[0][index1]->setFont(*settings.showlabel_font);
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -965,7 +986,7 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_B1.obj["T2"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-            showLabel[0][index2]->setFont(font);
+            showLabel[0][index2]->setFont(*settings.showlabel_font);
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -1038,14 +1059,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_B2.obj["T3"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-            showLabel[0][index1]->setFont(font);
+            showLabel[0][index1]->setFont(*settings.showlabel_font);
 
             ReceiveVal_B2.obj["T4"]["val"].push_back(QString::number(Tcs,'f',2));
             tp=Calculate(index2,Tcs);
             ReceiveVal_B2.obj["T4"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-            showLabel[0][index2]->setFont(font);
+            showLabel[0][index2]->setFont(*settings.showlabel_font);
             //计算错误码
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
@@ -1093,14 +1114,14 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
              ReceiveVal_B2.obj["CJ"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
              showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-             showLabel[0][index1]->setFont(font);
+             showLabel[0][index1]->setFont(*settings.showlabel_font);
 
              ReceiveVal_B2.obj["μC"]["val"].push_back(QString::number(Tcs,'f',2));
              tp=Calculate(index2,Tcs);
              ReceiveVal_B2.obj["μC"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
              showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
              showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-             showLabel[0][index2]->setFont(font);
+             showLabel[0][index2]->setFont(*settings.showlabel_font);
              //计算错误码
              for(int i=0;i<5;i++){
                  tmp=obj.Data[6]>>i&1;
@@ -1162,7 +1183,7 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_B2.obj["T1"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index1]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index1]->setText(QString::number(lowPassFilter(index1,Tcf),'f',2)+"  ");
-            showLabel[0][index1]->setFont(font);
+            showLabel[0][index1]->setFont(*settings.showlabel_font);
             for(int i=0;i<5;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;
@@ -1178,7 +1199,7 @@ void TestDisplay::show_detail(uint mx,CAN_OBJ obj,QString datetime){
             ReceiveVal_B2.obj["T2"]["time"].push_back(QString::number(tp>0?tp:0,'f',2));
             showLabel[2][index2]->setText(QString::number(tp>0?tp:0,'f',2));
             showLabel[0][index2]->setText(QString::number(lowPassFilter(index2,Tcs),'f',2)+"  ");
-            showLabel[0][index2]->setFont(font);
+            showLabel[0][index2]->setFont(*settings.showlabel_font);
             for(int i=5;i<8;i++){
                 tmp=obj.Data[6]>>i&1;
                 error2+=base*tmp;

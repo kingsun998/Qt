@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <settings.h>
+#include <QPushButton>
 namespace Ui {
 class baseinfo_ui;
 }
@@ -50,6 +51,8 @@ private slots:
 
 private:
     Ui::baseinfo_ui *ui;
+
+    QVector<QPushButton*> pushbutton_list;
 };
 
 #endif // BASEINFO_H

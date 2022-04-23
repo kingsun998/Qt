@@ -32,7 +32,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     TestDisplay *testdisplay=new TestDisplay();
     tb->addTab(testdisplay,"双通测试");
-    qDebug()<<1;
+//    QFont font;
+//    font.setPointSize(11);
+//    testdisplay->setFont(font);
+
     Test* test=new Test();
     tb->addTab(test,"测试");
 //    HttpServer::instance().run();

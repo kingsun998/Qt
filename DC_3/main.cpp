@@ -4,8 +4,10 @@
 #include <iostream>
 int main(int argc, char *argv[])
 {
-    std::cout<<1;
     QApplication a(argc, argv);
+//    QFont font;
+//    font.setPointSize(10);
+//    a.setFont(font);
     MainWindow w;
     w.show();
 

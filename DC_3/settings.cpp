@@ -1,5 +1,5 @@
 ﻿#include "settings.h"
-
+#include "qfont.h"
 class settings settings;
 
 settings::settings()
@@ -8,8 +8,8 @@ settings::settings()
     secondChartLineNum=3;
     pointsnum=20;
     defaultXlen=40;
-    defaultXtickCount=11;
-    defaultYtickCount=11;
+    defaultXtickCount=7;
+    defaultYtickCount=7;
     //图表的名称及颜色
     splinePen={Qt::red,Qt::green,Qt::blue,Qt::cyan,Qt::darkMagenta,Qt::gray};
 
@@ -86,7 +86,7 @@ settings::settings()
     //usbcanunion
     timer_interval=200;
     //hightempTest,precisionTest  status
-    Test_status={{0,"error"},{1,"pass"},{2,"no test"},{3,"..."}};
+    Test_status={{0,"ERROR"},{1,"PASS"},{2,"NO TEST"},{3,"..."}};
     Test_status_color={{0,Qt::red},{1,Qt::green},{2,Qt::gray}};
     //mergefile  dbcontroller
     mergesize=4;
@@ -107,8 +107,17 @@ settings::settings()
     stopbit=1;
     check=0;
     datalen=8;
-    testTableMaxRowNum=16;
+    testTableMaxRowNum=16-1;
     eightChannelFrameMes="";
+
+    //globel
+    pushbutton_font=new QFont();
+    pushbutton_font->setPointSize(12);
+    pushbutton_font->setWeight(QFont::Black);
+
+    showlabel_font=new QFont();
+    showlabel_font->setPointSize(12);
+    showlabel_font->setWeight(QFont::Black);
 }
 
 void settings::setbote(){

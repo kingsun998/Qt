@@ -7,13 +7,18 @@ Mychart::Mychart(QGraphicsItem *parent, Qt::WindowFlags wFlags,int chartType,int
     QChart(QChart::ChartTypeCartesian, parent, wFlags)
 {
     this->companytypecode=companytypecode;
+    QFont font;
+    font.setPointSize(5);
     //设置图像种类
     this->linenums=linenum;
     this->chartType=chartType;
     axisX=new QValueAxis();
     axisX->setTitleText("时间(s)");
+//    axisX->setTitleFont(font);
+
     axisY=new QValueAxis();
     axisY->setTitleText("温度(℃)");
+//    axisY->setTitleFont(font);
     addAxis(axisX,Qt::AlignBottom);
     addAxis(axisY,Qt::AlignLeft);
 

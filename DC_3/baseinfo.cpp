@@ -8,8 +8,15 @@ baseInfo::baseInfo(QWidget *parent) :
     ui(new Ui::baseinfo_ui)
 {
     ui->setupUi(this);
-//    QWidget *base=ui->baseinfo_ui;
+
     settings.setbote();
+    pushbutton_list.append(ui->pushButton);
+    pushbutton_list.append(ui->pushButton_2);
+    pushbutton_list.append(ui->pushButton_3);
+    for (int i=0;i<pushbutton_list.size();i++) {
+        pushbutton_list[i]->setFont(*settings.pushbutton_font);
+        pushbutton_list[i]->setMinimumSize(130,40);
+    }
 }
 
 void baseInfo::on_lineEdit_2_editingFinished()

@@ -66,6 +66,8 @@ private:
 
     //water
     QVector<QString> preSN;
+    //
+    QVector<QPushButton*> pushbutton_list;
 };
 
 #endif // TEST_H

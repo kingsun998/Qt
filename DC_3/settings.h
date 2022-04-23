@@ -121,6 +121,11 @@ public:
     QVector<QString> eightChannelSnCode;
 
     std::string eightChannelFrameMes;
+
+    //global
+    QFont *pushbutton_font;
+
+    QFont *showlabel_font;
 };
 
 void showMessage(QString str,bool flag);

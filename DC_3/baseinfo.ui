@@ -367,6 +367,12 @@
       </item>
       <item row="0" column="8">
        <widget class="QPushButton" name="pushButton_2">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>45</height>
+         </size>
+        </property>
         <property name="text">
          <string>连接</string>
         </property>
@@ -384,6 +390,12 @@
       </item>
       <item row="0" column="9">
        <widget class="QPushButton" name="pushButton_3">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>45</height>
+         </size>
+        </property>
         <property name="text">
          <string>订阅</string>
         </property>
@@ -391,6 +403,12 @@
       </item>
       <item row="0" column="7">
        <widget class="QPushButton" name="pushButton">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>45</height>
+         </size>
+        </property>
         <property name="text">
          <string>更改设置</string>
         </property>
