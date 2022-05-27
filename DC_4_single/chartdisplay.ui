@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>chartdisplay_ui</class>
+ <widget class="QWidget" name="chartdisplay_ui">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>669</width>
+    <height>469</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <layout class="QVBoxLayout" name="chartLayout">
+       <item>
+        <widget class="QComboBox" name="comboBox">
+         <item>
+          <property name="text">
+           <string>A</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>B</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLineEdit" name="lineEdit_2">
+         <property name="placeholderText">
+          <string>Y轴最小值</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEdit">
+         <property name="placeholderText">
+          <string>Y轴最大值</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_4">
+         <property name="text">
+          <string>跳转</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox">
+         <property name="text">
+          <string>精度测试</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEdit_3">
+         <property name="placeholderText">
+          <string>精度测试值</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEdit_4">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>输入开始时间</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>测试相关</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>连接设备</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_2">
+          <property name="text">
+           <string>开启测试</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_3">
+          <property name="text">
+           <string>关闭设备</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>发送方式:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_3">
+          <item>
+           <property name="text">
+            <string>正常发送</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>单词发送</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>帧类型：</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_2">
+          <item>
+           <property name="text">
+            <string>数据帧</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>远程帧</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_15">
+          <property name="text">
+           <string>帧格式：</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_4">
+          <item>
+           <property name="text">
+            <string>扩展帧</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>标准帧</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>发送相关</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>帧ID：</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_8">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>0x18FEDF00</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>帧内容</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_9"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_6">
+          <property name="text">
+           <string>发送</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_3">
+          <property name="text">
+           <string>连续发送</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>帧数:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_10">
+          <property name="text">
+           <string>5</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>间隔：</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBox_2">
+          <property name="value">
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

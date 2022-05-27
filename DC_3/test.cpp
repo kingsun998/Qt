@@ -21,14 +21,14 @@ Test::Test(QWidget *parent) :
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     /* 设置列数 */
     QStringList stringlists;
-    stringlists<<"测试时间"<<"传感器ID"<<"电压值"<<"电阻值"<<"测试状态"<<"测试花费时间";
+    stringlists<<"测试时间"<<"传感器ID"<<"电压值"<<"电阻值"<<"测试状态"<<"测试花费时间(0.1s)";
     ui->tableWidget->setColumnCount(stringlists.size());
     ui->tableWidget->setHorizontalHeaderLabels(stringlists);
     ui->tableWidget->setMinimumWidth(400);
     ui->tableWidget->setColumnWidth(1,400);
 
     QStringList stringlists2;
-    stringlists2<<"测试时间"<<"传感器ID"<<"电阻值"<<"电压值"<<"测试状态"<<"测试花费时间";
+    stringlists2<<"测试时间"<<"传感器ID"<<"电阻值"<<"电压值"<<"测试状态"<<"测试花费时间(0.1s)";
     ui->tableWidget_2->setColumnCount(stringlists2.size());
     ui->tableWidget_2->setAlternatingRowColors(true);
 //    ui->tableWidget_2->setEditTriggers(QAbstractItemView::NoEditTriggers);
